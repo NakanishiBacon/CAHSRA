@@ -1,0 +1,6 @@
+streamlit
+pandas
+azure-storage-blob
+plotly
+matplotlib
+wordcloud
