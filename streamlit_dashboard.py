@@ -122,7 +122,12 @@ if source == "Combined":
 # Trend and Smoothing
 # ========================
 category_reverse_map = {v: k for k, v in category_label_map.items()}
-selected_label = st.selectbox("Select category to view trend", [category_label_map[c] for c in category_cols])
+
+if source == "Combined":
+    selected_label = st.selectbox("Select category to view trend", [category_label_map[c] for c in category_cols], key="combined_category_select")
+else:
+    selected_label = st.selectbox("Select category to view trend", [category_label_map[c] for c in category_cols], key="single_category_select")
+
 selected_category = category_reverse_map[selected_label]
 
 smoothing_option = st.selectbox("Smoothing", ["None", "7-Day Moving Average", "Monthly Average"])
