@@ -4,3 +4,4 @@ azure-storage-blob
 plotly
 matplotlib
 wordcloud
+scipy
