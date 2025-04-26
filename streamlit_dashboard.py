@@ -6,6 +6,7 @@ import plotly.express as px
 from wordcloud import WordCloud, STOPWORDS
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.stats import skew, kurtosis
 
 # ========================
 # Azure Blob Setup
@@ -48,6 +49,9 @@ st.sidebar.header("🎛️ Controls")
 source_options = list(blob_map.keys()) + ["Combined"]
 source = st.sidebar.selectbox("Choose data source", source_options)
 
+# ========================
+# Load Data
+# ========================
 if source != "Combined":
     blobs = blob_map[source]
     df_analysis = load_blob_csv(blobs["analysis"])
@@ -95,7 +99,6 @@ else:
     st.warning("⚠️ No usable date column found. Displaying all records.")
     filtered_df = df_analysis
 
-# Handle empty filtered_df early
 if filtered_df.empty:
     st.warning("⚠️ No comments available for the selected date range.")
     st.stop()
@@ -105,6 +108,56 @@ if filtered_df.empty:
 # ========================
 st.title(f"📊 {source} Sentiment Dashboard")
 st.metric("Total Comments", len(filtered_df))
+st.divider()
+
+# ========================
+# Comparison Dashboards Across Sources
+# ========================
+if source == "Combined":
+    st.subheader("🆚 Compare Sources")
+    selected_sources = st.multiselect("Select sources to compare", filtered_df['source'].unique(), default=filtered_df['source'].unique())
+    comparison_df = filtered_df[filtered_df['source'].isin(selected_sources)]
+
+# ========================
+# Trend and Smoothing
+# ========================
+category_reverse_map = {v: k for k, v in category_label_map.items()}
+selected_label = st.selectbox("Select category to view trend", [category_label_map[c] for c in category_cols])
+selected_category = category_reverse_map[selected_label]
+
+smoothing_option = st.selectbox("Smoothing", ["None", "7-Day Moving Average", "Monthly Average"])
+
+if source == "Combined":
+    trend = (comparison_df.groupby(['date', 'source'])[selected_category].mean().reset_index())
+else:
+    trend = filtered_df.groupby(filtered_df['date'].dt.date)[selected_category].mean().reset_index()
+    trend['source'] = source
+
+trend['date'] = pd.to_datetime(trend['date'])
+
+if smoothing_option == "7-Day Moving Average":
+    trend = trend.set_index('date').groupby('source').rolling('7D').mean().reset_index()
+elif smoothing_option == "Monthly Average":
+    trend = trend.set_index('date').groupby('source').resample('M').mean().reset_index()
+
+fig_trend = px.line(trend, x='date', y=selected_category, color='source', title=f"{selected_label} - Sentiment Trend")
+st.plotly_chart(fig_trend, use_container_width=True)
+st.divider()
+
+# ========================
+# Advanced Stats: Skewness and Kurtosis
+# ========================
+st.subheader("📈 Sentiment Distribution Analysis")
+selected_scores = filtered_df[selected_category].dropna()
+sentiment_skew = skew(selected_scores)
+sentiment_kurt = kurtosis(selected_scores)
+
+col1, col2 = st.columns(2)
+col1.metric("Skewness", f"{sentiment_skew:.3f}")
+col2.metric("Kurtosis", f"{sentiment_kurt:.3f}")
+
+fig_dist = px.histogram(selected_scores, nbins=50, marginal="violin", title=f"Sentiment Distribution for {selected_label}", labels={"value": "Sentiment Score"})
+st.plotly_chart(fig_dist, use_container_width=True)
 st.divider()
 
 # ========================
