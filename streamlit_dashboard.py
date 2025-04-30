@@ -9,28 +9,7 @@ import numpy as np
 from scipy.stats import skew, kurtosis
 
 st.set_page_config(layout="wide", page_title="Sentiment Dashboard", page_icon="📊")
-st.markdown("""
-    <style>
-    body {
-        background-color: #f9f9f9;
-        color: #1a3c6b;
 
-    .stApp {
-        background-color: #ffffff;
-    }
-    .css-1d391kg, .css-1v3fvcr, .css-1lcbmhc {
-        background-color: #ffffff;
-        color: #222222;
-    }
-    .css-18e3th9 {
-        background-color: #f1f3f6;
-    }
-    .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-    }
-    </style>
-""", unsafe_allow_html=True)
 
 # ========================
 # Azure Blob Setup
