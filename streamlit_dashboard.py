@@ -235,8 +235,7 @@ category_counts.columns = ["Category", "Count"]
 category_counts["Category"] = category_counts["Category"].map(category_label_map)
 fig_count = px.bar(category_counts, x="Category", y="Count", color="Count",
                    title="Number of Mentions per Sentiment Category", color_continuous_scale="Blues")
-fig_count.update_layout(showlegend=False)
-fig_count.update_layout(showlegend=False)
+fig_count.update_layout(showlegend=False, coloraxis_showscale=False)
 st.plotly_chart(fig_count, use_container_width=True)
 st.divider()
 
