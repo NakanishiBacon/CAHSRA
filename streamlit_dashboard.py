@@ -12,9 +12,10 @@ from scipy.stats import skew, kurtosis
 # Azure Blob Setup
 # ========================
 AZURE_CONNECTION_STRING = st.secrets["AZURE_CONNECTION_STRING"]
+CONTAINER_NAME = "visualizationdata"
 
 @st.cache_data(ttl=86400)
-def load_blob_csv(blob_name, container):
+def load_blob_csv(blob_name, container=CONTAINER_NAME):
     blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
     blob_client = blob_service_client.get_blob_client(container=container, blob=blob_name)
     blob_data = blob_client.download_blob().readall()
@@ -43,6 +44,27 @@ with st.expander("Google News Master Articles"):
 with st.expander("Reddit Master Comments"):
     st.dataframe(df_reddit_master.head(500))
     st.download_button("⬇️ Download Reddit CSV", df_reddit_master.to_csv(index=False).encode('utf-8'), "reddit_master_comments.csv", "text/csv")
+
+# ========================
+# File Mappings by Source
+# ========================
+blob_map = {
+    "Reddit": {
+        "analysis": "reddit_analysis.csv",
+        "timeseries": "reddit_time_series.csv",
+        "wordcloud": "reddit_post_word_cloud.csv"
+    },
+    "YouTube": {
+        "analysis": "youtube_analysis.csv",
+        "timeseries": "youtube_time_series.csv",
+        "wordcloud": "youtube_word_cloud.csv"
+    },
+    "Google News": {
+        "analysis": "google_news_analysis.csv",
+        "timeseries": "google_news_time_series.csv",
+        "wordcloud": "google_news_word_cloud.csv"
+    }
+}
 
 # ========================
 # Sidebar: Data Source Selection
@@ -104,6 +126,7 @@ else:
 if filtered_df.empty:
     st.warning("⚠️ No comments available for the selected date range.")
     st.stop()
+
 
 # ========================
 # UI
