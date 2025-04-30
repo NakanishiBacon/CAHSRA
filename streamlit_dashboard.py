@@ -195,7 +195,14 @@ st.divider()
 # Advanced Stats: Skewness and Kurtosis
 # ========================
 st.subheader("📈 Sentiment Distribution Analysis")
-selected_scores = filtered_df[selected_category].dropna()
+if multi_select_mode:
+    st.info("📌 Skewness & kurtosis shown for first selected category.")
+    selected_scores = filtered_df[selected_categories[0]].dropna()
+    display_label = category_label_map[selected_categories[0]]
+else:
+    selected_scores = filtered_df[selected_categories[0]].dropna()
+    display_label = selected_label
+
 sentiment_skew = skew(selected_scores)
 sentiment_kurt = kurtosis(selected_scores)
 
@@ -203,7 +210,7 @@ col1, col2 = st.columns(2)
 col1.metric("Skewness", f"{sentiment_skew:.3f}")
 col2.metric("Kurtosis", f"{sentiment_kurt:.3f}")
 
-fig_dist = px.histogram(selected_scores, nbins=50, marginal="violin", title=f"Sentiment Distribution for {selected_label}", labels={"value": "Sentiment Score"})
+fig_dist = px.histogram(selected_scores, nbins=50, marginal="violin", title=f"Sentiment Distribution for {display_label}", labels={"value": "Sentiment Score"})
 st.plotly_chart(fig_dist, use_container_width=True)
 st.divider()
 
