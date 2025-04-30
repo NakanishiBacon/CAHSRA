@@ -150,8 +150,15 @@ st.divider()
 # ========================
 st.subheader("📈 Sentiment Trend Over Time")
 category_reverse_map = {v: k for k, v in category_label_map.items()}
-selected_label = st.selectbox("Select category to view trend", [category_label_map[c] for c in category_cols], key="trend_category_select")
-selected_category = category_reverse_map[selected_label]
+
+multi_select_mode = st.toggle("Compare multiple categories", value=False)
+
+if multi_select_mode:
+    selected_labels = st.multiselect("Select categories to compare", [category_label_map[c] for c in category_cols], default=[category_label_map[category_cols[0]]])
+    selected_categories = [category_reverse_map[label] for label in selected_labels]
+else:
+    selected_label = st.selectbox("Select category to view trend", [category_label_map[c] for c in category_cols], key="trend_category_select")
+    selected_categories = [category_reverse_map[selected_label]]
 
 smoothing_option = st.selectbox("Smoothing", ["None", "7-Day Moving Average", "Monthly Average"])
 
@@ -159,19 +166,25 @@ trend_df = filtered_df.copy()
 trend_df['date'] = pd.to_datetime(trend_df['date'])
 trend_df = trend_df.dropna(subset=['date'])
 
-if source == "Combined" and 'source' in trend_df.columns:
-    trend = trend_df.groupby(['date', 'source'])[selected_category].mean().reset_index()
-else:
-    trend_df['source'] = source
-    trend = trend_df.groupby([trend_df['date'].dt.date, 'source'])[selected_category].mean().reset_index()
-    trend['date'] = pd.to_datetime(trend['date'])
+trend_lines = []
+for cat in selected_categories:
+    temp = trend_df.copy()
+    if source != "Combined":
+        temp['source'] = source
+    grouped = temp.groupby([temp['date'].dt.date, 'source'])[cat].mean().reset_index()
+    grouped['date'] = pd.to_datetime(grouped['date'])
+    grouped['category'] = category_label_map[cat]
+    trend_lines.append(grouped)
+
+trend = pd.concat(trend_lines, ignore_index=True)
 
 if smoothing_option == "7-Day Moving Average":
-    trend = trend.set_index('date').groupby('source').rolling('7D').mean().reset_index()
+    trend = trend.set_index('date').groupby(['category', 'source']).rolling('7D').mean().reset_index()
 elif smoothing_option == "Monthly Average":
-    trend = trend.set_index('date').groupby('source').resample('M').mean().reset_index()
+    trend = trend.set_index('date').groupby(['category', 'source']).resample('M').mean().reset_index()
 
-fig_trend = px.line(trend, x='date', y=selected_category, color='source', title=f"{selected_label} - Sentiment Trend")
+fig_trend = px.line(trend, x='date', y=selected_categories[0] if len(selected_categories) == 1 else 'value', color='category' if len(selected_categories) > 1 else 'source',
+                    title="Sentiment Trend Over Time")
 st.plotly_chart(fig_trend, use_container_width=True)
 st.divider()
 
@@ -201,6 +214,18 @@ if len(category_cols) > 1:
     corr.index = [category_label_map.get(c, c) for c in corr.index]
     fig_corr = px.imshow(corr, text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
     st.plotly_chart(fig_corr, use_container_width=True)
+st.divider()
+
+# ========================
+# Category Occurrence Count
+# ========================
+st.subheader("📊 Count of Posts Tagged by Category")
+category_counts = filtered_df[category_cols].gt(0).sum().reset_index()
+category_counts.columns = ["Category", "Count"]
+category_counts["Category"] = category_counts["Category"].map(category_label_map)
+fig_count = px.bar(category_counts, x="Category", y="Count", color="Count",
+                   title="Number of Mentions per Sentiment Category", color_continuous_scale="Blues")
+st.plotly_chart(fig_count, use_container_width=True)
 st.divider()
 
 # ========================
