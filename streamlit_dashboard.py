@@ -162,8 +162,8 @@ trend_df = trend_df.dropna(subset=['date'])
 if source == "Combined" and 'source' in trend_df.columns:
     trend = trend_df.groupby(['date', 'source'])[selected_category].mean().reset_index()
 else:
-    trend = trend_df.groupby(trend_df['date'].dt.date)[selected_category].mean().reset_index()
-    trend['source'] = source
+    trend_df['source'] = source
+    trend = trend_df.groupby([trend_df['date'].dt.date, 'source'])[selected_category].mean().reset_index()
     trend['date'] = pd.to_datetime(trend['date'])
 
 if smoothing_option == "7-Day Moving Average":
