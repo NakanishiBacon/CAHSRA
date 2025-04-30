@@ -260,8 +260,13 @@ st.divider()
 # Word Cloud Viewer
 # ========================
 st.subheader("☁️ Word Cloud Viewer")
+
+# User-defined stopwords input
+custom_stopwords_input = st.text_input("Enter words to exclude from the word cloud (comma-separated):", value="thing, like, people, just, really, got, youre, shit")
+custom_stopwords_list = [w.strip().lower() for w in custom_stopwords_input.split(",") if w.strip()]
+
 stopwords = set(STOPWORDS)
-stopwords.update(["thing", "like", "people", "just", "really", "got", "youre", "shit"])
+stopwords.update(custom_stopwords_list)
 
 if 'word' in df_wordcloud.columns and 'count' in df_wordcloud.columns:
     clean_df = df_wordcloud[~df_wordcloud['word'].str.lower().isin(stopwords)]
