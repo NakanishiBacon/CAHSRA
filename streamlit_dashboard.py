@@ -244,7 +244,7 @@ st.divider()
 st.subheader("📊 Average Sentiment per Category")
 avg_scores = filtered_df[category_cols].rename(columns=category_label_map).mean().reset_index()
 avg_scores.columns = ['Category', 'Average Sentiment']
-fig_avg = px.bar(avg_scores, x='Category', y='Average Sentiment', color='Average Sentiment',
+fig_avg = px.bar(avg_scores, x='Category', y='Average Sentiment', color='Category', color_discrete_sequence=px.colors.sequential.Blues,
                  labels={'Category': 'Sentiment Category'},
                  title="Mean Sentiment Score per Category", color_continuous_scale='RdYlGn')
 st.plotly_chart(fig_avg, use_container_width=True)
