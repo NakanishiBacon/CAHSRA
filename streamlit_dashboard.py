@@ -8,6 +8,30 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import skew, kurtosis
 
+st.set_page_config(layout="wide", page_title="Sentiment Dashboard", page_icon="📊")
+st.markdown("""
+    <style>
+    body {
+        background-color: #f9f9f9;
+        color: #222222;
+    }
+    .stApp {
+        background-color: #ffffff;
+    }
+    .css-1d391kg, .css-1v3fvcr, .css-1lcbmhc {
+        background-color: #ffffff;
+        color: #222222;
+    }
+    .css-18e3th9 {
+        background-color: #f1f3f6;
+    }
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # ========================
 # Azure Blob Setup
 # ========================
@@ -171,7 +195,7 @@ for cat in selected_categories:
     temp = trend_df.copy()
     if source != "Combined":
         temp['source'] = source
-    grouped = temp.groupby([temp['date'].dt.date, 'source'])[cat].mean().reset_index()
+    grouped = temp.groupby([temp['date'].dt.date, 'source'])[cat].mean().reset_index(name='value')
     grouped['date'] = pd.to_datetime(grouped['date'])
     grouped['category'] = category_label_map[cat]
     trend_lines.append(grouped)
