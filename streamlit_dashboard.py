@@ -12,35 +12,37 @@ from scipy.stats import skew, kurtosis
 # Azure Blob Setup
 # ========================
 AZURE_CONNECTION_STRING = st.secrets["AZURE_CONNECTION_STRING"]
-CONTAINER_NAME = "visualizationdata"
 
 @st.cache_data(ttl=86400)
-def load_blob_csv(blob_name):
+def load_blob_csv(blob_name, container):
     blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
-    blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=blob_name)
+    blob_client = blob_service_client.get_blob_client(container=container, blob=blob_name)
     blob_data = blob_client.download_blob().readall()
     return pd.read_csv(StringIO(blob_data.decode('utf-8')))
 
 # ========================
-# File Mappings by Source
+# Load Raw Master Data
 # ========================
-blob_map = {
-    "Reddit": {
-        "analysis": "reddit_analysis.csv",
-        "timeseries": "reddit_time_series.csv",
-        "wordcloud": "reddit_post_word_cloud.csv"
-    },
-    "YouTube": {
-        "analysis": "youtube_analysis.csv",
-        "timeseries": "youtube_time_series.csv",
-        "wordcloud": "youtube_word_cloud.csv"
-    },
-    "Google News": {
-        "analysis": "google_news_analysis.csv",
-        "timeseries": "google_news_time_series.csv",
-        "wordcloud": "google_news_word_cloud.csv"
-    }
-}
+df_youtube_master = load_blob_csv("youtube_master_comments.csv", container="datayoutube")
+df_news_master = load_blob_csv("google_news_master_articles.csv", container="datanews")
+df_reddit_master = load_blob_csv("reddit_master_comments.csv", container="datareddit")
+
+# ========================
+# Display Raw Data Section
+# ========================
+st.sidebar.markdown("---")
+st.sidebar.subheader("📂 Raw Data Preview")
+with st.expander("YouTube Master Comments"):
+    st.dataframe(df_youtube_master.head(500))
+    st.download_button("⬇️ Download YouTube CSV", df_youtube_master.to_csv(index=False).encode('utf-8'), "youtube_master_comments.csv", "text/csv")
+
+with st.expander("Google News Master Articles"):
+    st.dataframe(df_news_master.head(500))
+    st.download_button("⬇️ Download News CSV", df_news_master.to_csv(index=False).encode('utf-8'), "google_news_master_articles.csv", "text/csv")
+
+with st.expander("Reddit Master Comments"):
+    st.dataframe(df_reddit_master.head(500))
+    st.download_button("⬇️ Download Reddit CSV", df_reddit_master.to_csv(index=False).encode('utf-8'), "reddit_master_comments.csv", "text/csv")
 
 # ========================
 # Sidebar: Data Source Selection
