@@ -13,8 +13,8 @@ st.markdown("""
     <style>
     body {
         background-color: #f9f9f9;
-        color: #222222;
-    }
+        color: #1a3c6b;
+
     .stApp {
         background-color: #ffffff;
     }
@@ -207,7 +207,7 @@ if smoothing_option == "7-Day Moving Average":
 elif smoothing_option == "Monthly Average":
     trend = trend.set_index('date').groupby(['category', 'source']).resample('M').mean().reset_index()
 
-fig_trend = px.line(trend, x='date', y=selected_categories[0] if len(selected_categories) == 1 else 'value', color='category' if len(selected_categories) > 1 else 'source',
+fig_trend = px.line(trend, x='date', y='value', color='category' if multi_select_mode else 'source',
                     title="Sentiment Trend Over Time")
 st.plotly_chart(fig_trend, use_container_width=True)
 st.divider()
