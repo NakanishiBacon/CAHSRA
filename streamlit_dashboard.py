@@ -222,7 +222,7 @@ if len(category_cols) > 1:
     corr = filtered_df[category_cols].corr()
     corr.columns = [category_label_map.get(c, c) for c in corr.columns]
     corr.index = [category_label_map.get(c, c) for c in corr.index]
-    fig_corr = px.imshow(corr, text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
+    fig_corr = px.imshow(corr.round(2), text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
     st.plotly_chart(fig_corr, use_container_width=True)
 st.divider()
 
@@ -235,6 +235,7 @@ category_counts.columns = ["Category", "Count"]
 category_counts["Category"] = category_counts["Category"].map(category_label_map)
 fig_count = px.bar(category_counts, x="Category", y="Count", color="Count",
                    title="Number of Mentions per Sentiment Category", color_continuous_scale="Blues")
+fig_count.update_layout(showlegend=False)
 fig_count.update_layout(showlegend=False)
 st.plotly_chart(fig_count, use_container_width=True)
 st.divider()
