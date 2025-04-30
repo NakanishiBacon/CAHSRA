@@ -256,7 +256,7 @@ Total Comments: {len(filtered_df)}
 Average Sentiment by Category:
 """
 for index, row in avg_scores.iterrows():
-    summary_text += f"- {row['Category']}: {row['Average Sentiment']:.3f}
+    summary_text += f"- {row['Category']}: {row['Average Sentiment']:.3f}\\n"
 "
 
 summary_bytes = BytesIO(summary_text.encode('utf-8'))
