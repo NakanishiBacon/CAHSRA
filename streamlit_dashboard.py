@@ -29,23 +29,6 @@ df_news_master = load_blob_csv("google_news_master_articles.csv", container="dat
 df_reddit_master = load_blob_csv("reddit_master_comments.csv", container="datareddit")
 
 # ========================
-# Display Raw Data Section
-# ========================
-st.sidebar.markdown("---")
-st.sidebar.subheader("📂 Raw Data Preview")
-with st.expander("YouTube Master Comments"):
-    st.dataframe(df_youtube_master.head(500))
-    st.download_button("⬇️ Download YouTube CSV", df_youtube_master.to_csv(index=False).encode('utf-8'), "youtube_master_comments.csv", "text/csv")
-
-with st.expander("Google News Master Articles"):
-    st.dataframe(df_news_master.head(500))
-    st.download_button("⬇️ Download News CSV", df_news_master.to_csv(index=False).encode('utf-8'), "google_news_master_articles.csv", "text/csv")
-
-with st.expander("Reddit Master Comments"):
-    st.dataframe(df_reddit_master.head(500))
-    st.download_button("⬇️ Download Reddit CSV", df_reddit_master.to_csv(index=False).encode('utf-8'), "reddit_master_comments.csv", "text/csv")
-
-# ========================
 # File Mappings by Source
 # ========================
 blob_map = {
@@ -127,7 +110,6 @@ if filtered_df.empty:
     st.warning("⚠️ No comments available for the selected date range.")
     st.stop()
 
-
 # ========================
 # UI
 # ========================
@@ -136,34 +118,25 @@ st.metric("Total Comments", len(filtered_df))
 st.divider()
 
 # ========================
-# Comparison Dashboards Across Sources
-# ========================
-if source == "Combined":
-    st.subheader("🆚 Compare Sources")
-    selected_sources = st.multiselect("Select sources to compare", filtered_df['source'].unique(), default=filtered_df['source'].unique())
-    comparison_df = filtered_df[filtered_df['source'].isin(selected_sources)]
-
-# ========================
 # Trend and Smoothing
 # ========================
+st.subheader("📈 Sentiment Trend Over Time")
 category_reverse_map = {v: k for k, v in category_label_map.items()}
-
-if source == "Combined":
-    selected_label = st.selectbox("Select category to view trend", [category_label_map[c] for c in category_cols], key="combined_category_select")
-else:
-    selected_label = st.selectbox("Select category to view trend", [category_label_map[c] for c in category_cols], key="single_category_select")
-
+selected_label = st.selectbox("Select category to view trend", [category_label_map[c] for c in category_cols], key="trend_category_select")
 selected_category = category_reverse_map[selected_label]
 
 smoothing_option = st.selectbox("Smoothing", ["None", "7-Day Moving Average", "Monthly Average"])
 
-if source == "Combined":
-    trend = (comparison_df.groupby(['date', 'source'])[selected_category].mean().reset_index())
-else:
-    trend = filtered_df.groupby(filtered_df['date'].dt.date)[selected_category].mean().reset_index()
-    trend['source'] = source
+df_trend = filtered_df.copy()
+df_trend['date'] = pd.to_datetime(df_trend['date'])
+df_trend = df_trend.dropna(subset=['date'])
 
-trend['date'] = pd.to_datetime(trend['date'])
+if source == "Combined" and 'source' in df_trend.columns:
+    trend = df_trend.groupby(['date', 'source'])[selected_category].mean().reset_index()
+else:
+    trend = df_trend.groupby(df_trend['date'].dt.date)[selected_category].mean().reset_index()
+    trend['source'] = source
+    trend['date'] = pd.to_datetime(trend['date'])
 
 if smoothing_option == "7-Day Moving Average":
     trend = trend.set_index('date').groupby('source').rolling('7D').mean().reset_index()
@@ -200,9 +173,7 @@ if len(category_cols) > 1:
     corr.index = [category_label_map.get(c, c) for c in corr.index]
     fig_corr = px.imshow(corr, text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
     st.plotly_chart(fig_corr, use_container_width=True)
-    csv_corr = corr.to_csv(index=True).encode('utf-8')
-    st.download_button("📥 Download Correlation Matrix CSV", csv_corr, f"{source.lower()}_correlation_matrix.csv", "text/csv")
-    st.divider()
+st.divider()
 
 # ========================
 # Average Sentiment per Category
@@ -211,26 +182,9 @@ st.subheader("📊 Average Sentiment per Category")
 avg_scores = filtered_df[category_cols].rename(columns=category_label_map).mean().reset_index()
 avg_scores.columns = ['Category', 'Average Sentiment']
 fig_avg = px.bar(avg_scores, x='Category', y='Average Sentiment', color='Average Sentiment',
-                 labels={'Category': 'Sentiment Category'}, title="Mean Sentiment Score per Category", color_continuous_scale='RdYlGn')
+                 labels={'Category': 'Sentiment Category'},
+                 title="Mean Sentiment Score per Category", color_continuous_scale='RdYlGn')
 st.plotly_chart(fig_avg, use_container_width=True)
-csv_avg = avg_scores.to_csv(index=False).encode('utf-8')
-st.download_button("📥 Download Average Sentiment CSV", csv_avg, f"{source.lower()}_avg_sentiment.csv", "text/csv")
-st.divider()
-
-# ========================
-# Trend Over Time
-# ========================
-st.subheader("📈 Trend Over Time")
-category_reverse_map = {v: k for k, v in category_label_map.items()}
-selected_label = st.selectbox("Select category to view trend", [category_label_map[c] for c in category_cols])
-selected_category = category_reverse_map[selected_label]
-
-trend = filtered_df.groupby(filtered_df['date'].dt.date)[selected_category].mean().reset_index()
-trend['date'] = pd.to_datetime(trend['date'])
-fig_trend = px.line(trend, x='date', y=selected_category, labels={selected_category: selected_label, 'date': 'Date'}, title=f"{selected_label} - Average Sentiment Trend Over Time")
-st.plotly_chart(fig_trend, use_container_width=True)
-csv_trend = trend.to_csv(index=False).encode('utf-8')
-st.download_button("📥 Download Trend CSV", csv_trend, f"{source.lower()}_{selected_category}_trend.csv", "text/csv")
 st.divider()
 
 # ========================
@@ -246,19 +200,18 @@ weekdays_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satur
 heatmap_data['weekday'] = pd.Categorical(heatmap_data['weekday'], categories=weekdays_order, ordered=True)
 pivot_table = heatmap_data.pivot(index='weekday', columns='hour', values='mentions').fillna(0)
 
-fig_heatmap = px.imshow(pivot_table, labels=dict(x="Hour of Day", y="Day of Week", color="Mentions"),
-                        aspect="auto", title="Volume of Mentions by Day & Hour", color_continuous_scale="YlGnBu")
-fig_heatmap.update_layout(xaxis_title="Hour", yaxis_title="Day", xaxis_tickangle=45, font=dict(size=10))
+fig_heatmap = px.imshow(pivot_table,
+                        labels=dict(x="Hour of Day", y="Day of Week", color="Mentions"),
+                        aspect="auto",
+                        title="Volume of Mentions by Day & Hour",
+                        color_continuous_scale="YlGnBu")
 st.plotly_chart(fig_heatmap, use_container_width=True)
-csv_heatmap = pivot_table.to_csv().encode('utf-8')
-st.download_button("📥 Download Mentions Heatmap CSV", csv_heatmap, f"{source.lower()}_mentions_heatmap.csv", "text/csv")
 st.divider()
 
 # ========================
 # Word Cloud Viewer
 # ========================
 st.subheader("☁️ Word Cloud Viewer")
-
 stopwords = set(STOPWORDS)
 stopwords.update(["thing", "like", "people", "just", "really", "got", "youre", "shit"])
 
