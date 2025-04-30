@@ -71,3 +71,193 @@ blob_map = {
 st.sidebar.header("🎛️ Controls")
 source_options = list(blob_map.keys()) + ["Combined"]
 source = st.sidebar.selectbox("Choose data source", source_options)
+
+# ========================
+# Safety Check and Basic UI
+# ========================
+if not source:
+    st.warning("Please select a data source from the sidebar.")
+    st.stop()
+
+st.title("📊 Sentiment Analysis Dashboard")
+st.markdown("This dashboard visualizes sentiment trends across Reddit, YouTube, and Google News.")
+st.info(f"You are viewing: **{source}** data")
+
+# ========================
+# Load Selected Analysis Data
+# ========================
+if source != "Combined":
+    blobs = blob_map[source]
+    df_analysis = load_blob_csv(blobs["analysis"])
+    df_wordcloud = load_blob_csv(blobs["wordcloud"])
+else:
+    dfs = []
+    df_wordclouds = []
+    for src, paths in blob_map.items():
+        temp_df = load_blob_csv(paths["analysis"])
+        temp_df["source"] = src
+        dfs.append(temp_df)
+        wc_temp = load_blob_csv(paths["wordcloud"])
+        wc_temp["source"] = src
+        df_wordclouds.append(wc_temp)
+    df_analysis = pd.concat(dfs, ignore_index=True)
+    df_wordcloud = pd.concat(df_wordclouds, ignore_index=True)
+
+# ========================
+# Preprocessing
+# ========================
+if 'comment_published_at' in df_analysis.columns:
+    df_analysis['date'] = pd.to_datetime(df_analysis['comment_published_at'], errors='coerce')
+elif 'published_at' in df_analysis.columns:
+    df_analysis['date'] = pd.to_datetime(df_analysis['published_at'], errors='coerce')
+else:
+    df_analysis['date'] = pd.NaT
+
+category_label_map = {
+    "category_funding_cost": "Funding Cost",
+    "category_construction_progress": "Construction Progress",
+    "category_politics_governance": "Politics & Governance",
+    "category_environmental_impact": "Environmental Impact",
+    "category_economic_impact": "Economic Impact",
+    "category_alternatives_competition": "Alternatives & Competition",
+    "category_regional_impact": "Regional Impact",
+    "category_public_opinion": "Public Opinion",
+    "category_international_comparisons": "International Comparisons"
+}
+
+category_cols = [col for col in df_analysis.columns if col in category_label_map]
+
+if 'date' in df_analysis.columns and df_analysis['date'].notna().any():
+    date_range = st.sidebar.date_input("Date range", [df_analysis['date'].min(), df_analysis['date'].max()])
+    filtered_df = df_analysis[(df_analysis['date'] >= pd.to_datetime(date_range[0])) & (df_analysis['date'] <= pd.to_datetime(date_range[1]))]
+else:
+    st.warning("⚠️ No usable date column found. Displaying all records.")
+    filtered_df = df_analysis
+
+if filtered_df.empty:
+    st.warning("⚠️ No comments available for the selected date range.")
+    st.stop()
+
+# Continue with: UI metrics, trend line, smoothing, skew/kurtosis, correlation heatmap, category averages, word cloud, heatmap, summary
+# ========================
+# UI Metrics
+# ========================
+st.metric("Total Comments", len(filtered_df))
+st.divider()
+
+# ========================
+# Trend and Smoothing
+# ========================
+st.subheader("📈 Sentiment Trend Over Time")
+category_reverse_map = {v: k for k, v in category_label_map.items()}
+selected_label = st.selectbox("Select category to view trend", [category_label_map[c] for c in category_cols], key="trend_category_select")
+selected_category = category_reverse_map[selected_label]
+
+smoothing_option = st.selectbox("Smoothing", ["None", "7-Day Moving Average", "Monthly Average"])
+
+trend_df = filtered_df.copy()
+trend_df['date'] = pd.to_datetime(trend_df['date'])
+trend_df = trend_df.dropna(subset=['date'])
+
+if source == "Combined" and 'source' in trend_df.columns:
+    trend = trend_df.groupby(['date', 'source'])[selected_category].mean().reset_index()
+else:
+    trend = trend_df.groupby(trend_df['date'].dt.date)[selected_category].mean().reset_index()
+    trend['source'] = source
+    trend['date'] = pd.to_datetime(trend['date'])
+
+if smoothing_option == "7-Day Moving Average":
+    trend = trend.set_index('date').groupby('source').rolling('7D').mean().reset_index()
+elif smoothing_option == "Monthly Average":
+    trend = trend.set_index('date').groupby('source').resample('M').mean().reset_index()
+
+fig_trend = px.line(trend, x='date', y=selected_category, color='source', title=f"{selected_label} - Sentiment Trend")
+st.plotly_chart(fig_trend, use_container_width=True)
+st.divider()
+
+# ========================
+# Advanced Stats: Skewness and Kurtosis
+# ========================
+st.subheader("📈 Sentiment Distribution Analysis")
+selected_scores = filtered_df[selected_category].dropna()
+sentiment_skew = skew(selected_scores)
+sentiment_kurt = kurtosis(selected_scores)
+
+col1, col2 = st.columns(2)
+col1.metric("Skewness", f"{sentiment_skew:.3f}")
+col2.metric("Kurtosis", f"{sentiment_kurt:.3f}")
+
+fig_dist = px.histogram(selected_scores, nbins=50, marginal="violin", title=f"Sentiment Distribution for {selected_label}", labels={"value": "Sentiment Score"})
+st.plotly_chart(fig_dist, use_container_width=True)
+st.divider()
+
+# ========================
+# Correlation Heatmap
+# ========================
+if len(category_cols) > 1:
+    st.subheader("📉 Sentiment Category Correlation")
+    corr = filtered_df[category_cols].corr()
+    corr.columns = [category_label_map.get(c, c) for c in corr.columns]
+    corr.index = [category_label_map.get(c, c) for c in corr.index]
+    fig_corr = px.imshow(corr, text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
+    st.plotly_chart(fig_corr, use_container_width=True)
+st.divider()
+
+# ========================
+# Average Sentiment per Category
+# ========================
+st.subheader("📊 Average Sentiment per Category")
+avg_scores = filtered_df[category_cols].rename(columns=category_label_map).mean().reset_index()
+avg_scores.columns = ['Category', 'Average Sentiment']
+fig_avg = px.bar(avg_scores, x='Category', y='Average Sentiment', color='Average Sentiment',
+                 labels={'Category': 'Sentiment Category'},
+                 title="Mean Sentiment Score per Category", color_continuous_scale='RdYlGn')
+st.plotly_chart(fig_avg, use_container_width=True)
+st.divider()
+
+# ========================
+# Word Cloud Viewer
+# ========================
+st.subheader("☁️ Word Cloud Viewer")
+stopwords = set(STOPWORDS)
+stopwords.update(["thing", "like", "people", "just", "really", "got", "youre", "shit"])
+
+if 'word' in df_wordcloud.columns and 'count' in df_wordcloud.columns:
+    clean_df = df_wordcloud[~df_wordcloud['word'].str.lower().isin(stopwords)]
+    word_freq = dict(zip(clean_df['word'], clean_df['count']))
+
+    if word_freq:
+        wordcloud = WordCloud(width=800, height=400, background_color="white", stopwords=stopwords).generate_from_frequencies(word_freq)
+        fig, ax = plt.subplots(figsize=(10, 5))
+        ax.imshow(wordcloud, interpolation='bilinear')
+        ax.axis("off")
+        st.pyplot(fig)
+
+        buf = BytesIO()
+        fig.savefig(buf, format="png")
+        buf.seek(0)
+
+        st.download_button(label="📥 Download Word Cloud PNG", data=buf, file_name=f"{source.lower()}_wordcloud.png", mime="image/png")
+    else:
+        st.info("No words available to generate word cloud.")
+else:
+    st.warning("⚠️ Word cloud file must contain 'word' and 'count' columns.")
+st.divider()
+
+# ========================
+# Export Summary Report
+# ========================
+st.subheader("📄 Export Summary Report")
+summary_text = f"""
+Sentiment Dashboard Summary Report - {source}
+Date Range: {date_range[0]} to {date_range[1]}
+Total Comments: {len(filtered_df)}
+
+Average Sentiment by Category:
+"""
+for index, row in avg_scores.iterrows():
+    summary_text += f"- {row['Category']}: {row['Average Sentiment']:.3f}
+"
+
+summary_bytes = BytesIO(summary_text.encode('utf-8'))
+st.download_button(label="📥 Download Text Summary", data=summary_bytes, file_name=f"{source.lower()}_sentiment_summary.txt", mime="text/plain")
