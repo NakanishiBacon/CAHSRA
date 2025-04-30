@@ -251,7 +251,7 @@ fig_avg.update_layout(
     title="Mean Sentiment Score per Category",
     xaxis_title="Sentiment Category",
     yaxis_title="Average Sentiment"
-)"Mean Sentiment Score per Category", color_continuous_scale='RdYlGn')
+
 st.plotly_chart(fig_avg, use_container_width=True)
 st.divider()
 
