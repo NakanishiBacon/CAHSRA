@@ -324,9 +324,11 @@ if source == "Combined" and len(selected_categories) == 1:
     fig_box = px.box(filtered_df, x='source', y=selected_categories[0], points='all', title="Sentiment Score Distribution by Source")
     st.plotly_chart(fig_box, use_container_width=True)
 
-# Weekly Comment Volume
+# Weekly Comment Volume with Date Filter
 st.subheader("📆 Weekly Comment Volume")
-weekly_volume = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size().reset_index(name='count')
+volume_range = st.date_input("Select date range for volume chart", [filtered_df['date'].min(), filtered_df['date'].max()], key="volume_date_range")
+filtered_volume_df = filtered_df[(filtered_df['date'] >= pd.to_datetime(volume_range[0])) & (filtered_df['date'] <= pd.to_datetime(volume_range[1]))]
+weekly_volume = filtered_volume_df.groupby(filtered_volume_df['date'].dt.to_period('W')).size().reset_index(name='count')
 weekly_volume['date'] = weekly_volume['date'].dt.start_time
 fig_volume = px.line(weekly_volume, x='date', y='count', title="Weekly Comment Volume")
 st.plotly_chart(fig_volume, use_container_width=True)
