@@ -1,3 +1,4 @@
+# Import required libraries for UI, data handling, visualization, and statistics
 import streamlit as st
 import pandas as pd
 from azure.storage.blob import BlobServiceClient
@@ -14,6 +15,7 @@ st.set_page_config(layout="wide", page_title="Sentiment Dashboard", page_icon="�
 # ========================
 # Azure Blob Setup
 # ========================
+# Set up connection to Azure Blob Storage
 AZURE_CONNECTION_STRING = st.secrets["AZURE_CONNECTION_STRING"]
 CONTAINER_NAME = "visualizationdata"
 
@@ -27,6 +29,7 @@ def load_blob_csv(blob_name, container=CONTAINER_NAME):
 # ========================
 # Load Raw Master Data
 # ========================
+# Load raw master data from YouTube, News, and Reddit containers
 df_youtube_master = load_blob_csv("youtube_master_comments.csv", container="datayoutube")
 df_news_master = load_blob_csv("google_news_master_articles.csv", container="datanews")
 df_reddit_master = load_blob_csv("reddit_master_comments.csv", container="datareddit")
@@ -39,6 +42,7 @@ def list_snapshot_blobs():
     container_client = blob_service_client.get_container_client("snapshots")
     return [blob.name for blob in container_client.list_blobs() if blob.name.startswith("google_news_articles") and blob.name.endswith(".csv")]
 
+# Load all matching snapshot CSVs from the 'snapshots' container
 snapshot_blobs = list_snapshot_blobs()
 
 df_snapshots_combined = pd.DataFrame()
@@ -109,6 +113,7 @@ else:
 # ========================
 # Preprocessing
 # ========================
+# Preprocess the date column by checking which datetime field exists
 if 'comment_published_at' in df_analysis.columns:
     df_analysis['date'] = pd.to_datetime(df_analysis['comment_published_at'], errors='coerce')
 elif 'published_at' in df_analysis.columns:
@@ -152,6 +157,7 @@ st.divider()
 # Category Occurrence Count
 # ========================
 st.subheader("📊 Count of Posts Tagged by Category")
+# Count how many posts are tagged with each sentiment category
 category_counts = filtered_df[category_cols].gt(0).sum().reset_index()
 category_counts.columns = ["Category", "Count"]
 category_counts["Category"] = category_counts["Category"].map(category_label_map)
@@ -165,6 +171,7 @@ st.divider()
 # Average Sentiment per Category
 # ========================
 st.subheader("📊 Average Sentiment per Category")
+# Calculate average sentiment score for each category
 avg_scores = filtered_df[category_cols].rename(columns=category_label_map).mean().reset_index()
 avg_scores.columns = ['Category', 'Average Sentiment']
 fig_avg = px.bar(avg_scores, x='Category', y='Average Sentiment', color='Category', color_discrete_sequence=px.colors.sequential.Blues)
@@ -195,6 +202,7 @@ else:
 
 smoothing_option = st.selectbox("Smoothing", ["None", "7-Day Moving Average", "Monthly Average"])
 
+# Prepare trend data with optional smoothing and category comparison
 trend_df = filtered_df.copy()
 trend_df['date'] = pd.to_datetime(trend_df['date'])
 trend_df = trend_df.dropna(subset=['date'])
@@ -233,6 +241,7 @@ else:
     selected_scores = filtered_df[selected_categories[0]].dropna()
     display_label = selected_label
 
+# Calculate advanced statistics: skewness and kurtosis
 sentiment_skew = skew(selected_scores)
 sentiment_kurt = kurtosis(selected_scores)
 
@@ -249,7 +258,8 @@ st.divider()
 # ========================
 if len(category_cols) > 1:
     st.subheader("📉 Sentiment Category Correlation")
-    corr = filtered_df[category_cols].corr()
+    # Compute correlation matrix between sentiment categories
+corr = filtered_df[category_cols].corr()
     corr.columns = [category_label_map.get(c, c) for c in corr.columns]
     corr.index = [category_label_map.get(c, c) for c in corr.index]
     fig_corr = px.imshow(corr.round(2), text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
@@ -262,7 +272,8 @@ st.divider()
 st.subheader("☁️ Word Cloud Viewer")
 
 # User-defined stopwords input
-custom_stopwords_input = st.text_input("Enter words to exclude from the word cloud (comma-separated):", value="thing, like, people, just, really, got, youre, shit")
+# Allow users to input their own stopwords to exclude from the word cloud
+custom_stopwords_input = st.text_input("Enter words to exclude from the word cloud (comma-separated):")
 custom_stopwords_list = [w.strip().lower() for w in custom_stopwords_input.split(",") if w.strip()]
 
 # Hardcoded base stopwords
@@ -294,7 +305,8 @@ st.divider()
 # ========================
 # Export Summary Report
 # ========================
-st.subheader("📄 Export Summary Reports")
+st.subheader("📄 Export Summary Report")
+# Export a summary report containing the number of comments and average sentiment per category
 summary_text = f"""
 Sentiment Dashboard Summary Report - {source}
 Date Range: {date_range[0]} to {date_range[1]}
