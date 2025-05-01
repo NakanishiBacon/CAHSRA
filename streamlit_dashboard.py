@@ -294,7 +294,7 @@ st.divider()
 # ========================
 # Export Summary Report
 # ========================
-st.subheader("📄 Export Summary Report")
+st.subheader("📄 Export Summary Reports")
 summary_text = f"""
 Sentiment Dashboard Summary Report - {source}
 Date Range: {date_range[0]} to {date_range[1]}
