@@ -245,22 +245,28 @@ st.plotly_chart(fig_dist, use_container_width=True)
 st.divider()
 
 # ========================
-# Sentiment Score Boxplot per Category
+# Sentiment Boxplot per Category
 # ========================
 st.subheader("📦 Sentiment Score Distribution per Category")
 
-# Reshape data: each category sentiment into long-form for boxplot
-sentiment_long_df = filtered_df[category_cols].copy()
-sentiment_long_df = sentiment_long_df.rename(columns=category_label_map)
-sentiment_long_df = sentiment_long_df.melt(var_name="Category", value_name="Sentiment")
-sentiment_long_df.dropna(inplace=True)
+# Melt the filtered dataframe for all sentiment category columns
+boxplot_df = filtered_df[category_cols].copy()
+boxplot_df = boxplot_df.rename(columns=category_label_map)
+boxplot_df = boxplot_df.melt(var_name="Category", value_name="Sentiment")
+boxplot_df.dropna(inplace=True)
 
-# Plot using Plotly box plot
-fig_box = px.box(sentiment_long_df, x="Category", y="Sentiment", color="Category",
-                 title="Sentiment Score Distribution per Category",
-                 points="outliers", color_discrete_sequence=px.colors.sequential.Blues)
-fig_box.update_layout(showlegend=False, xaxis_tickangle=30)
-st.plotly_chart(fig_box, use_container_width=True)
+# Create boxplot using Plotly
+fig_boxplot = px.box(
+    boxplot_df,
+    x="Category",
+    y="Sentiment",
+    color="Category",
+    title="Sentiment Score Distribution per Category",
+    points="outliers",
+    color_discrete_sequence=px.colors.sequential.Blues
+)
+fig_boxplot.update_layout(showlegend=False, xaxis_tickangle=30)
+st.plotly_chart(fig_boxplot, use_container_width=True)
 st.divider()
 
 # ========================
