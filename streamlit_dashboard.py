@@ -259,7 +259,7 @@ st.divider()
 if len(category_cols) > 1:
     st.subheader("📉 Sentiment Category Correlation")
     # Compute correlation matrix between sentiment categories
-corr = filtered_df[category_cols].corr()
+    corr = filtered_df[category_cols].corr()
     corr.columns = [category_label_map.get(c, c) for c in corr.columns]
     corr.index = [category_label_map.get(c, c) for c in corr.index]
     fig_corr = px.imshow(corr.round(2), text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
