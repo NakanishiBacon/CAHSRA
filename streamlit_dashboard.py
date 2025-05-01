@@ -245,31 +245,6 @@ st.plotly_chart(fig_dist, use_container_width=True)
 st.divider()
 
 # ========================
-# Sentiment Boxplot per Category
-# ========================
-st.subheader("📦 Sentiment Score Distribution per Category")
-
-# Melt the filtered dataframe for all sentiment category columns
-boxplot_df = filtered_df[category_cols].copy()
-boxplot_df = boxplot_df.rename(columns=category_label_map)
-boxplot_df = boxplot_df.melt(var_name="Category", value_name="Sentiment")
-boxplot_df.dropna(inplace=True)
-
-# Create boxplot using Plotly
-fig_boxplot = px.box(
-    boxplot_df,
-    x="Category",
-    y="Sentiment",
-    color="Category",
-    title="Sentiment Score Distribution per Category",
-    points="outliers",
-    color_discrete_sequence=px.colors.sequential.Blues
-)
-fig_boxplot.update_layout(showlegend=False, xaxis_tickangle=30)
-st.plotly_chart(fig_boxplot, use_container_width=True)
-st.divider()
-
-# ========================
 # Correlation Heatmap
 # ========================
 if len(category_cols) > 1:
@@ -284,7 +259,7 @@ st.divider()
 # ========================
 # Word Cloud Viewer
 # ========================
-st.subheader("☁️ Word Cloud Viewer")
+st.subheader("☁️ Word Cloud Viewing")
 
 # User-defined stopwords input
 custom_stopwords_input = st.text_input("Enter words to exclude from the word cloud (comma-separated):", value="thing, like, people, just, really, got, youre, shit")
