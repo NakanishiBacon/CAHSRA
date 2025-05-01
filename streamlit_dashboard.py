@@ -245,6 +245,25 @@ st.plotly_chart(fig_dist, use_container_width=True)
 st.divider()
 
 # ========================
+# Sentiment Score Boxplot per Category
+# ========================
+st.subheader("📦 Sentiment Score Distribution per Category")
+
+# Reshape data: each category sentiment into long-form for boxplot
+sentiment_long_df = filtered_df[category_cols].copy()
+sentiment_long_df = sentiment_long_df.rename(columns=category_label_map)
+sentiment_long_df = sentiment_long_df.melt(var_name="Category", value_name="Sentiment")
+sentiment_long_df.dropna(inplace=True)
+
+# Plot using Plotly box plot
+fig_box = px.box(sentiment_long_df, x="Category", y="Sentiment", color="Category",
+                 title="Sentiment Score Distribution per Category",
+                 points="outliers", color_discrete_sequence=px.colors.sequential.Blues)
+fig_box.update_layout(showlegend=False, xaxis_tickangle=30)
+st.plotly_chart(fig_box, use_container_width=True)
+st.divider()
+
+# ========================
 # Correlation Heatmap
 # ========================
 if len(category_cols) > 1:
