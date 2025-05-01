@@ -303,6 +303,34 @@ else:
 st.divider()
 
 # ========================
+# Sentiment Momentum
+# ========================
+st.subheader("📉 Sentiment Momentum")
+if len(selected_categories) == 1:
+    momentum_df = trend_df.copy()
+    momentum_df['date'] = pd.to_datetime(momentum_df['date'])
+    momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('W'))[selected_categories[0]].mean().diff().dropna().reset_index()
+    momentum_series['date'] = momentum_series['date'].dt.start_time
+    momentum_series.columns = ['date', 'momentum']
+    fig_momentum = px.line(momentum_series, x='date', y='momentum', title=f"Sentiment Momentum for {category_label_map[selected_categories[0]]}")
+    st.plotly_chart(fig_momentum, use_container_width=True)
+
+# ========================
+# Radar Chart for Category Sentiment
+# ========================
+st.subheader("📡 Radar View of Average Sentiment")
+import plotly.graph_objects as go
+radar_fig = go.Figure()
+radar_fig.add_trace(go.Scatterpolar(
+    r=avg_scores["Average Sentiment"],
+    theta=avg_scores["Category"],
+    fill='toself',
+    name='Average Sentiment'
+))
+radar_fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[-1, 1])), showlegend=False)
+st.plotly_chart(radar_fig, use_container_width=True)
+
+# ========================
 # Time Series by Category (Individual Over Time)
 # ========================
 st.subheader("📈 Time Series for Each Category")
@@ -316,18 +344,8 @@ fig_time_series = px.line(time_series, x='date', y=category_cols, title="Weekly 
 st.plotly_chart(fig_time_series, use_container_width=True)
 
 # ========================
-# Additional Visualizations
+# Weekly Comment Volume
 # ========================
-
-# Boxplot of Sentiment Score by Source
-st.subheader("📦 Sentiment Score Distribution by Source")
-if len(selected_categories) == 1:
-    fig_box = px.box(filtered_df, x='source' if source == "Combined" else 'date', 
-                     y=selected_categories[0], points='all', 
-                     title="Sentiment Score Distribution")
-    st.plotly_chart(fig_box, use_container_width=True)
-
-# Weekly Comment Volume with Date Filter
 st.subheader("📆 Weekly Comment Volume")
 volume_range = st.date_input("Select date range for volume chart", [filtered_df['date'].min(), filtered_df['date'].max()], key="volume_date_range")
 filtered_volume_df = filtered_df[(filtered_df['date'] >= pd.to_datetime(volume_range[0])) & (filtered_df['date'] <= pd.to_datetime(volume_range[1]))]
@@ -339,8 +357,6 @@ st.plotly_chart(fig_volume, use_container_width=True)
 # ========================
 # Export Summary Report
 # ========================
-
-# Export a summary report containing the number of comments and average sentiment per category
 st.subheader("📄 Export Summary Report")
 summary_text = f"""
 Sentiment Dashboard Summary Report - {source}
