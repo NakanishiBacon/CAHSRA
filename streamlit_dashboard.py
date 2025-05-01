@@ -303,6 +303,18 @@ else:
 st.divider()
 
 # ========================
+# Time Series by Category (Individual Over Time)
+# ========================
+st.subheader("📈 Time Series for Each Category")
+time_series_df = filtered_df.copy()
+time_series_df['date'] = pd.to_datetime(time_series_df['date'])
+time_series_df = time_series_df.dropna(subset=['date'])
+time_series = time_series_df.groupby(time_series_df['date'].dt.to_period('W'))[category_cols].mean().reset_index()
+time_series['date'] = time_series['date'].dt.start_time
+fig_time_series = px.line(time_series, x='date', y=category_cols, title="Weekly Average Sentiment per Category")
+st.plotly_chart(fig_time_series, use_container_width=True)
+
+# ========================
 # Additional Visualizations
 # ========================
 
@@ -318,21 +330,6 @@ weekly_volume = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size(
 weekly_volume['date'] = weekly_volume['date'].dt.start_time
 fig_volume = px.line(weekly_volume, x='date', y='count', title="Weekly Comment Volume")
 st.plotly_chart(fig_volume, use_container_width=True)
-
-# Category Sentiment Heatmap Over Time
-st.subheader("🌡️ Sentiment by Category Over Time")
-heatmap_data = filtered_df.copy()
-heatmap_data['period'] = heatmap_data['date'].dt.to_period('M')
-heatmap_avg = heatmap_data.groupby('period')[category_cols].mean().T
-heatmap_avg.columns = heatmap_avg.columns.astype(str)
-fig_cat_heatmap = px.imshow(heatmap_avg, color_continuous_scale='RdYlGn', title="Category Sentiment Over Time")
-st.plotly_chart(fig_cat_heatmap, use_container_width=True)
-
-# Treemap of Word Frequencies
-st.subheader("🌲 Word Frequency Treemap")
-if 'word' in df_wordcloud.columns and 'count' in df_wordcloud.columns and not clean_df.empty:
-    fig_tree = px.treemap(clean_df, path=['word'], values='count', title="Word Frequency Treemap")
-    st.plotly_chart(fig_tree, use_container_width=True)
 
 # ========================
 # Export Summary Report
