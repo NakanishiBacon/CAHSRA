@@ -321,8 +321,10 @@ st.plotly_chart(fig_time_series, use_container_width=True)
 
 # Boxplot of Sentiment Score by Source
 st.subheader("📦 Sentiment Score Distribution by Source")
-if source == "Combined" and len(selected_categories) == 1:
-    fig_box = px.box(filtered_df, x='source', y=selected_categories[0], points='all', title="Sentiment Score Distribution by Source")
+if len(selected_categories) == 1:
+    fig_box = px.box(filtered_df, x='source' if source == "Combined" else 'date', 
+                     y=selected_categories[0], points='all', 
+                     title="Sentiment Score Distribution")
     st.plotly_chart(fig_box, use_container_width=True)
 
 # Weekly Comment Volume with Date Filter
