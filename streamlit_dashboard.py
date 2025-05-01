@@ -194,6 +194,12 @@ st.divider()
 # ========================
 # Trend and Smoothing
 # ========================
+st.markdown("""
+**What is the Sentiment Trend?**  
+This line chart shows how public sentiment changes over time for each topic.  
+It helps spot patterns like growing positivity or shifts in concern.
+""")
+# ========================
 st.subheader("📈 Sentiment Trend Over Time")
 category_reverse_map = {v: k for k, v in category_label_map.items()}
 
@@ -238,6 +244,11 @@ st.divider()
 
 # This section has been removed for clarity and simplicity for general audiences.
 # ========================
+st.markdown("""
+**What is Sentiment Distribution?**  
+This histogram shows the spread of sentiment scores, helping identify if comments are mostly neutral, positive, or negative.  
+It also includes skewness (asymmetry) and kurtosis (peakedness) metrics.
+""")
 st.subheader("📈 Sentiment Distribution Analysis")
 if multi_select_mode:
     st.info("📌 Skewness & kurtosis shown for first selected category.")
@@ -365,6 +376,11 @@ st.plotly_chart(radar_fig, use_container_width=True)
 # Time Series by Category (Individual Over Time)
 # (Moved up for clarity)
 # ========================
+st.markdown("""
+**What is the Time Series for Each Category?**  
+This chart shows how the average sentiment score for each topic changed week by week.  
+It's useful to compare temporal sentiment patterns between categories.
+""")
 st.subheader("📈 Time Series for Each Category")
 time_range = st.date_input("Select date range for time series", [filtered_df['date'].min(), filtered_df['date'].max()], key="time_series_range")
 time_series_df = filtered_df[(filtered_df['date'] >= pd.to_datetime(time_range[0])) & (filtered_df['date'] <= pd.to_datetime(time_range[1]))].copy()
