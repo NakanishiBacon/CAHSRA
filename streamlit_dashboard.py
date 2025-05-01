@@ -186,19 +186,6 @@ st.plotly_chart(fig_avg, use_container_width=True)
 st.divider()
 
 # ========================
-# Correlation Heatmap
-# ========================
-if len(category_cols) > 1:
-    st.subheader("📉 Sentiment Category Correlation")
-    # Compute correlation matrix between sentiment categories
-    corr = filtered_df[category_cols].corr()
-    corr.columns = [category_label_map.get(c, c) for c in corr.columns]
-    corr.index = [category_label_map.get(c, c) for c in corr.index]
-    fig_corr = px.imshow(corr.round(2), text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
-    st.plotly_chart(fig_corr, use_container_width=True)
-st.divider()
-
-# ========================
 # Trend and Smoothing
 # ========================
 st.subheader("📈 Sentiment Trend Over Time")
@@ -267,6 +254,19 @@ st.plotly_chart(fig_dist, use_container_width=True)
 st.divider()
 
 # ========================
+# Correlation Heatmap
+# ========================
+if len(category_cols) > 1:
+    st.subheader("📉 Sentiment Category Correlation")
+    # Compute correlation matrix between sentiment categories
+corr = filtered_df[category_cols].corr()
+    corr.columns = [category_label_map.get(c, c) for c in corr.columns]
+    corr.index = [category_label_map.get(c, c) for c in corr.index]
+    fig_corr = px.imshow(corr.round(2), text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
+    st.plotly_chart(fig_corr, use_container_width=True)
+st.divider()
+
+# ========================
 # Word Cloud Viewer
 # ========================
 st.subheader("☁️ Word Cloud Viewer")
@@ -277,7 +277,7 @@ custom_stopwords_input = st.text_input("Enter words to exclude from the word clo
 custom_stopwords_list = [w.strip().lower() for w in custom_stopwords_input.split(",") if w.strip()]
 
 # Hardcoded base stopwords
-base_stopwords = {"thing", "like", "people", "just", "really", "got", "you're", "theyre", "shit", "one", "new", "california", "project", "train", "high"}
+base_stopwords = {"thing", "like", "people", "just", "really", "got", "youre", "shit", "one", "new", "california", "project", "train", "high"}
 stopwords = set(STOPWORDS).union(base_stopwords).union(custom_stopwords_list)
 
 if 'word' in df_wordcloud.columns and 'count' in df_wordcloud.columns:
@@ -303,10 +303,43 @@ else:
 st.divider()
 
 # ========================
+# Additional Visualizations
+# ========================
+
+# Boxplot of Sentiment Score by Source
+st.subheader("📦 Sentiment Score Distribution by Source")
+if source == "Combined" and len(selected_categories) == 1:
+    fig_box = px.box(filtered_df, x='source', y=selected_categories[0], points='all', title="Sentiment Score Distribution by Source")
+    st.plotly_chart(fig_box, use_container_width=True)
+
+# Weekly Comment Volume
+st.subheader("📆 Weekly Comment Volume")
+weekly_volume = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size().reset_index(name='count')
+weekly_volume['date'] = weekly_volume['date'].dt.start_time
+fig_volume = px.line(weekly_volume, x='date', y='count', title="Weekly Comment Volume")
+st.plotly_chart(fig_volume, use_container_width=True)
+
+# Category Sentiment Heatmap Over Time
+st.subheader("🌡️ Sentiment by Category Over Time")
+heatmap_data = filtered_df.copy()
+heatmap_data['period'] = heatmap_data['date'].dt.to_period('M')
+heatmap_avg = heatmap_data.groupby('period')[category_cols].mean().T
+heatmap_avg.columns = heatmap_avg.columns.astype(str)
+fig_cat_heatmap = px.imshow(heatmap_avg, color_continuous_scale='RdYlGn', title="Category Sentiment Over Time")
+st.plotly_chart(fig_cat_heatmap, use_container_width=True)
+
+# Treemap of Word Frequencies
+st.subheader("🌲 Word Frequency Treemap")
+if 'word' in df_wordcloud.columns and 'count' in df_wordcloud.columns and not clean_df.empty:
+    fig_tree = px.treemap(clean_df, path=['word'], values='count', title="Word Frequency Treemap")
+    st.plotly_chart(fig_tree, use_container_width=True)
+
+# ========================
 # Export Summary Report
 # ========================
-st.subheader("📄 Export Summary Report")
+
 # Export a summary report containing the number of comments and average sentiment per category
+st.subheader("📄 Export Summary Report")
 summary_text = f"""
 Sentiment Dashboard Summary Report - {source}
 Date Range: {date_range[0]} to {date_range[1]}
