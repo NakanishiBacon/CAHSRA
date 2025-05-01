@@ -170,6 +170,12 @@ st.divider()
 # ========================
 # Average Sentiment per Category
 # ========================
+st.markdown("""
+**What is Average Sentiment?**  
+This bar chart shows the mean sentiment score for each category within the selected date range.  
+Higher values indicate more positive discussions; lower values reflect negativity.
+""")
+# ========================
 st.subheader("📊 Average Sentiment per Category")
 # Calculate average sentiment score for each category
 avg_scores = filtered_df[category_cols].rename(columns=category_label_map).mean().reset_index()
@@ -229,8 +235,8 @@ fig_trend = px.line(trend, x='date', y='value', color='category' if multi_select
 st.plotly_chart(fig_trend, use_container_width=True)
 st.divider()
 
-# ========================
-# Advanced Stats: Skewness and Kurtosis
+
+# This section has been removed for clarity and simplicity for general audiences.
 # ========================
 st.subheader("📈 Sentiment Distribution Analysis")
 if multi_select_mode:
@@ -256,6 +262,12 @@ st.divider()
 # ========================
 # Correlation Heatmap
 # ========================
+st.markdown("""
+**What is the Correlation Heatmap?**  
+This matrix compares how similarly sentiment scores across different categories behave over time.  
+A value closer to 1 means two categories trend similarly, while -1 means they move in opposite directions.
+""")
+# ========================
 if len(category_cols) > 1:
     st.subheader("📉 Sentiment Category Correlation")
     # Compute correlation matrix between sentiment categories
@@ -268,6 +280,12 @@ st.divider()
 
 # ========================
 # Word Cloud Viewer
+# ========================
+st.markdown("""
+**What is the Word Cloud?**  
+This visual displays the most frequently used words in the dataset.  
+Larger words appear more often and help illustrate major discussion themes.
+""")
 # ========================
 st.subheader("☁️ Word Cloud Viewer")
 
@@ -302,8 +320,14 @@ else:
     st.warning("⚠️ Word cloud file must contain 'word' and 'count' columns.")
 st.divider()
 
+
+# Removed to reduce complexity for non-technical audiences.
 # ========================
-# Sentiment Momentum
+st.markdown("""
+**What is Sentiment Momentum?**  
+This line shows how fast public sentiment is changing week over week.  
+A rising momentum suggests growing positivity, while a drop may signal declining approval.
+""")
 # ========================
 st.subheader("📉 Sentiment Momentum")
 if len(selected_categories) == 1:
@@ -317,6 +341,13 @@ if len(selected_categories) == 1:
 
 # ========================
 # Radar Chart for Category Sentiment
+# (Moved up for clarity)
+# ========================
+st.markdown("""
+**What is a Radar Chart?**  
+Each axis shows the average sentiment for a specific topic.  
+A balanced shape means similar sentiment across topics; skewed shapes show strong sentiment in specific areas.
+""")
 # ========================
 st.subheader("📡 Radar View of Average Sentiment")
 import plotly.graph_objects as go
@@ -332,6 +363,7 @@ st.plotly_chart(radar_fig, use_container_width=True)
 
 # ========================
 # Time Series by Category (Individual Over Time)
+# (Moved up for clarity)
 # ========================
 st.subheader("📈 Time Series for Each Category")
 time_range = st.date_input("Select date range for time series", [filtered_df['date'].min(), filtered_df['date'].max()], key="time_series_range")
@@ -345,6 +377,13 @@ st.plotly_chart(fig_time_series, use_container_width=True)
 
 # ========================
 # Weekly Comment Volume
+# (Moved up for clarity)
+# ========================
+st.markdown("""
+**What is Weekly Comment Volume?**  
+This chart tracks how many comments or articles were posted each week.  
+It helps detect spikes or drops in overall activity related to high-speed rail topics.
+""")
 # ========================
 st.subheader("📆 Weekly Comment Volume")
 volume_range = st.date_input("Select date range for volume chart", [filtered_df['date'].min(), filtered_df['date'].max()], key="volume_date_range")
