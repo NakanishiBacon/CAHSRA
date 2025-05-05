@@ -157,37 +157,26 @@ st.divider()
 # Category Occurrence Count
 # ========================
 st.subheader("📊 Count of Posts Tagged by Category")
-# Count how many posts are tagged with each sentiment category
+st.markdown("This bar chart shows how many posts were tagged with each sentiment category. It's useful to gauge public attention toward different topics.")
 category_counts = filtered_df[category_cols].gt(0).sum().reset_index()
 category_counts.columns = ["Category", "Count"]
 category_counts["Category"] = category_counts["Category"].map(category_label_map)
-fig_count = px.bar(category_counts, x="Category", y="Count", color="Count",
+fig_count = px.bar(category_counts, y="Category", x="Count", orientation="h", color="Count",
                    title="Number of Mentions per Sentiment Category", color_continuous_scale="Blues")
 fig_count.update_layout(showlegend=False, coloraxis_showscale=False)
 st.plotly_chart(fig_count, use_container_width=True)
-st.divider()
 
 # ========================
 # Average Sentiment per Category
 # ========================
 st.subheader("📊 Average Sentiment per Category")
-
-st.markdown("""
-**What is Average Sentiment?**  
-This bar chart shows the mean sentiment score for each category within the selected date range.  
-Higher values indicate more positive discussions; lower values reflect negativity.
-""")
-
-# Calculate average sentiment score for each category
+st.markdown("This bar chart shows the mean sentiment score for each category within the selected date range.")
 avg_scores = filtered_df[category_cols].rename(columns=category_label_map).mean().reset_index()
 avg_scores.columns = ['Category', 'Average Sentiment']
-fig_avg = px.bar(avg_scores, x='Category', y='Average Sentiment', color='Category', color_discrete_sequence=px.colors.sequential.Blues)
-fig_avg.update_layout(
-    showlegend=False,
-    title="Mean Sentiment Score per Category",
-    xaxis_title="Sentiment Category",
-    yaxis_title="Average Sentiment"
-)
+fig_avg = px.bar(avg_scores, y='Category', x='Average Sentiment', orientation='h', color='Category', color_discrete_sequence=px.colors.sequential.Blues)
+fig_avg.update_layout(showlegend=False, title="Mean Sentiment Score per Category")
+st.plotly_chart(fig_avg, use_container_width=True)
+st.divider()
 
 st.plotly_chart(fig_avg, use_container_width=True)
 st.divider()
