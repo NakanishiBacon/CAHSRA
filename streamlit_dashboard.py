@@ -11,7 +11,6 @@ from scipy.stats import skew, kurtosis
 
 st.set_page_config(layout="wide", page_title="Sentiment Dashboard", page_icon="📊")
 
-
 # ========================
 # Azure Blob Setup
 # ========================
@@ -146,7 +145,6 @@ if filtered_df.empty:
     st.warning("⚠️ No comments available for the selected date range.")
     st.stop()
 
-# Continue with: UI metrics, trend line, smoothing, skew/kurtosis, correlation heatmap, category averages, word cloud, heatmap, summary
 # ========================
 # UI Metrics
 # ========================
@@ -161,10 +159,10 @@ st.markdown("This bar chart shows how many posts were tagged with each sentiment
 category_counts = filtered_df[category_cols].gt(0).sum().reset_index()
 category_counts.columns = ["Category", "Count"]
 category_counts["Category"] = category_counts["Category"].map(category_label_map)
-fig_count = px.bar(category_counts, y="Category", x="Count", orientation="h", color="Count",
-                   title="Number of Mentions per Sentiment Category", color_continuous_scale="Blues")
+fig_count = px.bar(category_counts, y="Category", x="Count", orientation="h", color="Count", title="Number of Mentions per Sentiment Category", color_continuous_scale="Blues")
 fig_count.update_layout(showlegend=False, coloraxis_showscale=False)
 st.plotly_chart(fig_count, use_container_width=True)
+st.divider()
 
 # ========================
 # Average Sentiment per Category
@@ -175,9 +173,6 @@ avg_scores = filtered_df[category_cols].rename(columns=category_label_map).mean(
 avg_scores.columns = ['Category', 'Average Sentiment']
 fig_avg = px.bar(avg_scores, y='Category', x='Average Sentiment', orientation='h', color='Category', color_discrete_sequence=px.colors.sequential.Blues)
 fig_avg.update_layout(showlegend=False, title="Mean Sentiment Score per Category")
-st.plotly_chart(fig_avg, use_container_width=True)
-st.divider()
-
 st.plotly_chart(fig_avg, use_container_width=True)
 st.divider()
 
@@ -324,8 +319,6 @@ if 'word' in df_wordcloud.columns and 'count' in df_wordcloud.columns:
 else:
     st.warning("⚠️ Word cloud file must contain 'word' and 'count' columns.")
 st.divider()
-
-
 
 # ========================
 # Sentiment Momentum
