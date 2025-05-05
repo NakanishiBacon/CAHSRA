@@ -151,10 +151,33 @@ if filtered_df.empty:
 st.metric("Total Comments", len(filtered_df))
 st.divider()
 
-# ... (rest of your unchanged code remains as-is)
+# ========================
+# Category Occurrence Count
+# ========================
+st.subheader("📊 Count of Posts Tagged by Category")
+st.markdown("This bar chart shows how many posts were tagged with each sentiment category. It's useful to gauge public attention toward different topics.")
+category_counts = filtered_df[category_cols].gt(0).sum().reset_index()
+category_counts.columns = ["Category", "Count"]
+category_counts["Category"] = category_counts["Category"].map(category_label_map)
+fig_count = px.bar(category_counts, y="Category", x="Count", orientation="h", color="Count", title="Number of Mentions per Sentiment Category", color_continuous_scale="Blues")
+fig_count.update_layout(showlegend=False, coloraxis_showscale=False)
+st.plotly_chart(fig_count, use_container_width=True)
+st.divider()
 
 # ========================
-# Trend and Smoothing - updated
+# Average Sentiment per Category
+# ========================
+st.subheader("📊 Average Sentiment per Category")
+st.markdown("This bar chart shows the mean sentiment score for each category within the selected date range.")
+avg_scores = filtered_df[category_cols].rename(columns=category_label_map).mean().reset_index()
+avg_scores.columns = ['Category', 'Average Sentiment']
+fig_avg = px.bar(avg_scores, y='Category', x='Average Sentiment', orientation='h', color='Category', color_discrete_sequence=px.colors.sequential.Blues)
+fig_avg.update_layout(showlegend=False, title="Mean Sentiment Score per Category")
+st.plotly_chart(fig_avg, use_container_width=True)
+st.divider()
+
+# ========================
+# Trend and Smoothing
 # ========================
 st.subheader("📈 Sentiment Trend Over Time")
 
@@ -201,7 +224,6 @@ elif smoothing_option == "Monthly Average":
 
 fig_trend = px.line(trend, x='date', y='value', color='category' if multi_select_mode else 'source',
                     title="Sentiment Trend Over Time")
-fig_trend.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)  # Disable gridlines
 st.plotly_chart(fig_trend, use_container_width=True)
 st.divider()
 
