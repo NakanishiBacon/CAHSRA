@@ -177,7 +177,7 @@ st.plotly_chart(fig_avg, use_container_width=True)
 st.divider()
 
 # ========================
-# Trend and Smoothing
+# Trend and Smoothing - updated
 # ========================
 st.subheader("📈 Sentiment Trend Over Time")
 
@@ -224,6 +224,7 @@ elif smoothing_option == "Monthly Average":
 
 fig_trend = px.line(trend, x='date', y='value', color='category' if multi_select_mode else 'source',
                     title="Sentiment Trend Over Time")
+fig_trend.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)  # Disable gridlines
 st.plotly_chart(fig_trend, use_container_width=True)
 st.divider()
 
