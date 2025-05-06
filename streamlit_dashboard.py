@@ -200,6 +200,7 @@ with st.expander("📈 Sentiment Trend Over Time", expanded=True):
     time_series = trend_df.groupby(trend_df['date'].dt.to_period('W'))[selected_category_keys].mean().reset_index()
     time_series['date'] = time_series['date'].dt.start_time
     fig_time_series = px.line(time_series.rename(columns=category_label_map), x='date', y=[category_label_map[k] for k in selected_category_keys], title="Weekly Sentiment Trend")
+    fig_time_series.for_each_trace(lambda t: t.update(name=""))
     fig_time_series.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
     st.plotly_chart(fig_time_series, use_container_width=True)
 
