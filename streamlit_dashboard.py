@@ -235,19 +235,20 @@ with st.expander("📉 Sentiment Momentum", expanded=True):
         momentum_series.columns = ['date', 'momentum']
         fig_momentum = px.line(momentum_series, x='date', y='momentum', title=f"Sentiment Momentum for {category_label_map[selected_category_keys[0]]}")
         fig_momentum.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
-        st.plotly_chart(fig_momentum, use_container_width=True)
+        st.plotly_chart(fig_momentum, use_container_wi
 
 # ========================
 # Sentiment Distribution Analysis (Donut Chart)
 # ========================
+
+selected_category_keys = [reverse_label_map[label] for label in category_labels_local]
+with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
+    st.markdown("This chart shows the proportion of posts that mention vs. don't mention the selected category.")
     category_labels_local = st.multiselect(
         "Select a sentiment category to analyze",
         list(category_label_map.values()),
         default=[list(category_label_map.values())[0]]
     )
-    selected_category_keys = [reverse_label_map[label] for label in category_labels_local]
-with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
-    st.markdown("This chart shows the proportion of posts that mention vs. don't mention the selected category.")
     selected_category = selected_category_keys[0]
     counts = filtered_df[selected_category].value_counts().sort_index()
     donut_df = pd.DataFrame({
