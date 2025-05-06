@@ -171,6 +171,32 @@ if not filtered_df.empty:
         )
         fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
         st.plotly_chart(fig_count, use_container_width=True)
+with st.expander("📆 Weekly Comment Volume", expanded=True):
+    st.markdown("This chart shows the number of posts over time.")
+    granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="volume_granularity")
+
+    filtered_df['date'] = pd.to_datetime(filtered_df['date'])
+    if filtered_df['date'].notna().any():
+        if granularity == "Daily":
+            volume = filtered_df.groupby(filtered_df['date'].dt.to_period('D')).size().reset_index(name='count')
+        elif granularity == "Monthly":
+            volume = filtered_df.groupby(filtered_df['date'].dt.to_period('M')).size().reset_index(name='count')
+        elif granularity == "Yearly":
+            volume = filtered_df.groupby(filtered_df['date'].dt.to_period('Y')).size().reset_index(name='count')
+        else:
+            volume = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size().reset_index(name='count')
+        volume['date'] = volume['date'].dt.start_time
+        if len(volume) > 1:
+            fig_volume = px.line(volume, x='date', y='count', title=f"{granularity} Comment Volume")
+            fig_volume.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+            fig_volume.update_traces(line_shape="linear")
+            st.plotly_chart(fig_volume, use_container_width=True)
+        else:
+            st.info("Not enough data points to generate a time series chart.")
+    else:
+        st.info("No valid date data available to plot volume.")
+
+
 with st.expander("📈 Sentiment Trend Over Time", expanded=True):
     st.markdown("This chart shows how public sentiment changes over time by category.")
     trend_granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="trend_granularity")
