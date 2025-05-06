@@ -149,76 +149,7 @@ selected_category_keys = list(category_label_map.keys())
 # ========================
 # Count of Posts Tagged by Category
 # ========================
-with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
-    st.markdown("This chart shows how many posts were tagged with each sentiment category.")
-    order_choice_count = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order_count_unique")
-    category_counts = filtered_df[selected_category_keys].gt(0).sum().reset_index()
-    category_counts.columns = ["Category", "Count"]
-    category_counts["Category"] = category_counts["Category"].map(category_label_map)
-    if order_choice_count == "Value":
-        category_counts = category_counts.sort_values("Count", ascending=False)
-    else:
-        category_counts = category_counts.sort_values("Category")
-    fig_count = px.bar(
-        category_counts,
-        y="Category",
-        x="Count",
-        orientation="h",
-        color="Count",
-        title="Number of Mentions per Sentiment Category",
-        color_continuous_scale="Blues"
-    )
-    fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
-    st.plotly_chart(fig_count, use_container_width=True)
-
-
-# ========================
-# Radar Chart for Category Sentiment
-# ========================
-with st.expander("📡 Radar View of Average Sentiment per Category", expanded=True):
-    st.markdown("This radar chart shows average sentiment per category.")
-    radar_fig = go.Figure()
-    radar_fig.add_trace(go.Scatterpolar(
-        r=filtered_df[selected_category_keys].mean().values,
-    theta=[category_label_map[k] for k in selected_category_keys],
-        fill='toself',
-        name='Average Sentiment'
-    ))
-    radar_fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[-1, 1])), showlegend=False)
-    st.plotly_chart(radar_fig, use_container_width=True)
-
-# ========================
-# Weekly Comment Volume
-# ========================
-with st.expander("📆 Weekly Comment Volume", expanded=True):
-    st.markdown("This chart shows the number of posts over time.")
-    granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="volume_granularity")
-
-    filtered_df['date'] = pd.to_datetime(filtered_df['date'])
-    if filtered_df['date'].notna().any():
-        if granularity == "Daily":
-            volume = filtered_df.groupby(filtered_df['date'].dt.to_period('D')).size().reset_index(name='count')
-        elif granularity == "Monthly":
-            volume = filtered_df.groupby(filtered_df['date'].dt.to_period('M')).size().reset_index(name='count')
-        elif granularity == "Yearly":
-            volume = filtered_df.groupby(filtered_df['date'].dt.to_period('Y')).size().reset_index(name='count')
-        else:
-            volume = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size().reset_index(name='count')
-        volume['date'] = volume['date'].dt.start_time
-        if len(volume) > 1:
-            fig_volume = px.line(volume, x='date', y='count', title=f"{granularity} Comment Volume")
-            fig_volume.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
-            fig_volume.update_traces(line_shape="linear")
-            st.plotly_chart(fig_volume, use_container_width=True)
-        else:
-            st.info("Not enough data points to generate a time series chart.")
-    else:
-        st.info("No valid date data available to plot volume.")
-
-# ========================
-# Sentiment Trend Over Time
-# ========================
-with st.expander("Sentiment Trend Over Time", expanded=True):
+with st.expander("📈 Sentiment Trend Over Time", expanded=True):
     st.markdown("This chart shows how public sentiment changes over time by category.")
     trend_granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="trend_granularity")
     trend_df = filtered_df.copy()
