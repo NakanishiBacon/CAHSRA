@@ -171,6 +171,22 @@ if not filtered_df.empty:
         )
         fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
         st.plotly_chart(fig_count, use_container_width=True)
+with st.expander("📡 Radar View of Average Sentiment per Category", expanded=True):
+    st.markdown("This radar chart shows average sentiment per category.")
+    radar_fig = go.Figure()
+    radar_fig.add_trace(go.Scatterpolar(
+        r=filtered_df[selected_category_keys].mean().values,
+        theta=[category_label_map[k] for k in selected_category_keys],
+        fill='toself',
+        name='Average Sentiment'
+    ))
+    radar_fig.update_layout(
+        polar=dict(radialaxis=dict(visible=True, range=[-1, 1])),
+        showlegend=False
+    )
+    st.plotly_chart(radar_fig, use_container_width=True)
+
+
 with st.expander("📆 Weekly Comment Volume", expanded=True):
     st.markdown("This chart shows the number of posts over time.")
     granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="volume_granularity")
