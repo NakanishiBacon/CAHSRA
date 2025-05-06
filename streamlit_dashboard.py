@@ -11,7 +11,7 @@ from scipy.stats import skew, kurtosis
 import plotly.graph_objects as go
 
 # Set layout, title, and page icon for the Streamlit app
-st.set_page_config(layout="wide", page_title="CAHSR Sentiment Dashboard", page_icon="https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png")
+st.set_page_config(layout="wide", page_title="CAHSRA Sentiment Dashboard", page_icon="https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png")
 
 # ========================
 # File Mappings by Source
@@ -57,9 +57,9 @@ def load_blob_csv(blob_name, container=CONTAINER_NAME):
 # ========================
 with st.container():
     st.image("https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png", width=60)
-    st.title("CAHSR Sentiment Dashboard")
+    st.title("CAHSRA Sentiment Dashboard")
     st.markdown("""
-    Welcome to the California High-Speed Rail (CAHSR) Sentiment Dashboard.
+    Welcome to the California High-Speed Rail Authority (CAHSRA) Sentiment Dashboard.
     
     This interactive dashboard aggregates and visualizes public sentiment across social and news media platforms, including Reddit, YouTube, Instagram, and Google News.
 
