@@ -185,7 +185,7 @@ with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
     category_counts.columns = ["Category", "Count"]
     category_counts["Category"] = category_counts["Category"].map(category_label_map)
     if order_choice == "Value":
-    category_counts = category_counts.sort_values("Count", ascending=False)
+        category_counts = category_counts.sort_values("Count", ascending=False)
     else:
         category_counts = category_counts.sort_values("Category")
     fig_count = px.bar(
