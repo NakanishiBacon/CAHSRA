@@ -268,6 +268,30 @@ with st.expander("📉 Sentiment Momentum", expanded=True):
             st.info("Not enough data points to generate sentiment momentum.")
 
 # ========================
+# Sentiment Type Comparison
+# ========================
+if 'sentiment' in filtered_df.columns:
+    with st.expander("📊 Sentiment Type Comparison", expanded=True):
+        st.markdown("This bar chart compares the volume of positive, neutral, and negative sentiment across the selected source.")
+        sentiment_counts = filtered_df['sentiment'].value_counts().reset_index()
+        sentiment_counts.columns = ['Sentiment', 'Count']
+        sentiment_counts = sentiment_counts[sentiment_counts['Sentiment'].isin(['positive', 'neutral', 'negative'])]
+        fig_sentiment_bar = px.bar(
+            sentiment_counts,
+            x='Sentiment',
+            y='Count',
+            color='Sentiment',
+            title="Sentiment Breakdown",
+            color_discrete_map={
+                'positive': 'green',
+                'neutral': 'gray',
+                'negative': 'red'
+            }
+        )
+        fig_sentiment_bar.update_layout(xaxis_title="Sentiment", yaxis_title="Number of Comments", xaxis_showgrid=False, yaxis_showgrid=False)
+        st.plotly_chart(fig_sentiment_bar, use_container_width=True)
+
+# ========================
 # Sentiment Distribution Analysis (Donut Chart)
 # ========================
 with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
