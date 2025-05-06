@@ -11,7 +11,7 @@ from scipy.stats import skew, kurtosis
 import plotly.graph_objects as go
 
 # Set layout, title, and page icon for the Streamlit app
-st.set_page_config(layout="wide", page_title="CAHSRA Sentiment Dashboard", page_icon="https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png")
+st.set_page_config(layout="wide", page_title="CAHSR Sentiment Dashboard", page_icon="https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png")
 
 # ========================
 # File Mappings by Source
@@ -57,9 +57,9 @@ def load_blob_csv(blob_name, container=CONTAINER_NAME):
 # ========================
 with st.container():
     st.image("https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png", width=60)
-    st.title("CAHSRA Sentiment Dashboard")
+    st.title("CAHSR Sentiment Dashboard")
     st.markdown("""
-    Welcome to the California High-Speed Rail Authority (CAHSRA) Sentiment Dashboard.
+    Welcome to the California High-Speed Rail (CAHSR) Sentiment Dashboard.
     
     This interactive dashboard aggregates and visualizes public sentiment across social and news media platforms, including Reddit, YouTube, Instagram, and Google News.
 
@@ -192,17 +192,29 @@ with st.expander("📡 Radar View of Average Sentiment per Category", expanded=T
 # Weekly Comment Volume
 # ========================
 with st.expander("📆 Weekly Comment Volume", expanded=True):
-    st.markdown("This chart shows the number of posts each week.")
+    st.markdown("This chart shows the number of posts over time.")
+    granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="volume_granularity")
+
     filtered_df['date'] = pd.to_datetime(filtered_df['date'])
     if filtered_df['date'].notna().any():
-        weekly_volume = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size().reset_index(name='count')
+        if granularity == "Daily":
+            volume = filtered_df.groupby(filtered_df['date'].dt.to_period('D')).size().reset_index(name='count')
+        elif granularity == "Monthly":
+            volume = filtered_df.groupby(filtered_df['date'].dt.to_period('M')).size().reset_index(name='count')
+        elif granularity == "Yearly":
+            volume = filtered_df.groupby(filtered_df['date'].dt.to_period('Y')).size().reset_index(name='count')
+        else:
+            volume = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size().reset_index(name='count')
+        volume['date'] = volume['date'].dt.start_time
+        if len(volume) > 1:
+            fig_volume = px.line(volume, x='date', y='count', title=f"{granularity} Comment Volume")
+            fig_volume.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+            fig_volume.update_traces(line_shape="spline")
+            st.plotly_chart(fig_volume, use_container_width=True)
+        else:
+            st.info("Not enough data points to generate a time series chart.")
     else:
-        weekly_volume = pd.DataFrame(columns=['date', 'count'])
-    weekly_volume['date'] = weekly_volume['date'].dt.start_time
-    fig_volume = px.line(weekly_volume, x='date', y='count', title="Weekly Comment Volume")
-    fig_volume.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
-    fig_volume.update_traces(line_shape="spline")
-    st.plotly_chart(fig_volume, use_container_width=True)
+        st.info("No valid date data available to plot volume.")
 
 # ========================
 # Sentiment Trend Over Time
