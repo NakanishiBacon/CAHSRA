@@ -172,7 +172,7 @@ if not filtered_df.empty:
             color_continuous_scale="Blues"
         )
         fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
-        fig_count.update_traces(hovertemplate='<b>%{y|title}</b><br>Mentions=%{x}')
+        fig_count.update_traces(hovertemplate='<b>%{y}</b><br>Mentions=%{x}')
         st.plotly_chart(fig_count, use_container_width=True)
 
 # ========================
