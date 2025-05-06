@@ -132,7 +132,7 @@ else:
     filtered_df = df_analysis
 
 # ========================
-# Category Mapping (used globally)
+# Category Mapping
 # ========================
 category_label_map = {
     "category_funding_cost": "Funding Cost",
@@ -173,6 +173,52 @@ if not filtered_df.empty:
         )
         fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
         st.plotly_chart(fig_count, use_container_width=True)
+
+# ========================
+# Sentiment Type Comparison
+# ========================
+if 'comment_label' in filtered_df.columns or 'sentiment_score' in filtered_df.columns:
+    if 'comment_label' in filtered_df.columns:
+        sentiment_col = 'comment_label'
+        filtered_df[sentiment_col] = filtered_df[sentiment_col].str.lower().str.strip()
+    elif 'sentiment_score' in filtered_df.columns:
+        sentiment_col = 'comment_label'
+        def score_to_label(score):
+            if score >= 0.05:
+                return 'positive'
+            elif score <= -0.05:
+                return 'negative'
+            else:
+                return 'neutral'
+        filtered_df[sentiment_col] = filtered_df['sentiment_score'].apply(score_to_label)
+
+    with st.expander("📊 Sentiment Type Comparison", expanded=True):
+        st.markdown("This donut chart shows the percentage breakdown of positive, neutral, and negative sentiment across the selected source.")
+        label_counts = filtered_df[sentiment_col].value_counts().to_dict()
+        expected_labels = ['positive', 'neutral', 'negative']
+        sentiment_counts = pd.DataFrame({
+            'Sentiment': expected_labels,
+            'Count': [label_counts.get(label, 0) for label in expected_labels]
+        })
+        fig_sentiment_pie = px.pie(
+            sentiment_counts,
+            names='Sentiment',
+            values='Count',
+            title="Sentiment Breakdown (Donut Chart)",
+            hole=0.5,
+            color='Sentiment',
+            color_discrete_map={
+                'positive': 'green',
+                'neutral': 'gray',
+                'negative': 'red'
+            }
+        )
+        fig_sentiment_pie.update_traces(textposition='inside', textinfo='percent+label')
+        st.plotly_chart(fig_sentiment_pie, use_container_width=True)
+
+# ========================
+# Radar View of Average Sentiment per Category
+# ========================
 with st.expander("📡 Radar View of Average Sentiment per Category", expanded=True):
     st.markdown("This radar chart shows average sentiment per category.")
     radar_fig = go.Figure()
@@ -188,8 +234,10 @@ with st.expander("📡 Radar View of Average Sentiment per Category", expanded=T
     )
     st.plotly_chart(radar_fig, use_container_width=True)
 
-
-with st.expander("📆 Weekly Comment Volume", expanded=True):
+# ========================
+# Comment Volume
+# ========================
+with st.expander("📆 Comment Volume", expanded=True):
     st.markdown("This chart shows the number of posts over time.")
     granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="volume_granularity")
 
@@ -214,7 +262,9 @@ with st.expander("📆 Weekly Comment Volume", expanded=True):
     else:
         st.info("No valid date data available to plot volume.")
 
-
+# ========================
+# Sentiment Trend Over Time
+# ========================
 with st.expander("📈 Sentiment Trend Over Time", expanded=True):
     st.markdown("This chart shows how public sentiment changes over time by category.")
     trend_granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="trend_granularity")
@@ -268,48 +318,6 @@ with st.expander("📉 Sentiment Momentum", expanded=True):
             st.plotly_chart(fig_momentum, use_container_width=True)
         else:
             st.info("Not enough data points to generate sentiment momentum.")
-
-# ========================
-# Sentiment Type Comparison
-# ========================
-if 'comment_label' in filtered_df.columns or 'sentiment_score' in filtered_df.columns:
-    if 'comment_label' in filtered_df.columns:
-        sentiment_col = 'comment_label'
-        filtered_df[sentiment_col] = filtered_df[sentiment_col].str.lower().str.strip()
-    elif 'sentiment_score' in filtered_df.columns:
-        sentiment_col = 'comment_label'
-        def score_to_label(score):
-            if score >= 0.05:
-                return 'positive'
-            elif score <= -0.05:
-                return 'negative'
-            else:
-                return 'neutral'
-        filtered_df[sentiment_col] = filtered_df['sentiment_score'].apply(score_to_label)
-
-    with st.expander("📊 Sentiment Type Comparison", expanded=True):
-        st.markdown("This donut chart shows the percentage breakdown of positive, neutral, and negative sentiment across the selected source.")
-        label_counts = filtered_df[sentiment_col].value_counts().to_dict()
-        expected_labels = ['positive', 'neutral', 'negative']
-        sentiment_counts = pd.DataFrame({
-            'Sentiment': expected_labels,
-            'Count': [label_counts.get(label, 0) for label in expected_labels]
-        })
-        fig_sentiment_pie = px.pie(
-            sentiment_counts,
-            names='Sentiment',
-            values='Count',
-            title="Sentiment Breakdown (Donut Chart)",
-            hole=0.5,
-            color='Sentiment',
-            color_discrete_map={
-                'positive': 'green',
-                'neutral': 'gray',
-                'negative': 'red'
-            }
-        )
-        fig_sentiment_pie.update_traces(textposition='inside', textinfo='percent+label')
-        st.plotly_chart(fig_sentiment_pie, use_container_width=True)
 
 # ========================
 # Sentiment Distribution Analysis (Donut Chart)
