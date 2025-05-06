@@ -242,18 +242,8 @@ with st.expander("📉 Sentiment Momentum", expanded=True):
 # ========================
 with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
     st.markdown("This chart shows the proportion of posts that mention vs. don't mention the selected category.")
-    category_labels_local = st.multiselect(
-        "Select a sentiment category to analyze",
-        list(category_label_map.values()),
-        default=[list(category_label_map.values())[0]]
-    )
-    selected_category_keys = [reverse_label_map[label] for label in category_labels_local]
-    category_labels_local = st.multiselect(
-        "Select a sentiment category to analyze",
-        list(category_label_map.values()),
-        default=[list(category_label_map.values())[0]]
-    )
-    selected_category = selected_category_keys[0]
+        selected_category_keys = [reverse_label_map[label] for label in category_labels_local]
+        selected_category = selected_category_keys[0]
     counts = filtered_df[selected_category].value_counts().sort_index()
     donut_df = pd.DataFrame({
         "Mentioned": ["No", "Yes"],
