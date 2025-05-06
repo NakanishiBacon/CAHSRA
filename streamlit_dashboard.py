@@ -230,7 +230,7 @@ with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
     col1, col2 = st.columns(2)
     col1.metric("Skewness", f"{sentiment_skew:.3f}")
     col2.metric("Kurtosis", f"{sentiment_kurt:.3f}")
-    fig_dist = px.histogram(selected_scores, nbins=50, marginal="violin", title=f"Sentiment Distribution for {category_label_map[selected_category_keys[0]]}")
+    fig_dist = px.histogram(pd.DataFrame({category_label_map[selected_category_keys[0]]: selected_scores}), nbins=50, marginal="violin", title=f"Sentiment Distribution for {category_label_map[selected_category_keys[0]]}")
     fig_dist.update_layout(legend_title_text='')
     st.plotly_chart(fig_dist, use_container_width=True)
 
