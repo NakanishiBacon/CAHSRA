@@ -178,8 +178,7 @@ if not filtered_df.empty:
 # ========================
 # Sentiment Type Comparison
 # ========================
-if 'comment_label' not in filtered_df.columns:
-    if 'sentiment_score' in filtered_df.columns:
+if 'comment_label' not in filtered_df.columns and 'sentiment_score' in filtered_df.columns:
         def score_to_label(score):
             if score >= 0.05:
                 return 'positive'
@@ -188,6 +187,9 @@ if 'comment_label' not in filtered_df.columns:
             else:
                 return 'neutral'
         filtered_df['comment_label'] = filtered_df['sentiment_score'].apply(score_to_label)
+
+# Ensure no NaNs or unexpected values interfere with chart generation
+filtered_df = filtered_df[filtered_df['comment_label'].isin(['positive', 'neutral', 'negative'])]
 
 if 'comment_label' in filtered_df.columns:
     filtered_df['comment_label'] = filtered_df['comment_label'].astype(str).str.lower().str.strip()
