@@ -153,7 +153,7 @@ with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
 # ========================
 # Average Sentiment per Category
 # ========================
-with st.expander("📊 Average Sentiment per Category", expanded=True):
+with st.expander("📊 Bar Chart of Average Sentiment per Category", expanded=True):
     st.markdown("This bar chart shows the mean sentiment score per category in the selected date range.")
     avg_scores = filtered_df[selected_category_keys].mean().reset_index()
     avg_scores.columns = ['Category', 'Average Sentiment']
@@ -161,6 +161,18 @@ with st.expander("📊 Average Sentiment per Category", expanded=True):
     fig_avg = px.bar(avg_scores, y='Category', x='Average Sentiment', orientation='h', color='Category', color_discrete_sequence=px.colors.sequential.Blues)
     fig_avg.update_layout(showlegend=False, xaxis_showgrid=False, yaxis_showgrid=False)
     st.plotly_chart(fig_avg, use_container_width=True)
+
+    st.markdown("📡 Radar View of Average Sentiment per Category")
+    st.markdown("This radar chart shows average sentiment per category.")
+    radar_fig = go.Figure()
+    radar_fig.add_trace(go.Scatterpolar(
+        r=avg_scores["Average Sentiment"],
+        theta=avg_scores["Category"],
+        fill='toself',
+        name='Average Sentiment'
+    ))
+    radar_fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[-1, 1])), showlegend=False)
+    st.plotly_chart(radar_fig, use_container_width=True)
 
 # ========================
 # Trend and Smoothing - Sentiment Over Time
@@ -218,21 +230,6 @@ if len(selected_category_keys) > 1:
         corr.index = [category_label_map[c] for c in corr.index]
         fig_corr = px.imshow(corr.round(2), text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
         st.plotly_chart(fig_corr, use_container_width=True)
-
-# ========================
-# Radar Chart for Category Sentiment
-# ========================
-with st.expander("📡 Radar View of Average Sentiment", expanded=True):
-    st.markdown("This radar chart shows average sentiment per category.")
-    radar_fig = go.Figure()
-    radar_fig.add_trace(go.Scatterpolar(
-        r=avg_scores["Average Sentiment"],
-        theta=avg_scores["Category"],
-        fill='toself',
-        name='Average Sentiment'
-    ))
-    radar_fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[-1, 1])), showlegend=False)
-    st.plotly_chart(radar_fig, use_container_width=True)
 
 # ========================
 # Time Series by Category (Individual Over Time)
