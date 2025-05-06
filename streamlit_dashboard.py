@@ -56,7 +56,8 @@ def load_blob_csv(blob_name, container=CONTAINER_NAME):
 # Landing Page
 # ========================
 with st.container():
-    st.title("🚄 CAHSR Sentiment Dashboard")
+    st.image("https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png", width=60)
+    st.title("CAHSR Sentiment Dashboard")
     st.markdown("""
     Welcome to the California High-Speed Rail (CAHSR) Sentiment Dashboard.
     
