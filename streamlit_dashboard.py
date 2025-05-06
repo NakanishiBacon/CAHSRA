@@ -8,13 +8,14 @@ from wordcloud import WordCloud, STOPWORDS
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import skew, kurtosis
+import plotly.graph_objects as go
 
+# Set layout, title, and page icon for the Streamlit app
 st.set_page_config(layout="wide", page_title="Sentiment Dashboard", page_icon="📊")
 
 # ========================
 # Azure Blob Setup
 # ========================
-# Set up connection to Azure Blob Storage
 AZURE_CONNECTION_STRING = st.secrets["AZURE_CONNECTION_STRING"]
 CONTAINER_NAME = "visualizationdata"
 
@@ -28,7 +29,6 @@ def load_blob_csv(blob_name, container=CONTAINER_NAME):
 # ========================
 # Load Raw Master Data
 # ========================
-# Load raw master data from YouTube, News, and Reddit containers
 df_youtube_master = load_blob_csv("youtube_master_comments.csv", container="datayoutube")
 df_news_master = load_blob_csv("google_news_master_articles.csv", container="datanews")
 df_reddit_master = load_blob_csv("reddit_master_comments.csv", container="datareddit")
@@ -41,9 +41,7 @@ def list_snapshot_blobs():
     container_client = blob_service_client.get_container_client("snapshots")
     return [blob.name for blob in container_client.list_blobs() if blob.name.startswith("google_news_articles") and blob.name.endswith(".csv")]
 
-# Load all matching snapshot CSVs from the 'snapshots' container
 snapshot_blobs = list_snapshot_blobs()
-
 df_snapshots_combined = pd.DataFrame()
 for blob_name in snapshot_blobs:
     df_temp = load_blob_csv(blob_name, container="snapshots")
@@ -72,53 +70,11 @@ blob_map = {
 }
 
 # ========================
-# Sidebar: Data Source Selection
+# Sidebar: Data Source Selection and Filters
 # ========================
 st.sidebar.header("🎛️ Controls")
 source_options = list(blob_map.keys()) + ["Combined"]
 source = st.sidebar.selectbox("Choose data source", source_options)
-
-# ========================
-# Safety Check and Basic UI
-# ========================
-if not source:
-    st.warning("Please select a data source from the sidebar.")
-    st.stop()
-
-st.title("📊 Sentiment Analysis Dashboard")
-st.markdown("This dashboard visualizes sentiment trends across Reddit, YouTube, and Google News.")
-st.info(f"You are viewing: **{source}** data")
-
-# ========================
-# Load Selected Analysis Data
-# ========================
-if source != "Combined":
-    blobs = blob_map[source]
-    df_analysis = load_blob_csv(blobs["analysis"])
-    df_wordcloud = load_blob_csv(blobs["wordcloud"])
-else:
-    dfs = []
-    df_wordclouds = []
-    for src, paths in blob_map.items():
-        temp_df = load_blob_csv(paths["analysis"])
-        temp_df["source"] = src
-        dfs.append(temp_df)
-        wc_temp = load_blob_csv(paths["wordcloud"])
-        wc_temp["source"] = src
-        df_wordclouds.append(wc_temp)
-    df_analysis = pd.concat(dfs, ignore_index=True)
-    df_wordcloud = pd.concat(df_wordclouds, ignore_index=True)
-
-# ========================
-# Preprocessing
-# ========================
-# Preprocess the date column by checking which datetime field exists
-if 'comment_published_at' in df_analysis.columns:
-    df_analysis['date'] = pd.to_datetime(df_analysis['comment_published_at'], errors='coerce')
-elif 'published_at' in df_analysis.columns:
-    df_analysis['date'] = pd.to_datetime(df_analysis['published_at'], errors='coerce')
-else:
-    df_analysis['date'] = pd.NaT
 
 category_label_map = {
     "category_funding_cost": "Funding Cost",
@@ -132,289 +88,156 @@ category_label_map = {
     "category_international_comparisons": "International Comparisons"
 }
 
-category_cols = [col for col in df_analysis.columns if col in category_label_map]
-
-if 'date' in df_analysis.columns and df_analysis['date'].notna().any():
-    date_range = st.sidebar.date_input("Date range", [df_analysis['date'].min(), df_analysis['date'].max()])
-    filtered_df = df_analysis[(df_analysis['date'] >= pd.to_datetime(date_range[0])) & (df_analysis['date'] <= pd.to_datetime(date_range[1]))]
-else:
-    st.warning("⚠️ No usable date column found. Displaying all records.")
-    filtered_df = df_analysis
-
-if filtered_df.empty:
-    st.warning("⚠️ No comments available for the selected date range.")
-    st.stop()
-
-# ========================
-# UI Metrics
-# ========================
-st.metric("Total Comments", len(filtered_df))
-st.divider()
+# Allow users to select which sentiment categories to display in visualizations
+sidebar_category_labels = st.sidebar.multiselect("Select sentiment categories to visualize", list(category_label_map.values()), default=list(category_label_map.values()))
+reverse_label_map = {v: k for k, v in category_label_map.items()}
+selected_category_keys = [reverse_label_map[label] for label in sidebar_category_labels]
 
 # ========================
 # Category Occurrence Count
 # ========================
-st.subheader("📊 Count of Posts Tagged by Category")
-st.markdown("This bar chart shows how many posts were tagged with each sentiment category. It's useful to gauge public attention toward different topics.")
-category_counts = filtered_df[category_cols].gt(0).sum().reset_index()
-category_counts.columns = ["Category", "Count"]
-category_counts["Category"] = category_counts["Category"].map(category_label_map)
-fig_count = px.bar(category_counts, y="Category", x="Count", orientation="h", color="Count", title="Number of Mentions per Sentiment Category", color_continuous_scale="Blues")
-fig_count.update_layout(showlegend=False, coloraxis_showscale=False)
-st.plotly_chart(fig_count, use_container_width=True)
-st.divider()
+with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
+    st.markdown("This chart shows how many posts were tagged with each sentiment category.")
+    category_counts = filtered_df[selected_category_keys].gt(0).sum().reset_index()
+    category_counts.columns = ["Category", "Count"]
+    category_counts["Category"] = category_counts["Category"].map(category_label_map)
+    fig_count = px.bar(category_counts, y="Category", x="Count", orientation="h", color="Count", title="Number of Mentions per Sentiment Category", color_continuous_scale="Blues")
+    fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
+    st.plotly_chart(fig_count, use_container_width=True)
 
 # ========================
 # Average Sentiment per Category
 # ========================
-st.subheader("📊 Average Sentiment per Category")
-st.markdown("This bar chart shows the mean sentiment score for each category within the selected date range.")
-avg_scores = filtered_df[category_cols].rename(columns=category_label_map).mean().reset_index()
-avg_scores.columns = ['Category', 'Average Sentiment']
-fig_avg = px.bar(avg_scores, y='Category', x='Average Sentiment', orientation='h', color='Category', color_discrete_sequence=px.colors.sequential.Blues)
-fig_avg.update_layout(showlegend=False, title="Mean Sentiment Score per Category")
-st.plotly_chart(fig_avg, use_container_width=True)
-st.divider()
+with st.expander("📊 Average Sentiment per Category", expanded=True):
+    st.markdown("This bar chart shows the mean sentiment score per category in the selected date range.")
+    avg_scores = filtered_df[selected_category_keys].mean().reset_index()
+    avg_scores.columns = ['Category', 'Average Sentiment']
+    avg_scores['Category'] = avg_scores['Category'].map(category_label_map)
+    fig_avg = px.bar(avg_scores, y='Category', x='Average Sentiment', orientation='h', color='Category', color_discrete_sequence=px.colors.sequential.Blues)
+    fig_avg.update_layout(showlegend=False, xaxis_showgrid=False, yaxis_showgrid=False)
+    st.plotly_chart(fig_avg, use_container_width=True)
 
 # ========================
-# Trend and Smoothing - updated
+# Trend and Smoothing - Sentiment Over Time
 # ========================
-st.subheader("📈 Sentiment Trend Over Time")
-
-st.markdown("""
-**What is the Sentiment Trend?**  
-This line chart shows how public sentiment changes over time for each topic.  
-It helps spot patterns like growing positivity or shifts in concern.
-""")
-
-category_reverse_map = {v: k for k, v in category_label_map.items()}
-
-multi_select_mode = st.toggle("Compare multiple categories", value=False)
-
-if multi_select_mode:
-    selected_labels = st.multiselect("Select categories to compare", [category_label_map[c] for c in category_cols], default=[category_label_map[category_cols[0]]])
-    selected_categories = [category_reverse_map[label] for label in selected_labels]
-else:
-    selected_label = st.selectbox("Select category to view trend", [category_label_map[c] for c in category_cols], key="trend_category_select")
-    selected_categories = [category_reverse_map[selected_label]]
-
-smoothing_option = st.selectbox("Smoothing", ["None", "7-Day Moving Average", "Monthly Average"])
-
-# Prepare trend data with optional smoothing and category comparison
-trend_df = filtered_df.copy()
-trend_df['date'] = pd.to_datetime(trend_df['date'])
-trend_df = trend_df.dropna(subset=['date'])
-
-trend_lines = []
-for cat in selected_categories:
-    temp = trend_df.copy()
-    if source != "Combined":
-        temp['source'] = source
-    grouped = temp.groupby([temp['date'].dt.date, 'source'])[cat].mean().reset_index(name='value')
-    grouped['date'] = pd.to_datetime(grouped['date'])
-    grouped['category'] = category_label_map[cat]
-    trend_lines.append(grouped)
-
-trend = pd.concat(trend_lines, ignore_index=True)
-
-if smoothing_option == "7-Day Moving Average":
-    trend = trend.set_index('date').groupby(['category', 'source']).rolling('7D').mean().reset_index()
-elif smoothing_option == "Monthly Average":
-    trend = trend.set_index('date').groupby(['category', 'source']).resample('M').mean().reset_index()
-
-fig_trend = px.line(trend, x='date', y='value', color='category' if multi_select_mode else 'source',
-                    title="Sentiment Trend Over Time")
-fig_trend.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)  # Disable gridlines
-st.plotly_chart(fig_trend, use_container_width=True)
-st.divider()
+with st.expander("📈 Sentiment Trend Over Time", expanded=True):
+    st.markdown("This chart shows how public sentiment changes over time by category.")
+    category_reverse_map = {v: k for k, v in category_label_map.items()}
+    trend_df = filtered_df.copy()
+    trend_df['date'] = pd.to_datetime(trend_df['date'])
+    trend_df = trend_df.dropna(subset=['date'])
+    time_series = trend_df.groupby(trend_df['date'].dt.to_period('W'))[selected_category_keys].mean().reset_index()
+    time_series['date'] = time_series['date'].dt.start_time
+    fig_time_series = px.line(time_series, x='date', y=selected_category_keys, title="Weekly Sentiment Trend")
+    fig_time_series.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+    st.plotly_chart(fig_time_series, use_container_width=True)
 
 # ========================
 # Sentiment Distribution Analysis
 # ========================
-st.subheader("📈 Sentiment Distribution Analysis")
-
-st.markdown("""
-**What is Sentiment Distribution?**  
-This histogram shows the spread of sentiment scores, helping identify if comments are mostly neutral, positive, or negative.  
-It also includes skewness (asymmetry) and kurtosis (peakedness) metrics.
-""")
-
-if multi_select_mode:
-    st.info("📌 Skewness & kurtosis shown for first selected category.")
-    selected_scores = filtered_df[selected_categories[0]].dropna()
-    display_label = category_label_map[selected_categories[0]]
-else:
-    selected_scores = filtered_df[selected_categories[0]].dropna()
-    display_label = selected_label
-
-# Calculate advanced statistics: skewness and kurtosis
-sentiment_skew = skew(selected_scores)
-sentiment_kurt = kurtosis(selected_scores)
-
-col1, col2 = st.columns(2)
-col1.metric("Skewness", f"{sentiment_skew:.3f}")
-col2.metric("Kurtosis", f"{sentiment_kurt:.3f}")
-
-fig_dist = px.histogram(selected_scores, nbins=50, marginal="violin", title=f"Sentiment Distribution for {display_label}", labels={"value": "Sentiment Score"})
-st.plotly_chart(fig_dist, use_container_width=True)
-st.divider()
+with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
+    st.markdown("This histogram shows the distribution of sentiment scores for selected categories.")
+    selected_scores = filtered_df[selected_category_keys[0]].dropna()
+    sentiment_skew = skew(selected_scores)
+    sentiment_kurt = kurtosis(selected_scores)
+    col1, col2 = st.columns(2)
+    col1.metric("Skewness", f"{sentiment_skew:.3f}")
+    col2.metric("Kurtosis", f"{sentiment_kurt:.3f}")
+    fig_dist = px.histogram(selected_scores, nbins=50, marginal="violin", title=f"Sentiment Distribution for {category_label_map[selected_category_keys[0]]}")
+    st.plotly_chart(fig_dist, use_container_width=True)
 
 # ========================
 # Correlation Heatmap
 # ========================
-if len(category_cols) > 1:
-    st.subheader("📉 Sentiment Category Correlation")
-
-    st.markdown("""
-    **What is the Correlation Heatmap?**  
-    This matrix compares how similarly sentiment scores across different categories behave over time.  
-    A value closer to 1 means two categories trend similarly, while -1 means they move in opposite directions.
-    """)
-    
-    # Compute correlation matrix between sentiment categories
-    corr = filtered_df[category_cols].corr()
-    corr.columns = [category_label_map.get(c, c) for c in corr.columns]
-    corr.index = [category_label_map.get(c, c) for c in corr.index]
-    fig_corr = px.imshow(corr.round(2), text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
-    st.plotly_chart(fig_corr, use_container_width=True)
-st.divider()
+if len(selected_category_keys) > 1:
+    with st.expander("📉 Sentiment Category Correlation", expanded=True):
+        st.markdown("This heatmap compares how similarly sentiment scores vary across categories.")
+        corr = filtered_df[selected_category_keys].corr()
+        corr.columns = [category_label_map[c] for c in corr.columns]
+        corr.index = [category_label_map[c] for c in corr.index]
+        fig_corr = px.imshow(corr.round(2), text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
+        st.plotly_chart(fig_corr, use_container_width=True)
 
 # ========================
 # Word Cloud Viewer
 # ========================
-st.subheader("☁️ Word Cloud Viewer")
-
-st.markdown("""
-**What is the Word Cloud?**  
-This visual displays the most frequently used words in the dataset.  
-Larger words appear more often and help illustrate major discussion themes.
-""")
-
-# User-defined stopwords input
-# Allow users to input their own stopwords to exclude from the word cloud
-custom_stopwords_input = st.text_input("Enter words to exclude from the word cloud (comma-separated):")
-custom_stopwords_list = [w.strip().lower() for w in custom_stopwords_input.split(",") if w.strip()]
-
-# Hardcoded base stopwords
-base_stopwords = {"thing", "like", "people", "just", "really", "got", "youre", "shit", "one", "new", "california", "project", "train", "high"}
-stopwords = set(STOPWORDS).union(base_stopwords).union(custom_stopwords_list)
-
-if 'word' in df_wordcloud.columns and 'count' in df_wordcloud.columns:
-    clean_df = df_wordcloud[~df_wordcloud['word'].str.lower().isin(stopwords)]
-    word_freq = dict(zip(clean_df['word'], clean_df['count']))
-
-    if word_freq:
-        wordcloud = WordCloud(width=800, height=400, background_color="white", stopwords=stopwords).generate_from_frequencies(word_freq)
-        fig, ax = plt.subplots(figsize=(10, 5))
-        ax.imshow(wordcloud, interpolation='bilinear')
-        ax.axis("off")
-        st.pyplot(fig)
-
-        buf = BytesIO()
-        fig.savefig(buf, format="png")
-        buf.seek(0)
-
-        st.download_button(label="📥 Download Word Cloud PNG", data=buf, file_name=f"{source.lower()}_wordcloud.png", mime="image/png")
+with st.expander("☁️ Word Cloud Viewer", expanded=True):
+    st.markdown("This visual displays the most frequently used words in the dataset.")
+    df_wordcloud = load_blob_csv(blob_map[source]["wordcloud"] if source != "Combined" else "reddit_post_word_cloud.csv")
+    custom_stopwords_input = st.text_input("Enter words to exclude from the word cloud (comma-separated):")
+    custom_stopwords_list = [w.strip().lower() for w in custom_stopwords_input.split(",") if w.strip()]
+    base_stopwords = {"thing", "like", "people", "just", "really", "got", "youre", "shit", "one", "new", "california", "project", "train", "high"}
+    stopwords = set(STOPWORDS).union(base_stopwords).union(custom_stopwords_list)
+    if 'word' in df_wordcloud.columns and 'count' in df_wordcloud.columns:
+        clean_df = df_wordcloud[~df_wordcloud['word'].str.lower().isin(stopwords)]
+        word_freq = dict(zip(clean_df['word'], clean_df['count']))
+        if word_freq:
+            wordcloud = WordCloud(width=800, height=400, background_color="white", stopwords=stopwords).generate_from_frequencies(word_freq)
+            fig, ax = plt.subplots(figsize=(10, 5))
+            ax.imshow(wordcloud, interpolation='bilinear')
+            ax.axis("off")
+            st.pyplot(fig)
+        else:
+            st.info("No words available to generate word cloud.")
     else:
-        st.info("No words available to generate word cloud.")
-else:
-    st.warning("⚠️ Word cloud file must contain 'word' and 'count' columns.")
-st.divider()
+        st.warning("⚠️ Word cloud file must contain 'word' and 'count' columns.")
 
 # ========================
 # Sentiment Momentum
 # ========================
-st.subheader("📉 Sentiment Momentum")
-
-st.markdown("""
-**What is Sentiment Momentum?**  
-This line shows how fast public sentiment is changing week over week.  
-A rising momentum suggests growing positivity, while a drop may signal declining approval.
-""")
-
-if len(selected_categories) == 1:
-    momentum_df = trend_df.copy()
-    momentum_df['date'] = pd.to_datetime(momentum_df['date'])
-    momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('W'))[selected_categories[0]].mean().diff().dropna().reset_index()
-    momentum_series['date'] = momentum_series['date'].dt.start_time
-    momentum_series.columns = ['date', 'momentum']
-    fig_momentum = px.line(momentum_series, x='date', y='momentum', title=f"Sentiment Momentum for {category_label_map[selected_categories[0]]}")
-    st.plotly_chart(fig_momentum, use_container_width=True)
+with st.expander("📉 Sentiment Momentum", expanded=True):
+    st.markdown("This chart shows the rate of change in sentiment over time.")
+    if selected_category_keys:
+        momentum_df = filtered_df.copy()
+        momentum_df['date'] = pd.to_datetime(momentum_df['date'])
+        momentum_df = momentum_df.dropna(subset=['date'])
+        momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('W'))[selected_category_keys[0]].mean().diff().dropna().reset_index()
+        momentum_series['date'] = momentum_series['date'].dt.start_time
+        momentum_series.columns = ['date', 'momentum']
+        fig_momentum = px.line(momentum_series, x='date', y='momentum', title=f"Sentiment Momentum for {category_label_map[selected_category_keys[0]]}")
+        fig_momentum.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+        st.plotly_chart(fig_momentum, use_container_width=True)
 
 # ========================
 # Radar Chart for Category Sentiment
 # ========================
-st.subheader("📡 Radar View of Average Sentiment")
-
-st.markdown("""
-**What is a Radar Chart?**  
-Each axis shows the average sentiment for a specific topic.  
-A balanced shape means similar sentiment across topics; skewed shapes show strong sentiment in specific areas.
-""")
-
-import plotly.graph_objects as go
-radar_fig = go.Figure()
-radar_fig.add_trace(go.Scatterpolar(
-    r=avg_scores["Average Sentiment"],
-    theta=avg_scores["Category"],
-    fill='toself',
-    name='Average Sentiment'
-))
-radar_fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[-1, 1])), showlegend=False)
-st.plotly_chart(radar_fig, use_container_width=True)
-
-# ========================
-# Time Series by Category (Individual Over Time)
-# ========================
-st.subheader("📈 Time Series for Each Category")
-
-st.markdown("""
-**What is the Time Series for Each Category?**  
-This chart shows how the average sentiment score for each topic changed week by week.  
-It's useful to compare temporal sentiment patterns between categories.
-""")
-
-time_range = st.date_input("Select date range for time series", [filtered_df['date'].min(), filtered_df['date'].max()], key="time_series_range")
-time_series_df = filtered_df[(filtered_df['date'] >= pd.to_datetime(time_range[0])) & (filtered_df['date'] <= pd.to_datetime(time_range[1]))].copy()
-time_series_df['date'] = pd.to_datetime(time_series_df['date'])
-time_series_df = time_series_df.dropna(subset=['date'])
-time_series = time_series_df.groupby(time_series_df['date'].dt.to_period('W'))[category_cols].mean().reset_index()
-time_series['date'] = time_series['date'].dt.start_time
-fig_time_series = px.line(time_series, x='date', y=category_cols, title="Weekly Average Sentiment per Category")
-st.plotly_chart(fig_time_series, use_container_width=True)
+with st.expander("📡 Radar View of Average Sentiment", expanded=True):
+    st.markdown("This radar chart shows average sentiment per category.")
+    radar_fig = go.Figure()
+    radar_fig.add_trace(go.Scatterpolar(
+        r=avg_scores["Average Sentiment"],
+        theta=avg_scores["Category"],
+        fill='toself',
+        name='Average Sentiment'
+    ))
+    radar_fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[-1, 1])), showlegend=False)
+    st.plotly_chart(radar_fig, use_container_width=True)
 
 # ========================
 # Weekly Comment Volume
 # ========================
-st.subheader("📆 Weekly Comment Volume")
-
-st.markdown("""
-**What is Weekly Comment Volume?**  
-This chart tracks how many comments or articles were posted each week.  
-It helps detect spikes or drops in overall activity related to high-speed rail topics.
-""")
-
-volume_range = st.date_input("Select date range for volume chart", [filtered_df['date'].min(), filtered_df['date'].max()], key="volume_date_range")
-filtered_volume_df = filtered_df[(filtered_df['date'] >= pd.to_datetime(volume_range[0])) & (filtered_df['date'] <= pd.to_datetime(volume_range[1]))]
-weekly_volume = filtered_volume_df.groupby(filtered_volume_df['date'].dt.to_period('W')).size().reset_index(name='count')
-weekly_volume['date'] = weekly_volume['date'].dt.start_time
-fig_volume = px.line(weekly_volume, x='date', y='count', title="Weekly Comment Volume")
-st.plotly_chart(fig_volume, use_container_width=True)
+with st.expander("📆 Weekly Comment Volume", expanded=True):
+    st.markdown("This chart shows the number of posts each week.")
+    filtered_df['date'] = pd.to_datetime(filtered_df['date'])
+    weekly_volume = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size().reset_index(name='count')
+    weekly_volume['date'] = weekly_volume['date'].dt.start_time
+    fig_volume = px.line(weekly_volume, x='date', y='count', title="Weekly Comment Volume")
+    fig_volume.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+    st.plotly_chart(fig_volume, use_container_width=True)
 
 # ========================
 # Export Summary Report
 # ========================
-st.subheader("📄 Export Summary Report")
-summary_text = f"""
+with st.expander("📄 Export Summary Report", expanded=True):
+    st.markdown("Download a text summary of the sentiment data.")
+    summary_text = f"""
 Sentiment Dashboard Summary Report - {source}
-Date Range: {date_range[0]} to {date_range[1]}
 Total Comments: {len(filtered_df)}
 
 Average Sentiment by Category:
 """
-for index, row in avg_scores.iterrows():
-    line = f"- {row['Category']}: {row['Average Sentiment']:.3f}"
-    summary_text += line
-
-summary_bytes = BytesIO(summary_text.encode('utf-8'))
-st.download_button(label="📥 Download Text Summary", data=summary_bytes, file_name=f"{source.lower()}_sentiment_summary.txt", mime="text/plain")
+    for index, row in avg_scores.iterrows():
+        line = f"- {row['Category']}: {row['Average Sentiment']:.3f}\n"
+        summary_text += line
+    summary_bytes = BytesIO(summary_text.encode('utf-8'))
+    st.download_button(label="📥 Download Text Summary", data=summary_bytes, file_name=f"{source.lower()}_sentiment_summary.txt", mime="text/plain")
