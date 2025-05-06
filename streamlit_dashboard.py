@@ -179,23 +179,38 @@ if not filtered_df.empty:
 # Sentiment Type Comparison
 # ========================
 if 'comment_label' in filtered_df.columns or 'sentiment_score' in filtered_df.columns:
-    if 'comment_label' in filtered_df.columns:
-        sentiment_col = 'comment_label'
-        filtered_df[sentiment_col] = filtered_df[sentiment_col].str.lower().str.strip()
-    elif 'sentiment_score' in filtered_df.columns:
-        sentiment_col = 'comment_label'
-        def score_to_label(score):
-            if score >= 0.05:
-                return 'positive'
-            elif score <= -0.05:
-                return 'negative'
-            else:
-                return 'neutral'
-        filtered_df[sentiment_col] = filtered_df['sentiment_score'].apply(score_to_label)
+    if source == "Combined":
+        if 'comment_label' in filtered_df.columns:
+            filtered_df['comment_label'] = filtered_df['comment_label'].str.lower().str.strip()
+            sentiment_col = 'comment_label'
+        elif 'sentiment_score' in filtered_df.columns:
+            def score_to_label(score):
+                if score >= 0.05:
+                    return 'positive'
+                elif score <= -0.05:
+                    return 'negative'
+                else:
+                    return 'neutral'
+            filtered_df['comment_label'] = filtered_df['sentiment_score'].apply(score_to_label)
+            sentiment_col = 'comment_label'
+    else:
+        if 'comment_label' in filtered_df.columns:
+            sentiment_col = 'comment_label'
+            filtered_df[sentiment_col] = filtered_df[sentiment_col].str.lower().str.strip()
+        elif 'sentiment_score' in filtered_df.columns:
+            sentiment_col = 'comment_label'
+            def score_to_label(score):
+                if score >= 0.05:
+                    return 'positive'
+                elif score <= -0.05:
+                    return 'negative'
+                else:
+                    return 'neutral'
+            filtered_df[sentiment_col] = filtered_df['sentiment_score'].apply(score_to_label)
 
     with st.expander("📊 Sentiment Type Comparison", expanded=True):
         st.markdown("This donut chart shows the percentage breakdown of positive, neutral, and negative sentiment across the selected source.")
-        label_counts = filtered_df[sentiment_col].value_counts().to_dict()
+        label_counts = filtered_df['comment_label'].value_counts().to_dict()
         expected_labels = ['positive', 'neutral', 'negative']
         sentiment_counts = pd.DataFrame({
             'Sentiment': [label.capitalize() for label in expected_labels],
