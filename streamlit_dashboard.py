@@ -273,7 +273,6 @@ with st.expander("📉 Sentiment Momentum", expanded=True):
 # Sentiment Type Comparison
 # ========================
 if 'comment_label' in filtered_df.columns or 'sentiment_score' in filtered_df.columns:
-    st.markdown("✅ Sentiment-related column found in filtered_df.")
     if 'comment_label' in filtered_df.columns:
         sentiment_col = 'comment_label'
         filtered_df[sentiment_col] = filtered_df[sentiment_col].str.lower().str.strip()
