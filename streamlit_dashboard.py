@@ -55,6 +55,7 @@ def load_blob_csv(blob_name, container=CONTAINER_NAME):
 # ========================
 # Landing Page
 # ========================
+st.markdown(f"### 📊 Total Posts: {len(filtered_df):,}")
 with st.container():
     st.image("https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png", width=60)
     st.title("CAHSR Sentiment Dashboard")
@@ -287,27 +288,28 @@ if 'comment_label' in filtered_df.columns or 'sentiment_score' in filtered_df.co
         filtered_df[sentiment_col] = filtered_df['sentiment_score'].apply(score_to_label)
 
     with st.expander("📊 Sentiment Type Comparison", expanded=True):
-        st.markdown("This bar chart compares the volume of positive, neutral, and negative sentiment across the selected source.")
+        st.markdown("This donut chart shows the percentage breakdown of positive, neutral, and negative sentiment across the selected source.")
         label_counts = filtered_df[sentiment_col].value_counts().to_dict()
         expected_labels = ['positive', 'neutral', 'negative']
         sentiment_counts = pd.DataFrame({
             'Sentiment': expected_labels,
             'Count': [label_counts.get(label, 0) for label in expected_labels]
         })
-        fig_sentiment_bar = px.bar(
+        fig_sentiment_pie = px.pie(
             sentiment_counts,
-            x='Sentiment',
-            y='Count',
+            names='Sentiment',
+            values='Count',
+            title="Sentiment Breakdown (Donut Chart)",
+            hole=0.5,
             color='Sentiment',
-            title="Sentiment Breakdown",
             color_discrete_map={
                 'positive': 'green',
                 'neutral': 'gray',
                 'negative': 'red'
             }
         )
-        fig_sentiment_bar.update_layout(xaxis_title="Sentiment", yaxis_title="Number of Comments", xaxis_showgrid=False, yaxis_showgrid=False)
-        st.plotly_chart(fig_sentiment_bar, use_container_width=True)
+        fig_sentiment_pie.update_traces(textposition='inside', textinfo='percent+label')
+        st.plotly_chart(fig_sentiment_pie, use_container_width=True)
 
 # ========================
 # Sentiment Distribution Analysis (Donut Chart)
