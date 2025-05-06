@@ -299,13 +299,20 @@ with st.expander("🖼️ Download Visualizations", expanded=False):
             mime="image/png"
         )
 
-    download_plot(fig_count, "count_of_posts_by_category")
-    download_plot(radar_fig, "radar_category_sentiment")
-    download_plot(fig_volume, "weekly_comment_volume")
-    download_plot(fig_time_series, "sentiment_trend_over_time")
-    download_plot(fig_momentum, "sentiment_momentum")
-    download_plot(fig_donut, f"mention_distribution_{selected_category}")
+    if 'fig_count' in locals():
+        download_plot(fig_count, "count_of_posts_by_category")
+    if 'radar_fig' in locals():
+        download_plot(radar_fig, "radar_category_sentiment")
+    if 'fig_volume' in locals():
+        download_plot(fig_volume, "weekly_comment_volume")
+    if 'fig_time_series' in locals():
+        download_plot(fig_time_series, "sentiment_trend_over_time")
+    if 'fig_momentum' in locals():
+        download_plot(fig_momentum, "sentiment_momentum")
+    if 'fig_donut' in locals():
+        download_plot(fig_donut, f"mention_distribution_{selected_category}")
     if len(selected_category_keys) > 1:
+        if 'fig_corr' in locals():
         download_plot(fig_corr, "sentiment_category_correlation")
 
 # ========================
