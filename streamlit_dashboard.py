@@ -217,7 +217,8 @@ if 'comment_label' in filtered_df.columns or 'sentiment_score' in filtered_df.co
         fig_sentiment_pie.update_traces(
             textposition='inside',
             textinfo='percent',
-            hovertemplate='<b>%{label}</b><br>Percentage=%{percent}<br>Count=%{value}'
+            hovertemplate='<b>%{label}</b><br>Percentage=%{percent:.2%}<br>Count=%{value}',
+            texttemplate='%{percent:.0%}'
         )
         st.plotly_chart(fig_sentiment_pie, use_container_width=True)
 
