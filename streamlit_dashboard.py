@@ -275,7 +275,7 @@ if 'comment_label' in filtered_df.columns:
     st.write("Sample unique values in 'sentiment':", filtered_df['comment_label'].dropna().unique())
     with st.expander("📊 Sentiment Type Comparison", expanded=True):
         st.markdown("This bar chart compares the volume of positive, neutral, and negative sentiment across the selected source.")
-        sentiment_counts = filtered_df['sentiment'].value_counts().reset_index()
+        sentiment_counts = filtered_df['comment_label'].value_counts().reset_index()
         sentiment_counts.columns = ['Sentiment', 'Count']
         sentiment_counts = sentiment_counts[sentiment_counts['Sentiment'].isin(['positive', 'neutral', 'negative'])]
         fig_sentiment_bar = px.bar(
