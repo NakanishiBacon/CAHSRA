@@ -294,7 +294,7 @@ with st.expander("📈 Sentiment Trend Over Time", expanded=True):
         if not time_series.empty:
             fig_time_series = px.line(time_series.rename(columns=category_label_map), x='date', y=[category_label_map[k] for k in selected_category_keys], title=f"{trend_granularity} Sentiment Trend")
             fig_time_series.update_layout(xaxis_showgrid=False, yaxis_showgrid=False, legend_title_text='')
-            fig_time_series.update_traces(hovertemplate='<b>%{x|title}</b><br>Sentiment=%{y:.2f}'))
+            fig_time_series.update_traces(hovertemplate='<b>%{x|title}</b><br>Sentiment=%{y:.2f}')
             st.plotly_chart(fig_time_series, use_container_width=True)
         else:
             st.info("No sentiment data available to plot trend.")
