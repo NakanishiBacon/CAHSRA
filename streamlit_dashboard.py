@@ -146,59 +146,10 @@ with st.expander("📆 Weekly Comment Volume", expanded=True):
     weekly_volume['date'] = weekly_volume['date'].dt.start_time
     fig_volume = px.line(weekly_volume, x='date', y='count', title="Weekly Comment Volume")
     fig_volume.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+    fig_volume.update_traces(line_shape="spline")
     st.plotly_chart(fig_volume, use_container_width=True)
 
-# ========================
-# Category Occurrence Count
-# ========================
-with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
-    st.markdown("This chart shows how many posts were tagged with each sentiment category.")
-    order_choice_count = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order_count")
-    category_counts = filtered_df[selected_category_keys].gt(0).sum().reset_index()
-    category_counts.columns = ["Category", "Count"]
-    category_counts["Category"] = category_counts["Category"].map(category_label_map)
-    if order_choice_count == "Value":
-        category_counts = category_counts.sort_values("Count", ascending=False)
-    else:
-        category_counts = category_counts.sort_values("Category")
-    fig_count = px.bar(
-        category_counts,
-        y="Category",
-        x="Count",
-        orientation="h",
-        color="Count",
-        title="Number of Mentions per Sentiment Category",
-        color_continuous_scale="Blues"
-    )
-    fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
-    st.plotly_chart(fig_count, use_container_width=True)
-
-# ========================
-# Category Occurrence Count
-# ========================
-with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
-    st.markdown("This chart shows how many posts were tagged with each sentiment category.")
-    # Unified control for bar chart order
-    order_choice = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order_count")
-    category_counts = filtered_df[selected_category_keys].gt(0).sum().reset_index()
-    category_counts.columns = ["Category", "Count"]
-    category_counts["Category"] = category_counts["Category"].map(category_label_map)
-    if order_choice_avg == "Value":
-        category_counts = category_counts.sort_values("Count", ascending=False)
-    else:
-        category_counts = category_counts.sort_values("Category")
-    fig_count = px.bar(
-        category_counts,
-        y="Category",
-        x="Count",
-        orientation="h",
-        color="Count",
-        title="Number of Mentions per Sentiment Category",
-        color_continuous_scale="Blues"
-    )
-    fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
-    st.plotly_chart(fig_count, use_container_width=True)
-
+  
 # ========================
 # Average Sentiment per Category
 # ========================
@@ -208,7 +159,7 @@ with st.expander("📊 Bar Chart of Average Sentiment per Category", expanded=Tr
     avg_scores = filtered_df[selected_category_keys].mean().reset_index()
     avg_scores.columns = ['Category', 'Average Sentiment']
     avg_scores['Category'] = avg_scores['Category'].map(category_label_map)
-    if order_choice == "Value":
+    if order_choice_avg == "Value":
         avg_scores = avg_scores.sort_values("Average Sentiment", ascending=False)
     else:
         avg_scores = avg_scores.sort_values("Category")
@@ -224,7 +175,22 @@ with st.expander("📊 Bar Chart of Average Sentiment per Category", expanded=Tr
     st.plotly_chart(fig_avg, use_container_width=True)
 
 # ========================
-# Trend and Smoothing - Sentiment Over Time
+# Radar Chart for Category Sentiment
+# ========================
+with st.expander("📡 Radar View of Average Sentiment per Category", expanded=True):
+    st.markdown("This radar chart shows average sentiment per category.")
+    radar_fig = go.Figure()
+    radar_fig.add_trace(go.Scatterpolar(
+        r=avg_scores["Average Sentiment"],
+        theta=avg_scores["Category"],
+        fill='toself',
+        name='Average Sentiment'
+    ))
+    radar_fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[-1, 1])), showlegend=False)
+    st.plotly_chart(radar_fig, use_container_width=True)
+
+# ========================
+# Sentiment Over Time
 # ========================
 with st.expander("📈 Sentiment Trend Over Time", expanded=True):
     st.markdown("This chart shows how public sentiment changes over time by category.")
@@ -278,6 +244,66 @@ if len(selected_category_keys) > 1:
         corr.index = [category_label_map[c] for c in corr.index]
         fig_corr = px.imshow(corr.round(2), text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
         st.plotly_chart(fig_corr, use_container_width=True)
+
+# ========================
+# Count of Posts Tagged by Category
+# ========================
+with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
+    st.markdown("This chart shows how many posts were tagged with each sentiment category.")
+    order_choice_count = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order_count_unique")
+    category_counts = filtered_df[selected_category_keys].gt(0).sum().reset_index()
+    category_counts.columns = ["Category", "Count"]
+    category_counts["Category"] = category_counts["Category"].map(category_label_map)
+    if order_choice_count == "Value":
+        category_counts = category_counts.sort_values("Count", ascending=False)
+    else:
+        category_counts = category_counts.sort_values("Category")
+    fig_count = px.bar(
+        category_counts,
+        y="Category",
+        x="Count",
+        orientation="h",
+        color="Count",
+        title="Number of Mentions per Sentiment Category",
+        color_continuous_scale="Blues"
+    )
+    fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
+    st.plotly_chart(fig_count, use_container_width=True)
+
+# ========================
+# Word Cloud Viewer
+# ========================
+with st.expander("☁️ Word Cloud Viewer", expanded=True):
+    st.markdown("This visual displays the most frequently used words in the dataset.")
+    wordcloud_files = blob_map[source]["wordcloud"] if source != "Combined" else "reddit_post_word_cloud.csv"
+    df_wordcloud = pd.DataFrame()
+    if isinstance(wordcloud_files, list):
+        for wc_file in wordcloud_files:
+            df_temp = load_blob_csv(wc_file)
+            df_wordcloud = pd.concat([df_wordcloud, df_temp], ignore_index=True)
+    else:
+        df_wordcloud = load_blob_csv(wordcloud_files)
+
+    custom_stopwords_input = st.text_input("Enter words to exclude from the word cloud (comma-separated):")
+    custom_stopwords_list = [w.strip().lower() for w in custom_stopwords_input.split(",") if w.strip()]
+    base_stopwords = {"thing", "like", "people", "just", "really", "got", "youre", "shit", "one", "new", "california", "project", "train", "high"}
+    stopwords = set(STOPWORDS).union(base_stopwords).union(custom_stopwords_list)
+
+    if 'word' in df_wordcloud.columns and 'count' in df_wordcloud.columns:
+        clean_df = df_wordcloud.groupby('word', as_index=False)['count'].sum()
+        clean_df = clean_df[~clean_df['word'].str.lower().isin(stopwords)]
+        word_freq = dict(zip(clean_df['word'], clean_df['count']))
+
+        if word_freq:
+            wordcloud = WordCloud(width=800, height=400, background_color="white", stopwords=stopwords).generate_from_frequencies(word_freq)
+            fig, ax = plt.subplots(figsize=(10, 5))
+            ax.imshow(wordcloud, interpolation='bilinear')
+            ax.axis("off")
+            st.pyplot(fig)
+        else:
+            st.info("No words available to generate word cloud.")
+    else:
+        st.warning("⚠️ Word cloud file must contain 'word' and 'count' columns.")
 
 # ========================
 # Export Summary Report
