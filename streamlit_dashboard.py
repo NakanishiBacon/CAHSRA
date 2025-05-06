@@ -175,11 +175,37 @@ with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
     st.plotly_chart(fig_count, use_container_width=True)
 
 # ========================
+# Category Occurrence Count
+# ========================
+with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
+    st.markdown("This chart shows how many posts were tagged with each sentiment category.")
+    # Unified control for bar chart order
+    order_choice = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order_count")
+    category_counts = filtered_df[selected_category_keys].gt(0).sum().reset_index()
+    category_counts.columns = ["Category", "Count"]
+    category_counts["Category"] = category_counts["Category"].map(category_label_map)
+    if order_choice == "Value":
+    category_counts = category_counts.sort_values("Count", ascending=False)
+    else:
+        category_counts = category_counts.sort_values("Category")
+    fig_count = px.bar(
+        category_counts,
+        y="Category",
+        x="Count",
+        orientation="h",
+        color="Count",
+        title="Number of Mentions per Sentiment Category",
+        color_continuous_scale="Blues"
+    )
+    fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
+    st.plotly_chart(fig_count, use_container_width=True)
+
+# ========================
 # Average Sentiment per Category
 # ========================
 with st.expander("📊 Bar Chart of Average Sentiment per Category", expanded=True):
     st.markdown("This bar chart shows the mean sentiment score per category in the selected date range.")
-    order_choice = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order")
+    order_choice_avg = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order_avg")
     avg_scores = filtered_df[selected_category_keys].mean().reset_index()
     avg_scores.columns = ['Category', 'Average Sentiment']
     avg_scores['Category'] = avg_scores['Category'].map(category_label_map)
@@ -197,21 +223,6 @@ with st.expander("📊 Bar Chart of Average Sentiment per Category", expanded=Tr
     )
     fig_avg.update_layout(showlegend=False, xaxis_showgrid=False, yaxis_showgrid=False)
     st.plotly_chart(fig_avg, use_container_width=True)
-
-# ========================
-# Radar Chart for Category Sentiment
-# ========================
-with st.expander("📡 Radar View of Average Sentiment per Category", expanded=True):
-    st.markdown("This radar chart shows average sentiment per category.")
-    radar_fig = go.Figure()
-    radar_fig.add_trace(go.Scatterpolar(
-        r=avg_scores["Average Sentiment"],
-        theta=avg_scores["Category"],
-        fill='toself',
-        name='Average Sentiment'
-    ))
-    radar_fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[-1, 1])), showlegend=False)
-    st.plotly_chart(radar_fig, use_container_width=True)
 
 # ========================
 # Trend and Smoothing - Sentiment Over Time
