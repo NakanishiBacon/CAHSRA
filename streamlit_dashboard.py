@@ -155,29 +155,6 @@ with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
     fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
     st.plotly_chart(fig_count, use_container_width=True)
 
-# ========================
-# Average Sentiment per Category
-# ========================
-with st.expander("📊 Bar Chart of Average Sentiment per Category", expanded=True):
-    st.markdown("This bar chart shows the mean sentiment score per category in the selected date range.")
-    order_choice_avg = st.radio("Order bars by (avg sentiment):", ["Alphabetical", "Value"], horizontal=True, key="category_order_avg")
-    avg_scores = filtered_df[selected_category_keys].mean().reset_index()
-    avg_scores.columns = ['Category', 'Average Sentiment']
-    avg_scores['Category'] = avg_scores['Category'].map(category_label_map)
-    if order_choice_avg == "Value":
-        avg_scores = avg_scores.sort_values("Average Sentiment", ascending=False)
-    else:
-        avg_scores = avg_scores.sort_values("Category")
-    fig_avg = px.bar(
-        avg_scores,
-        y='Category',
-        x='Average Sentiment',
-        orientation='h',
-        color='Category',
-        color_discrete_sequence=px.colors.sequential.Blues
-    )
-    fig_avg.update_layout(showlegend=False, xaxis_showgrid=False, yaxis_showgrid=False)
-    st.plotly_chart(fig_avg, use_container_width=True)
 
 # ========================
 # Radar Chart for Category Sentiment
