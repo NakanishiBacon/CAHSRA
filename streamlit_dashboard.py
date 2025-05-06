@@ -190,7 +190,7 @@ with st.expander("📡 Radar View of Average Sentiment per Category", expanded=T
     st.plotly_chart(radar_fig, use_container_width=True)
 
 # ========================
-# Sentiment Over Time
+# Sentiment Trend Over Time
 # ========================
 with st.expander("📈 Sentiment Trend Over Time", expanded=True):
     st.markdown("This chart shows how public sentiment changes over time by category.")
@@ -201,7 +201,7 @@ with st.expander("📈 Sentiment Trend Over Time", expanded=True):
     time_series['date'] = time_series['date'].dt.start_time
     fig_time_series = px.line(time_series.rename(columns=category_label_map), x='date', y=[category_label_map[k] for k in selected_category_keys], title="Weekly Sentiment Trend")
     fig_time_series.for_each_trace(lambda t: t.update(name=""))
-    fig_time_series.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+    fig_time_series.update_layout(xaxis_showgrid=False, yaxis_showgrid=False, legend_title_text='')
     st.plotly_chart(fig_time_series, use_container_width=True)
 
 # ========================
