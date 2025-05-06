@@ -91,7 +91,7 @@ Container: `visualizationdata`
 ## Authors
 
 **Iakona Nakanishi, Nikolas Perez Linggi, Yun-Hsuan Ku, Mei-Chi Chen**  
-Marketing and Analytics Honors Project – Spring 2025  
+Honors Practicum in Marketing and Business Analytics Project – Spring 2025  
 San Jose State University  
 Contact: iakona.nakanishi@sjsu.edu
 
