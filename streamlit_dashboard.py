@@ -25,7 +25,7 @@ blob_map = {
     "YouTube": {
         "analysis": "youtube_analysis.csv",
         "timeseries": "youtube_time_series.csv",
-        "wordcloud": "youtube_wordcloud.csv"
+        "wordcloud": "youtube_word_cloud.csv"
     },
     "Instagram": {
         "analysis": "instagram_analysis.csv",
@@ -274,6 +274,12 @@ with st.expander("☁️ Word Cloud Viewer", expanded=True):
     else:
         try:
             df_wordcloud = load_blob_csv(wordcloud_files)
+        except Exception as e:
+            if source == "YouTube":
+                df_wordcloud = pd.read_csv("/mnt/data/youtube_word_cloud.csv")
+            else:
+                st.warning(f"⚠️ Could not load word cloud file for {source}. Reason: {str(e)}")
+                df_wordcloud = pd.DataFrame()
         except Exception as e:
             st.warning(f"⚠️ Could not load word cloud file for {source}. Reason: {str(e)}")
             df_wordcloud = pd.DataFrame()
