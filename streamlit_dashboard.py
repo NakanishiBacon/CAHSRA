@@ -153,10 +153,23 @@ with st.expander("📆 Weekly Comment Volume", expanded=True):
 # ========================
 with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
     st.markdown("This chart shows how many posts were tagged with each sentiment category.")
+    order_choice = st.radio("Order bars by:", ["Alphabetical", "Count"], horizontal=True, key="category_count_order")
     category_counts = filtered_df[selected_category_keys].gt(0).sum().reset_index()
     category_counts.columns = ["Category", "Count"]
     category_counts["Category"] = category_counts["Category"].map(category_label_map)
-    fig_count = px.bar(category_counts, y="Category", x="Count", orientation="h", color="Count", title="Number of Mentions per Sentiment Category", color_continuous_scale="Blues")
+    if order_choice == "Count":
+        category_counts = category_counts.sort_values("Count", ascending=False)
+    else:
+        category_counts = category_counts.sort_values("Category")
+    fig_count = px.bar(
+        category_counts,
+        y="Category",
+        x="Count",
+        orientation="h",
+        color="Count",
+        title="Number of Mentions per Sentiment Category",
+        color_continuous_scale="Blues"
+    )
     fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
     st.plotly_chart(fig_count, use_container_width=True)
 
@@ -165,10 +178,22 @@ with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
 # ========================
 with st.expander("📊 Bar Chart of Average Sentiment per Category", expanded=True):
     st.markdown("This bar chart shows the mean sentiment score per category in the selected date range.")
+    order_choice_avg = st.radio("Order bars by:", ["Alphabetical", "Sentiment"], horizontal=True, key="avg_sentiment_order")
     avg_scores = filtered_df[selected_category_keys].mean().reset_index()
     avg_scores.columns = ['Category', 'Average Sentiment']
     avg_scores['Category'] = avg_scores['Category'].map(category_label_map)
-    fig_avg = px.bar(avg_scores, y='Category', x='Average Sentiment', orientation='h', color='Category', color_discrete_sequence=px.colors.sequential.Blues)
+    if order_choice_avg == "Sentiment":
+        avg_scores = avg_scores.sort_values("Average Sentiment", ascending=False)
+    else:
+        avg_scores = avg_scores.sort_values("Category")
+    fig_avg = px.bar(
+        avg_scores,
+        y='Category',
+        x='Average Sentiment',
+        orientation='h',
+        color='Category',
+        color_discrete_sequence=px.colors.sequential.Blues
+    )
     fig_avg.update_layout(showlegend=False, xaxis_showgrid=False, yaxis_showgrid=False)
     st.plotly_chart(fig_avg, use_container_width=True)
 
@@ -197,7 +222,7 @@ with st.expander("📈 Sentiment Trend Over Time", expanded=True):
     trend_df = trend_df.dropna(subset=['date'])
     time_series = trend_df.groupby(trend_df['date'].dt.to_period('W'))[selected_category_keys].mean().reset_index()
     time_series['date'] = time_series['date'].dt.start_time
-    fig_time_series = px.line(time_series, x='date', y=selected_category_keys, title="Weekly Sentiment Trend")
+    fig_time_series = px.line(time_series.rename(columns=category_label_map), x='date', y=[category_label_map[k] for k in selected_category_keys], title="Weekly Sentiment Trend")
     fig_time_series.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
     st.plotly_chart(fig_time_series, use_container_width=True)
 
@@ -242,20 +267,6 @@ if len(selected_category_keys) > 1:
         corr.index = [category_label_map[c] for c in corr.index]
         fig_corr = px.imshow(corr.round(2), text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
         st.plotly_chart(fig_corr, use_container_width=True)
-
-# ========================
-# Time Series by Category (Individual Over Time)
-# ========================
-with st.expander("📈 Time Series for Each Category", expanded=True):
-    st.markdown("This chart shows how the average sentiment score for each category changed week by week.")
-    time_series_df = filtered_df.copy()
-    time_series_df['date'] = pd.to_datetime(time_series_df['date'])
-    time_series_df = time_series_df.dropna(subset=['date'])
-    weekly_avg = time_series_df.groupby(time_series_df['date'].dt.to_period('W'))[selected_category_keys].mean().reset_index()
-    weekly_avg['date'] = weekly_avg['date'].dt.start_time
-    fig_category_time_series = px.line(weekly_avg, x='date', y=selected_category_keys, title="Time Series of Weekly Average Sentiment by Category")
-    fig_category_time_series.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
-    st.plotly_chart(fig_category_time_series, use_container_width=True)
 
 # ========================
 # Export Summary Report
