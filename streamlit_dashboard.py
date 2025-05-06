@@ -209,7 +209,7 @@ with st.expander("📆 Weekly Comment Volume", expanded=True):
         if len(volume) > 1:
             fig_volume = px.line(volume, x='date', y='count', title=f"{granularity} Comment Volume")
             fig_volume.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
-            fig_volume.update_traces(line_shape="spline")
+            fig_volume.update_traces(line_shape="linear")
             st.plotly_chart(fig_volume, use_container_width=True)
         else:
             st.info("Not enough data points to generate a time series chart.")
