@@ -129,6 +129,7 @@ if 'date' in df_analysis.columns and df_analysis['date'].notna().any():
 else:
     filtered_df = df_analysis
 
+
 # ========================
 # Category Mapping (used globally)
 # ========================
