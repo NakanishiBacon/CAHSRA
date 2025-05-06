@@ -243,35 +243,29 @@ with st.expander("📉 Sentiment Momentum", expanded=True):
         fig_momentum.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
         st.plotly_chart(fig_momentum, use_container_width=True)
 
-# ========================
-# Sentiment Distribution Analysis
-# ========================
-with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
-    st.markdown("This histogram shows the distribution of sentiment scores for selected categories.")
-    selected_scores = filtered_df[selected_category_keys[0]].dropna()
-    sentiment_skew = skew(selected_scores)
-    sentiment_kurt = kurtosis(selected_scores)
-    col1, col2 = st.columns(2)
-    col1.metric("Skewness", f"{sentiment_skew:.3f}")
-    col2.metric("Kurtosis", f"{sentiment_kurt:.3f}")
-    fig_dist = px.histogram(pd.DataFrame({category_label_map[selected_category_keys[0]]: selected_scores}), nbins=50, marginal="violin", title=f"Sentiment Distribution for {category_label_map[selected_category_keys[0]]}")
-    fig_dist.update_layout(legend_title_text='')
-    st.plotly_chart(fig_dist, use_container_width=True)
+
 
 # ========================
-# Sentiment Distribution Analysis (Binary Version)
+# Sentiment Distribution Analysis (Donut Chart)
 # ========================
 with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
-    st.markdown("This chart shows the proportion of mentions (1) vs. non-mentions (0) for the selected category.")
+    st.markdown("This chart shows the proportion of posts that mention vs. don't mention the selected category.")
     selected_category = selected_category_keys[0]
     counts = filtered_df[selected_category].value_counts().sort_index()
-    binary_df = pd.DataFrame({
+    donut_df = pd.DataFrame({
         "Mentioned": ["No", "Yes"],
         "Count": [counts.get(0, 0), counts.get(1, 0)]
     })
-    fig_binary = px.bar(binary_df, x="Mentioned", y="Count", color="Mentioned", title=f"Binary Sentiment Distribution: {category_label_map[selected_category]}")
-    fig_binary.update_layout(showlegend=False, xaxis_title="", yaxis_title="Count", legend_title_text="")
-    st.plotly_chart(fig_binary, use_container_width=True)
+    fig_donut = px.pie(
+        donut_df,
+        names="Mentioned",
+        values="Count",
+        title=f"Mention Proportion for {category_label_map[selected_category]}",
+        hole=0.5
+    )
+    fig_donut.update_traces(textposition='inside', textinfo='percent+label')
+    fig_donut.update_layout(showlegend=True, legend_title_text="")
+    st.plotly_chart(fig_donut, use_container_width=True)
 
 # ========================
 # Correlation Heatmap
