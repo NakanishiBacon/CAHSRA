@@ -272,13 +272,15 @@ with st.expander("📉 Sentiment Momentum", expanded=True):
 # ========================
 if 'comment_label' in filtered_df.columns:
     st.markdown("✅ 'comment_label' column found in filtered_df.")
-    st.write("Sample unique values in 'comment_label':", filtered_df['comment_label'].dropna().unique())
     filtered_df['comment_label'] = filtered_df['comment_label'].str.lower().str.strip()
     with st.expander("📊 Sentiment Type Comparison", expanded=True):
         st.markdown("This bar chart compares the volume of positive, neutral, and negative sentiment across the selected source.")
-        sentiment_counts = filtered_df['comment_label'].value_counts().reset_index()
-        sentiment_counts.columns = ['Sentiment', 'Count']
-        sentiment_counts = sentiment_counts[sentiment_counts['Sentiment'].isin(['positive', 'neutral', 'negative'])]
+        label_counts = filtered_df['comment_label'].value_counts().to_dict()
+        expected_labels = ['positive', 'neutral', 'negative']
+        sentiment_counts = pd.DataFrame({
+            'Sentiment': expected_labels,
+            'Count': [label_counts.get(label, 0) for label in expected_labels]
+        })
         fig_sentiment_bar = px.bar(
             sentiment_counts,
             x='Sentiment',
