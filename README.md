@@ -26,12 +26,18 @@ If you want to run the dashboard locally on your own machine (for development or
    ```
 
 2. **Set up your Azure secrets**  
-   Create a `.streamlit/secrets.toml` file and add your Azure Blob Storage connection string:
+   This app uses Azure Blob Storage to read sentiment data. To run the dashboard locally, you will need:
+   - An Azure Storage account
+   - A container named `visualizationdata`
+   - CSV files structured as described below (see “Azure Blob Structure”)
+
+   Then create a `.streamlit/secrets.toml` file and insert your connection string:
 
    ```toml
    [default]
    AZURE_CONNECTION_STRING = "your_connection_string_here"
    ```
+   ⚠️ *Note: If you don’t have access to the original data files, the dashboard won’t work as expected.*
 
 3. **Install dependencies**  
    The `requirements.txt` file lists all necessary Python packages. Install them with:
@@ -82,7 +88,7 @@ Container: `visualizationdata`
 
 ---
 
-## Author
+## Authors
 
 **Iakona Nakanishi, Nikolas Perez Linggi, Yun-Hsuan Ku,  Mei-Chi Chen**  
 Marketing and Analytics Honors Project – Spring 2025  
