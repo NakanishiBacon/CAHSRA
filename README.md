@@ -85,6 +85,6 @@ Container: `visualizationdata`
 ## Author
 
 **Iakona Nakanishi, Nikolas Perez Linggi, Yun-Hsuan Ku,  Mei-Chi Chen**  
-Honors Capstone Project – Spring 2025  
-California State University  
-Contact: [your email]
+Marketing and Analytics Honors Project – Spring 2025  
+San Jose State University  
+Contact: iakona.nakanishi@sjsu.edu
