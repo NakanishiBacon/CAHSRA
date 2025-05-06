@@ -221,15 +221,23 @@ with st.expander("📆 Weekly Comment Volume", expanded=True):
 # ========================
 with st.expander("📈 Sentiment Trend Over Time", expanded=True):
     st.markdown("This chart shows how public sentiment changes over time by category.")
+    trend_granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="trend_granularity")
     trend_df = filtered_df.copy()
     trend_df['date'] = pd.to_datetime(trend_df['date'])
     trend_df = trend_df.dropna(subset=['date'])
     if trend_df['date'].notna().any():
-        time_series = trend_df.groupby(trend_df['date'].dt.to_period('W'))[selected_category_keys].mean().reset_index()
+        if trend_granularity == "Daily":
+            time_series = trend_df.groupby(trend_df['date'].dt.to_period('D'))[selected_category_keys].mean().reset_index()
+        elif trend_granularity == "Monthly":
+            time_series = trend_df.groupby(trend_df['date'].dt.to_period('M'))[selected_category_keys].mean().reset_index()
+        elif trend_granularity == "Yearly":
+            time_series = trend_df.groupby(trend_df['date'].dt.to_period('Y'))[selected_category_keys].mean().reset_index()
+        else:
+            time_series = trend_df.groupby(trend_df['date'].dt.to_period('W'))[selected_category_keys].mean().reset_index()
     else:
         time_series = pd.DataFrame(columns=['date'] + selected_category_keys)
     time_series['date'] = time_series['date'].dt.start_time
-    fig_time_series = px.line(time_series.rename(columns=category_label_map), x='date', y=[category_label_map[k] for k in selected_category_keys], title="Weekly Sentiment Trend")
+    fig_time_series = px.line(time_series.rename(columns=category_label_map), x='date', y=[category_label_map[k] for k in selected_category_keys], title=f"{trend_granularity} Sentiment Trend")
     fig_time_series.update_layout(xaxis_showgrid=False, yaxis_showgrid=False, legend_title_text='')
     st.plotly_chart(fig_time_series, use_container_width=True)
 
@@ -238,17 +246,27 @@ with st.expander("📈 Sentiment Trend Over Time", expanded=True):
 # ========================
 with st.expander("📉 Sentiment Momentum", expanded=True):
     st.markdown("This chart shows the rate of change in sentiment over time.")
+    trend_momentum_granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="momentum_granularity")
     if selected_category_keys:
         momentum_df = filtered_df.copy()
         momentum_df['date'] = pd.to_datetime(momentum_df['date'])
         momentum_df = momentum_df.dropna(subset=['date'])
         if momentum_df['date'].notna().any():
-            momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('W'))[selected_category_keys[0]].mean().diff().dropna().reset_index()
+            if trend_momentum_granularity == "Daily":
+                momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('D'))[selected_category_keys[0]].mean().diff().dropna().reset_index()
+            elif trend_momentum_granularity == "Monthly":
+                momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('M'))[selected_category_keys[0]].mean().diff().dropna().reset_index()
+            elif trend_momentum_granularity == "Yearly":
+                momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('Y'))[selected_category_keys[0]].mean().diff().dropna().reset_index()
+            else:
+                momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('W'))[selected_category_keys[0]].mean().diff().dropna().reset_index()
+            momentum_series['date'] = momentum_series['date'].dt.start_time
+            momentum_series.columns = ['date', 'momentum']
+            fig_momentum = px.line(momentum_series, x='date', y='momentum', title=f"Sentiment Momentum for {category_label_map[selected_category_keys[0]]} ({trend_momentum_granularity})")
+            fig_momentum.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+            st.plotly_chart(fig_momentum, use_container_width=True)
         else:
-            momentum_series = pd.DataFrame(columns=['date', 'momentum'])
-        momentum_series['date'] = momentum_series['date'].dt.start_time
-        momentum_series.columns = ['date', 'momentum']
-        fig_momentum = px.line(momentum_series, x='date', y='momentum', title=f"Sentiment Momentum for {category_label_map[selected_category_keys[0]]}")
+            st.info("Not enough data points to generate sentiment momentum.")
         fig_momentum.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
         st.plotly_chart(fig_momentum, use_container_width=True)
 
