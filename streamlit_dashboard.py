@@ -149,6 +149,28 @@ selected_category_keys = list(category_label_map.keys())
 # ========================
 # Count of Posts Tagged by Category
 # ========================
+if not filtered_df.empty:
+    with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
+        st.markdown("This chart shows how many posts were tagged with each sentiment category.")
+        order_choice_count = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order_count_unique")
+        category_counts = filtered_df[selected_category_keys].gt(0).sum().reset_index()
+        category_counts.columns = ["Category", "Count"]
+        category_counts["Category"] = category_counts["Category"].map(category_label_map)
+        if order_choice_count == "Value":
+            category_counts = category_counts.sort_values("Count", ascending=False)
+        else:
+            category_counts = category_counts.sort_values("Category")
+        fig_count = px.bar(
+            category_counts,
+            y="Category",
+            x="Count",
+            orientation="h",
+            color="Count",
+            title="Number of Mentions per Sentiment Category",
+            color_continuous_scale="Blues"
+        )
+        fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
+        st.plotly_chart(fig_count, use_container_width=True)
 with st.expander("📈 Sentiment Trend Over Time", expanded=True):
     st.markdown("This chart shows how public sentiment changes over time by category.")
     trend_granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="trend_granularity")
