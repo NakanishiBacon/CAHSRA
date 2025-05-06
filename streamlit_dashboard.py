@@ -247,7 +247,7 @@ with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
         list(category_label_map.values()),
         default=[list(category_label_map.values())[0]]
     )
-    selected_category_keys = [reverse_label_map[label] for label in category_labels_local], expanded=True):
+    selected_category_keys = [reverse_label_map[label] for label in category_labels_local]
     category_labels_local = st.multiselect(
         "Select a sentiment category to analyze",
         list(category_label_map.values()),
