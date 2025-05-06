@@ -348,7 +348,7 @@ with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
         title=f"Mention Proportion for {category_label_map[selected_category]}",
         hole=0.5
     )
-    fig_donut.update_traces(textposition='inside', textinfo='percent+label', hovertemplate='<b>%{label|title}</b><br>Percentage=%{percent:.2%}<br>Count=%{value}')
+    fig_donut.update_traces(textposition='inside', textinfo='percent+label', hovertemplate='<b>%{label}</b><br>Percentage=%{percent:.2%}<br>Count=%{value}')
     fig_donut.update_layout(showlegend=True, legend_title_text="")
     st.plotly_chart(fig_donut, use_container_width=True)
 
