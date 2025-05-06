@@ -287,26 +287,39 @@ with st.expander("☁️ Word Cloud Viewer", expanded=True):
     custom_stopwords_input = st.text_input("Enter words to exclude from the word cloud (comma-separated):")
     custom_stopwords_list = [w.strip().lower() for w in custom_stopwords_input.split(",") if w.strip()]
     base_stopwords = {
+    # Original terms
     "thing", "like", "people", "just", "really", "needs", "next", "says", "got", "going", "even", 
     "youre", "dont", "shit", "one", "new", "los", "san", "california", "administration", "dot", 
     "project", "highspeed", "train", "rail", "high", "speed",
 
-    # Conjunctions
+    # Conjunctions / common structure
     "and", "or", "but", "so", "because", "if", "when", "while", "though", "although",
 
     # Filler words
     "actually", "literally", "basically", "seriously", "maybe", "kinda", "sorta", "still", 
-    "already", "honestly", "anyway",
+    "already", "honestly", "anyway", "okay", "ok", "yeah", "nah",
 
     # Modal/helping verbs
     "can", "could", "would", "should", "will", "might", "must", "has", "have", "had", 
-    "was", "were", "is", "are", "be", "being",
+    "was", "were", "is", "are", "be", "being", "does", "did", "do",
 
     # Pronouns
     "i", "you", "he", "she", "they", "we", "it", "them", "us", "me", "my", "your", "their", "our",
 
     # Negations
-    "not", "no", "none", "never", "nothing", "nowhere"
+    "not", "no", "none", "never", "nothing", "nowhere", "dont", "isnt", "wasnt", "arent", "werent",
+
+    # Social media slang / reactions
+    "lol", "lmao", "omg", "bruh", "bro", "dude", "man", "girl", "guy", "idk", "ikr", "wtf", "smh",
+    "nah", "yall", "ffs", "fr", "btw", "imo", "imho", "rip", "ugh", "wow", "yay", "aw", "eh", "wow",
+
+    # Instagram/YouTube/Reddit specifics
+    "post", "comment", "video", "views", "likes", "watch", "follow", "fyp", "thread", "reddit", 
+    "youtube", "insta", "google", "news", "channel", "subscribe", "share", "account", "dm", 
+    "reply", "click", "link", "bio", "story", "feed", "algorithm",
+
+    # Non-content fillers
+    "thing", "stuff", "everything", "something", "anything", "nothing", "everyone", "someone", "somebody"
     }
 
     stopwords = set(STOPWORDS).union(base_stopwords).union(custom_stopwords_list)
