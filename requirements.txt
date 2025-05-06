@@ -5,3 +5,4 @@ plotly
 matplotlib
 wordcloud
 scipy
+kaleido
