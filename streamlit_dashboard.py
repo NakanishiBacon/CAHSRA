@@ -53,6 +53,19 @@ def load_blob_csv(blob_name, container=CONTAINER_NAME):
     return pd.read_csv(StringIO(blob_data.decode('utf-8')))
 
 # ========================
+# Landing Page
+# ========================
+with st.container():
+    st.title("🚄 CAHSR Sentiment Dashboard")
+    st.markdown("""
+    Welcome to the California High-Speed Rail (CAHSR) Sentiment Dashboard.
+    
+    This interactive dashboard aggregates and visualizes public sentiment across social and news media platforms, including Reddit, YouTube, Instagram, and Google News.
+
+    Use the sidebar to select a data source and explore insights into funding, construction progress, environmental impact, and more.
+    """)
+
+# ========================
 # Sidebar: Data Source Selection and Filters
 # ========================
 st.sidebar.header("🎛️ Controls")
@@ -109,7 +122,8 @@ else:
     df_analysis['date'] = pd.NaT
 
 if 'date' in df_analysis.columns and df_analysis['date'].notna().any():
-    date_range = st.sidebar.date_input("Date range", [df_analysis['date'].min(), df_analysis['date'].max()])
+    st.sidebar.markdown("_Note: Date range automatically spans from the oldest to most recent date available._")
+date_range = st.sidebar.date_input("Date range", [df_analysis['date'].min(), df_analysis['date'].max()])
     filtered_df = df_analysis[(df_analysis['date'] >= pd.to_datetime(date_range[0])) & (df_analysis['date'] <= pd.to_datetime(date_range[1]))]
 else:
     filtered_df = df_analysis
