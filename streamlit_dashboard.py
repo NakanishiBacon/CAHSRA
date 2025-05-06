@@ -197,7 +197,7 @@ if 'comment_label' in filtered_df.columns or 'sentiment_score' in filtered_df.co
         label_counts = filtered_df[sentiment_col].value_counts().to_dict()
         expected_labels = ['positive', 'neutral', 'negative']
         sentiment_counts = pd.DataFrame({
-            'Sentiment': expected_labels,
+            'Sentiment': [label.capitalize() for label in expected_labels],
             'Count': [label_counts.get(label, 0) for label in expected_labels]
         })
         fig_sentiment_pie = px.pie(
@@ -214,7 +214,11 @@ if 'comment_label' in filtered_df.columns or 'sentiment_score' in filtered_df.co
             }
         )
         fig_sentiment_pie.update_layout(showlegend=False)
-        fig_sentiment_pie.update_traces(textposition='inside', textinfo='percent+label')
+        fig_sentiment_pie.update_traces(
+            textposition='inside',
+            textinfo='percent',
+            hovertemplate='<b>%{label}</b><br>Percentage=%{percent}<br>Count=%{value}'
+        )
         st.plotly_chart(fig_sentiment_pie, use_container_width=True)
 
 # ========================
