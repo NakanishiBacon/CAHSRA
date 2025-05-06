@@ -259,6 +259,21 @@ with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
     st.plotly_chart(fig_dist, use_container_width=True)
 
 # ========================
+# Sentiment Distribution Analysis (Binary Version)
+# ========================
+with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
+    st.markdown("This chart shows the proportion of mentions (1) vs. non-mentions (0) for the selected category.")
+    selected_category = selected_category_keys[0]
+    counts = filtered_df[selected_category].value_counts().sort_index()
+    binary_df = pd.DataFrame({
+        "Mentioned": ["No", "Yes"],
+        "Count": [counts.get(0, 0), counts.get(1, 0)]
+    })
+    fig_binary = px.bar(binary_df, x="Mentioned", y="Count", color="Mentioned", title=f"Binary Sentiment Distribution: {category_label_map[selected_category]}")
+    fig_binary.update_layout(showlegend=False, xaxis_title="", yaxis_title="Count", legend_title_text="")
+    st.plotly_chart(fig_binary, use_container_width=True)
+
+# ========================
 # Correlation Heatmap
 # ========================
 if len(selected_category_keys) > 1:
