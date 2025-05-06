@@ -202,6 +202,20 @@ with st.expander("📡 Radar View of Average Sentiment", expanded=True):
     st.plotly_chart(radar_fig, use_container_width=True)
 
 # ========================
+# Time Series by Category (Individual Over Time)
+# ========================
+with st.expander("📈 Time Series for Each Category", expanded=True):
+    st.markdown("This chart shows how the average sentiment score for each category changed week by week.")
+    time_series_df = filtered_df.copy()
+    time_series_df['date'] = pd.to_datetime(time_series_df['date'])
+    time_series_df = time_series_df.dropna(subset=['date'])
+    weekly_avg = time_series_df.groupby(time_series_df['date'].dt.to_period('W'))[selected_category_keys].mean().reset_index()
+    weekly_avg['date'] = weekly_avg['date'].dt.start_time
+    fig_category_time_series = px.line(weekly_avg, x='date', y=selected_category_keys, title="Time Series of Weekly Average Sentiment by Category")
+    fig_category_time_series.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+    st.plotly_chart(fig_category_time_series, use_container_width=True)
+
+# ========================
 # Word Cloud Viewer
 # ========================
 with st.expander("☁️ Word Cloud Viewer", expanded=True):
