@@ -35,13 +35,6 @@ blob_map = {
 }
 
 # ========================
-# Sidebar: Data Source Selection and Filters
-# ========================
-st.sidebar.header("🎛️ Controls")
-source_options = list(blob_map.keys()) + ["Combined"]
-source = st.sidebar.selectbox("Choose data source", source_options)
-
-# ========================
 # Azure Blob Setup
 # ========================
 AZURE_CONNECTION_STRING = st.secrets["AZURE_CONNECTION_STRING"]
@@ -53,6 +46,13 @@ def load_blob_csv(blob_name, container=CONTAINER_NAME):
     blob_client = blob_service_client.get_blob_client(container=container, blob=blob_name)
     blob_data = blob_client.download_blob().readall()
     return pd.read_csv(StringIO(blob_data.decode('utf-8')))
+
+# ========================
+# Sidebar: Data Source Selection and Filters
+# ========================
+st.sidebar.header("🎛️ Controls")
+source_options = list(blob_map.keys()) + ["Combined"]
+source = st.sidebar.selectbox("Choose data source", source_options, key="source_selector")
 
 # ========================
 # Load Raw Master Data
@@ -75,27 +75,6 @@ for blob_name in snapshot_blobs:
     df_temp = load_blob_csv(blob_name, container="snapshots")
     df_temp["snapshot_file"] = blob_name
     df_snapshots_combined = pd.concat([df_snapshots_combined, df_temp], ignore_index=True)
-
-# ========================
-# File Mappings by Source
-# ========================
-blob_map = {
-    "Reddit": {
-        "analysis": "reddit_analysis.csv",
-        "timeseries": "reddit_time_series.csv",
-        "wordcloud": "reddit_post_word_cloud.csv"
-    },
-    "YouTube": {
-        "analysis": "youtube_analysis.csv",
-        "timeseries": "youtube_time_series.csv",
-        "wordcloud": "youtube_word_cloud.csv"
-    },
-    "Google News": {
-        "analysis": "google_news_analysis.csv",
-        "timeseries": "google_news_time_series.csv",
-        "wordcloud": "google_news_word_cloud.csv"
-    }
-}
 
 # ========================
 # Load Selected Analysis Data
