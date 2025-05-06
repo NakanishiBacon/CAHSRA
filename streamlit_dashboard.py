@@ -213,6 +213,7 @@ if 'comment_label' in filtered_df.columns or 'sentiment_score' in filtered_df.co
                 'negative': 'red'
             }
         )
+        fig_sentiment_pie.update_layout(showlegend=False)
         fig_sentiment_pie.update_traces(textposition='inside', textinfo='percent+label')
         st.plotly_chart(fig_sentiment_pie, use_container_width=True)
 
