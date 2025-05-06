@@ -321,40 +321,33 @@ with st.expander("🖼️ Download Visualizations", expanded=False):
             mime="image/png"
         )
 
-    if 'fig_count' in locals():
-        try:
-        download_plot(fig_count, "count_of_posts_by_category")
+    try:
+            download_plot(fig_count, "count_of_posts_by_category")
     except NameError:
         st.warning("📊 'Count of Posts by Category' chart not available for download.")
-    if 'radar_fig' in locals():
-        try:
-        download_plot(radar_fig, "radar_category_sentiment")
+    try:
+            download_plot(radar_fig, "radar_category_sentiment")
     except NameError:
         st.warning("📡 Radar chart not available for download.")
-    if 'fig_volume' in locals():
-        try:
-        download_plot(fig_volume, "weekly_comment_volume")
+    try:
+            download_plot(fig_volume, "weekly_comment_volume")
     except NameError:
         st.warning("📆 Weekly Comment Volume chart not available for download.")
-    if 'fig_time_series' in locals():
-        try:
-        download_plot(fig_time_series, "sentiment_trend_over_time")
+    try:
+            download_plot(fig_time_series, "sentiment_trend_over_time")
     except NameError:
         st.warning("📈 Sentiment Trend Over Time chart not available for download.")
-    if 'fig_momentum' in locals():
-        try:
-        download_plot(fig_momentum, "sentiment_momentum")
+    try:
+            download_plot(fig_momentum, "sentiment_momentum")
     except NameError:
         st.warning("📉 Sentiment Momentum chart not available for download.")
-    if 'fig_donut' in locals():
-        try:
-        download_plot(fig_donut, f"mention_distribution_{selected_category}")
+    try:
+            download_plot(fig_donut, f"mention_distribution_{selected_category}")
     except NameError:
         st.warning("📈 Sentiment Distribution chart not available for download.")
     if len(selected_category_keys) > 1:
-        if 'fig_corr' in locals():
         try:
-            download_plot(fig_corr, "sentiment_category_correlation")
+                download_plot(fig_corr, "sentiment_category_correlation")
         except NameError:
             st.warning("📉 Correlation heatmap not available for download.")
 
