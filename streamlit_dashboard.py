@@ -70,6 +70,36 @@ blob_map = {
 }
 
 # ========================
+# Load Selected Analysis Data
+# ========================
+if source != "Combined":
+    blobs = blob_map[source]
+    df_analysis = load_blob_csv(blobs["analysis"])
+else:
+    dfs = []
+    for src, paths in blob_map.items():
+        temp_df = load_blob_csv(paths["analysis"])
+        temp_df["source"] = src
+        dfs.append(temp_df)
+    df_analysis = pd.concat(dfs, ignore_index=True)
+
+# ========================
+# Preprocessing
+# ========================
+if 'comment_published_at' in df_analysis.columns:
+    df_analysis['date'] = pd.to_datetime(df_analysis['comment_published_at'], errors='coerce')
+elif 'published_at' in df_analysis.columns:
+    df_analysis['date'] = pd.to_datetime(df_analysis['published_at'], errors='coerce')
+else:
+    df_analysis['date'] = pd.NaT
+
+if 'date' in df_analysis.columns and df_analysis['date'].notna().any():
+    date_range = st.sidebar.date_input("Date range", [df_analysis['date'].min(), df_analysis['date'].max()])
+    filtered_df = df_analysis[(df_analysis['date'] >= pd.to_datetime(date_range[0])) & (df_analysis['date'] <= pd.to_datetime(date_range[1]))]
+else:
+    filtered_df = df_analysis
+
+# ========================
 # Sidebar: Data Source Selection and Filters
 # ========================
 st.sidebar.header("🎛️ Controls")
