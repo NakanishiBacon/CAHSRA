@@ -11,7 +11,7 @@ from scipy.stats import skew, kurtosis
 import plotly.graph_objects as go
 
 # Set layout, title, and page icon for the Streamlit app
-st.set_page_config(layout="wide", page_title="Sentiment Dashboard", page_icon="https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png")
+st.set_page_config(layout="wide", page_title="CAHSR Sentiment Dashboard", page_icon="https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png")
 
 # ========================
 # File Mappings by Source
