@@ -272,7 +272,11 @@ with st.expander("☁️ Word Cloud Viewer", expanded=True):
             df_temp = load_blob_csv(wc_file)
             df_wordcloud = pd.concat([df_wordcloud, df_temp], ignore_index=True)
     else:
-        df_wordcloud = load_blob_csv(wordcloud_files)
+        try:
+            df_wordcloud = load_blob_csv(wordcloud_files)
+        except Exception as e:
+            st.warning(f"⚠️ Could not load word cloud file for {source}. Reason: {str(e)}")
+            df_wordcloud = pd.DataFrame()
 
     custom_stopwords_input = st.text_input("Enter words to exclude from the word cloud (comma-separated):")
     custom_stopwords_list = [w.strip().lower() for w in custom_stopwords_input.split(",") if w.strip()]
