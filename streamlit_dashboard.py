@@ -14,6 +14,27 @@ import plotly.graph_objects as go
 st.set_page_config(layout="wide", page_title="Sentiment Dashboard", page_icon="📊")
 
 # ========================
+# File Mappings by Source
+# ========================
+blob_map = {
+    "Reddit": {
+        "analysis": "reddit_analysis.csv",
+        "timeseries": "reddit_time_series.csv",
+        "wordcloud": "reddit_post_word_cloud.csv"
+    },
+    "YouTube": {
+        "analysis": "youtube_analysis.csv",
+        "timeseries": "youtube_time_series.csv",
+        "wordcloud": "youtube_wordcloud.csv"
+    },
+    "Google News": {
+        "analysis": "google_news_analysis.csv",
+        "timeseries": "google_news_time_series.csv",
+        "wordcloud": "google_news_word_cloud.csv"
+    }
+}
+
+# ========================
 # Sidebar: Data Source Selection and Filters
 # ========================
 st.sidebar.header("🎛️ Controls")
