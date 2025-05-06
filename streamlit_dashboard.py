@@ -163,8 +163,8 @@ with st.expander("📡 Radar View of Average Sentiment per Category", expanded=T
     st.markdown("This radar chart shows average sentiment per category.")
     radar_fig = go.Figure()
     radar_fig.add_trace(go.Scatterpolar(
-        r=avg_scores["Average Sentiment"],
-        theta=avg_scores["Category"],
+        r=filtered_df[selected_category_keys].mean().values,
+    theta=[category_label_map[k] for k in selected_category_keys],
         fill='toself',
         name='Average Sentiment'
     ))
@@ -292,14 +292,14 @@ with st.expander("📄 Export Summary Report", expanded=True):
     summary_text = f"""
 Sentiment Dashboard Summary Report - {source}
 Total Comments: {len(filtered_df)}
-
-Average Sentiment by Category:
 """
-    for index, row in avg_scores.iterrows():
-        line = f"- {row['Category']}: {row['Average Sentiment']:.3f}\n"
-        summary_text += line
     summary_bytes = BytesIO(summary_text.encode('utf-8'))
     st.download_button(
+        label="📥 Download Text Summary",
+        data=summary_bytes,
+        file_name=f"{source.lower()}_sentiment_summary.txt",
+        mime="text/plain"
+    )
         label="📥 Download Text Summary",
         data=summary_bytes,
         file_name=f"{source.lower()}_sentiment_summary.txt",
