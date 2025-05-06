@@ -162,7 +162,10 @@ with st.expander("📊 Bar Chart of Average Sentiment per Category", expanded=Tr
     fig_avg.update_layout(showlegend=False, xaxis_showgrid=False, yaxis_showgrid=False)
     st.plotly_chart(fig_avg, use_container_width=True)
 
-    st.markdown("📡 Radar View of Average Sentiment per Category")
+# ========================
+# Radar Chart for Category Sentiment
+# ========================
+with st.expander("📡 Radar View of Average Sentiment per Category", expanded=True):
     st.markdown("This radar chart shows average sentiment per category.")
     radar_fig = go.Figure()
     radar_fig.add_trace(go.Scatterpolar(
