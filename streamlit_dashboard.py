@@ -14,6 +14,13 @@ import plotly.graph_objects as go
 st.set_page_config(layout="wide", page_title="Sentiment Dashboard", page_icon="📊")
 
 # ========================
+# Sidebar: Data Source Selection and Filters
+# ========================
+st.sidebar.header("🎛️ Controls")
+source_options = list(blob_map.keys()) + ["Combined"]
+source = st.sidebar.selectbox("Choose data source", source_options)
+
+# ========================
 # Azure Blob Setup
 # ========================
 AZURE_CONNECTION_STRING = st.secrets["AZURE_CONNECTION_STRING"]
