@@ -163,14 +163,14 @@ with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
     else:
         category_counts = category_counts.sort_values("Category")
     fig_count = px.bar(
-        category_counts,
+        category_counts[::-1],
         y="Category",
         x="Count",
         orientation="h",
         color="Count",
         title="Number of Mentions per Sentiment Category",
         color_continuous_scale="Blues"
-    .reverse(), orientation="h")
+    )
     fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
     st.plotly_chart(fig_count, use_container_width=True)
 
