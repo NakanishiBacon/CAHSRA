@@ -27,6 +27,11 @@ blob_map = {
         "timeseries": "youtube_time_series.csv",
         "wordcloud": "youtube_wordcloud.csv"
     },
+    "Instagram": {
+        "analysis": "instagram_analysis.csv",
+        "timeseries": "instagram_time_series.csv",
+        "wordcloud": ["instagram_comment_word_cloud.csv", "instagram_caption_word_cloud.csv"]
+    },
     "Google News": {
         "analysis": "google_news_analysis.csv",
         "timeseries": "google_news_time_series.csv",
@@ -60,6 +65,7 @@ source = st.sidebar.selectbox("Choose data source", source_options, key="source_
 df_youtube_master = load_blob_csv("youtube_master_comments.csv", container="datayoutube")
 df_news_master = load_blob_csv("google_news_master_articles.csv", container="datanews")
 df_reddit_master = load_blob_csv("reddit_master_comments.csv", container="datareddit")
+df_instagram_master = load_blob_csv("instagram_analysis.csv", container="visualizationdata")
 
 # ========================
 # Load Snapshot News Data (hidden)
@@ -106,6 +112,7 @@ if 'date' in df_analysis.columns and df_analysis['date'].notna().any():
 else:
     filtered_df = df_analysis
 
+
 # ========================
 # Sidebar: Data Source Selection and Filters
 # ========================
@@ -121,8 +128,11 @@ category_label_map = {
     "category_international_comparisons": "International Comparisons"
 }
 
-# Allow users to select which sentiment categories to display in visualizations
-sidebar_category_labels = st.sidebar.multiselect("Select sentiment categories to visualize", list(category_label_map.values()), default=list(category_label_map.values()))
+sidebar_category_labels = st.sidebar.multiselect(
+    "Select sentiment categories to visualize",
+    list(category_label_map.values()),
+    default=list(category_label_map.values())
+)
 reverse_label_map = {v: k for k, v in category_label_map.items()}
 selected_category_keys = [reverse_label_map[label] for label in sidebar_category_labels]
 
@@ -182,7 +192,6 @@ with st.expander("📡 Radar View of Average Sentiment per Category", expanded=T
 # ========================
 with st.expander("📈 Sentiment Trend Over Time", expanded=True):
     st.markdown("This chart shows how public sentiment changes over time by category.")
-    category_reverse_map = {v: k for k, v in category_label_map.items()}
     trend_df = filtered_df.copy()
     trend_df['date'] = pd.to_datetime(trend_df['date'])
     trend_df = trend_df.dropna(subset=['date'])
@@ -249,30 +258,6 @@ with st.expander("📈 Time Series for Each Category", expanded=True):
     st.plotly_chart(fig_category_time_series, use_container_width=True)
 
 # ========================
-# Word Cloud Viewer
-# ========================
-with st.expander("☁️ Word Cloud Viewer", expanded=True):
-    st.markdown("This visual displays the most frequently used words in the dataset.")
-    df_wordcloud = load_blob_csv(blob_map[source]["wordcloud"] if source != "Combined" else "reddit_post_word_cloud.csv")
-    custom_stopwords_input = st.text_input("Enter words to exclude from the word cloud (comma-separated):")
-    custom_stopwords_list = [w.strip().lower() for w in custom_stopwords_input.split(",") if w.strip()]
-    base_stopwords = {"thing", "like", "people", "just", "really", "got", "youre", "shit", "one", "new", "california", "project", "train", "high"}
-    stopwords = set(STOPWORDS).union(base_stopwords).union(custom_stopwords_list)
-    if 'word' in df_wordcloud.columns and 'count' in df_wordcloud.columns:
-        clean_df = df_wordcloud[~df_wordcloud['word'].str.lower().isin(stopwords)]
-        word_freq = dict(zip(clean_df['word'], clean_df['count']))
-        if word_freq:
-            wordcloud = WordCloud(width=800, height=400, background_color="white", stopwords=stopwords).generate_from_frequencies(word_freq)
-            fig, ax = plt.subplots(figsize=(10, 5))
-            ax.imshow(wordcloud, interpolation='bilinear')
-            ax.axis("off")
-            st.pyplot(fig)
-        else:
-            st.info("No words available to generate word cloud.")
-    else:
-        st.warning("⚠️ Word cloud file must contain 'word' and 'count' columns.")
-
-# ========================
 # Export Summary Report
 # ========================
 with st.expander("📄 Export Summary Report", expanded=True):
@@ -287,4 +272,9 @@ Average Sentiment by Category:
         line = f"- {row['Category']}: {row['Average Sentiment']:.3f}\n"
         summary_text += line
     summary_bytes = BytesIO(summary_text.encode('utf-8'))
-    st.download_button(label="📥 Download Text Summary", data=summary_bytes, file_name=f"{source.lower()}_sentiment_summary.txt", mime="text/plain")
+    st.download_button(
+        label="📥 Download Text Summary",
+        data=summary_bytes,
+        file_name=f"{source.lower()}_sentiment_summary.txt",
+        mime="text/plain"
+    )
