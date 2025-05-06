@@ -218,7 +218,7 @@ if 'comment_label' in filtered_df.columns or 'sentiment_score' in filtered_df.co
         fig_sentiment_pie.update_traces(
             textposition='inside',
             textinfo='percent',
-            hovertemplate='<b>%{label|title}</b><br>Percentage=%{percent:.2%}<br>Count=%{value}',
+            hovertemplate='<b>%{label}</b><br>Percentage=%{percent:.2%}<br>Count=%{value}',
             texttemplate='%{percent:.0%}'
         )
         st.plotly_chart(fig_sentiment_pie, use_container_width=True)
@@ -239,7 +239,7 @@ with st.expander("📡 Radar View of Average Sentiment per Category", expanded=T
         polar=dict(radialaxis=dict(visible=True, range=[-1, 1])),
         showlegend=False
     )
-    radar_fig.update_traces(hovertemplate='<b>%{theta|title}</b><br>Sentiment=%{r:.2f}')
+    radar_fig.update_traces(hovertemplate='<b>%{theta}</b><br>Sentiment=%{r:.2f}')
     st.plotly_chart(radar_fig, use_container_width=True)
 
 # ========================
@@ -263,7 +263,7 @@ with st.expander("📆 Comment Volume", expanded=True):
         if len(volume) > 1:
             fig_volume = px.line(volume, x='date', y='count', title=f"{granularity} Comment Volume")
             fig_volume.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
-            fig_volume.update_traces(line_shape="linear", hovertemplate='<b>%{x|title}</b><br>Posts=%{y}')
+            fig_volume.update_traces(line_shape="linear", hovertemplate='<b>%{x}</b><br>Posts=%{y}')
             st.plotly_chart(fig_volume, use_container_width=True)
         else:
             st.info("Not enough data points to generate a time series chart.")
@@ -294,7 +294,7 @@ with st.expander("📈 Sentiment Trend Over Time", expanded=True):
         if not time_series.empty:
             fig_time_series = px.line(time_series.rename(columns=category_label_map), x='date', y=[category_label_map[k] for k in selected_category_keys], title=f"{trend_granularity} Sentiment Trend")
             fig_time_series.update_layout(xaxis_showgrid=False, yaxis_showgrid=False, legend_title_text='')
-            fig_time_series.update_traces(hovertemplate='<b>%{x|title}</b><br>Sentiment=%{y:.2f}')
+            fig_time_series.update_traces(hovertemplate='<b>%{x}</b><br>Sentiment=%{y:.2f}')
             st.plotly_chart(fig_time_series, use_container_width=True)
         else:
             st.info("No sentiment data available to plot trend.")
@@ -324,7 +324,7 @@ with st.expander("📉 Sentiment Momentum", expanded=True):
             momentum_series.columns = ['date', 'momentum']
             fig_momentum = px.line(momentum_series, x='date', y='momentum', title=f"Sentiment Momentum for {category_label_map[selected_category_keys[0]]} ({trend_momentum_granularity})")
             fig_momentum.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
-            fig_momentum.update_traces(hovertemplate='<b>%{x|title}</b><br>Momentum=%{y:.4f}')
+            fig_momentum.update_traces(hovertemplate='<b>%{x}</b><br>Momentum=%{y:.4f}')
             st.plotly_chart(fig_momentum, use_container_width=True)
         else:
             st.info("Not enough data points to generate sentiment momentum.")
