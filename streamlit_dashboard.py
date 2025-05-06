@@ -154,16 +154,16 @@ with st.expander("📆 Weekly Comment Volume", expanded=True):
 with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
     st.markdown("This chart shows how many posts were tagged with each sentiment category.")
     # Unified control for bar chart order
-    order_choice = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order")
+    order_choice = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order_count")
     category_counts = filtered_df[selected_category_keys].gt(0).sum().reset_index()
     category_counts.columns = ["Category", "Count"]
     category_counts["Category"] = category_counts["Category"].map(category_label_map)
     if order_choice == "Value":
-        category_counts = category_counts.sort_values("Count", ascending=True)
+        category_counts = category_counts.sort_values("Count", ascending=False)
     else:
         category_counts = category_counts.sort_values("Category")
     fig_count = px.bar(
-        category_counts[::-1],
+        category_counts,
         y="Category",
         x="Count",
         orientation="h",
