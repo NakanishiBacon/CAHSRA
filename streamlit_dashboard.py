@@ -94,6 +94,18 @@ reverse_label_map = {v: k for k, v in category_label_map.items()}
 selected_category_keys = [reverse_label_map[label] for label in sidebar_category_labels]
 
 # ========================
+# Weekly Comment Volume
+# ========================
+with st.expander("📆 Weekly Comment Volume", expanded=True):
+    st.markdown("This chart shows the number of posts each week.")
+    filtered_df['date'] = pd.to_datetime(filtered_df['date'])
+    weekly_volume = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size().reset_index(name='count')
+    weekly_volume['date'] = weekly_volume['date'].dt.start_time
+    fig_volume = px.line(weekly_volume, x='date', y='count', title="Weekly Comment Volume")
+    fig_volume.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+    st.plotly_chart(fig_volume, use_container_width=True)
+
+# ========================
 # Category Occurrence Count
 # ========================
 with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
@@ -133,6 +145,22 @@ with st.expander("📈 Sentiment Trend Over Time", expanded=True):
     st.plotly_chart(fig_time_series, use_container_width=True)
 
 # ========================
+# Sentiment Momentum
+# ========================
+with st.expander("📉 Sentiment Momentum", expanded=True):
+    st.markdown("This chart shows the rate of change in sentiment over time.")
+    if selected_category_keys:
+        momentum_df = filtered_df.copy()
+        momentum_df['date'] = pd.to_datetime(momentum_df['date'])
+        momentum_df = momentum_df.dropna(subset=['date'])
+        momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('W'))[selected_category_keys[0]].mean().diff().dropna().reset_index()
+        momentum_series['date'] = momentum_series['date'].dt.start_time
+        momentum_series.columns = ['date', 'momentum']
+        fig_momentum = px.line(momentum_series, x='date', y='momentum', title=f"Sentiment Momentum for {category_label_map[selected_category_keys[0]]}")
+        fig_momentum.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+        st.plotly_chart(fig_momentum, use_container_width=True)
+
+# ========================
 # Sentiment Distribution Analysis
 # ========================
 with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
@@ -159,6 +187,21 @@ if len(selected_category_keys) > 1:
         st.plotly_chart(fig_corr, use_container_width=True)
 
 # ========================
+# Radar Chart for Category Sentiment
+# ========================
+with st.expander("📡 Radar View of Average Sentiment", expanded=True):
+    st.markdown("This radar chart shows average sentiment per category.")
+    radar_fig = go.Figure()
+    radar_fig.add_trace(go.Scatterpolar(
+        r=avg_scores["Average Sentiment"],
+        theta=avg_scores["Category"],
+        fill='toself',
+        name='Average Sentiment'
+    ))
+    radar_fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[-1, 1])), showlegend=False)
+    st.plotly_chart(radar_fig, use_container_width=True)
+
+# ========================
 # Word Cloud Viewer
 # ========================
 with st.expander("☁️ Word Cloud Viewer", expanded=True):
@@ -181,49 +224,6 @@ with st.expander("☁️ Word Cloud Viewer", expanded=True):
             st.info("No words available to generate word cloud.")
     else:
         st.warning("⚠️ Word cloud file must contain 'word' and 'count' columns.")
-
-# ========================
-# Sentiment Momentum
-# ========================
-with st.expander("📉 Sentiment Momentum", expanded=True):
-    st.markdown("This chart shows the rate of change in sentiment over time.")
-    if selected_category_keys:
-        momentum_df = filtered_df.copy()
-        momentum_df['date'] = pd.to_datetime(momentum_df['date'])
-        momentum_df = momentum_df.dropna(subset=['date'])
-        momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('W'))[selected_category_keys[0]].mean().diff().dropna().reset_index()
-        momentum_series['date'] = momentum_series['date'].dt.start_time
-        momentum_series.columns = ['date', 'momentum']
-        fig_momentum = px.line(momentum_series, x='date', y='momentum', title=f"Sentiment Momentum for {category_label_map[selected_category_keys[0]]}")
-        fig_momentum.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
-        st.plotly_chart(fig_momentum, use_container_width=True)
-
-# ========================
-# Radar Chart for Category Sentiment
-# ========================
-with st.expander("📡 Radar View of Average Sentiment", expanded=True):
-    st.markdown("This radar chart shows average sentiment per category.")
-    radar_fig = go.Figure()
-    radar_fig.add_trace(go.Scatterpolar(
-        r=avg_scores["Average Sentiment"],
-        theta=avg_scores["Category"],
-        fill='toself',
-        name='Average Sentiment'
-    ))
-    radar_fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[-1, 1])), showlegend=False)
-    st.plotly_chart(radar_fig, use_container_width=True)
-
-# ========================
-# Weekly Comment Volume
-# ========================
-with st.expander("📆 Weekly Comment Volume", expanded=True):
-    st.markdown("This chart shows the number of posts each week.")
-    filtered_df['date'] = pd.to_datetime(filtered_df['date'])
-    weekly_volume = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size().reset_index(name='count')
-    weekly_volume['date'] = weekly_volume['date'].dt.start_time
-    fig_volume = px.line(weekly_volume, x='date', y='count', title="Weekly Comment Volume")
-    fig_volume.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
-    st.plotly_chart(fig_volume, use_container_width=True)
 
 # ========================
 # Export Summary Report
