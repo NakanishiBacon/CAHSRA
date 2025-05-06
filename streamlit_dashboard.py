@@ -266,8 +266,6 @@ with st.expander("📉 Sentiment Momentum", expanded=True):
             st.plotly_chart(fig_momentum, use_container_width=True)
         else:
             st.info("Not enough data points to generate sentiment momentum.")
-        fig_momentum.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
-        st.plotly_chart(fig_momentum, use_container_width=True)
 
 # ========================
 # Sentiment Distribution Analysis (Donut Chart)
