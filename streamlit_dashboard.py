@@ -270,12 +270,25 @@ with st.expander("📉 Sentiment Momentum", expanded=True):
 # ========================
 # Sentiment Type Comparison
 # ========================
-if 'comment_label' in filtered_df.columns:
-    st.markdown("✅ 'comment_label' column found in filtered_df.")
-    filtered_df['comment_label'] = filtered_df['comment_label'].str.lower().str.strip()
+if 'comment_label' in filtered_df.columns or 'sentiment_score' in filtered_df.columns:
+    st.markdown("✅ Sentiment-related column found in filtered_df.")
+    if 'comment_label' in filtered_df.columns:
+        sentiment_col = 'comment_label'
+        filtered_df[sentiment_col] = filtered_df[sentiment_col].str.lower().str.strip()
+    elif 'sentiment_score' in filtered_df.columns:
+        sentiment_col = 'comment_label'
+        def score_to_label(score):
+            if score >= 0.05:
+                return 'positive'
+            elif score <= -0.05:
+                return 'negative'
+            else:
+                return 'neutral'
+        filtered_df[sentiment_col] = filtered_df['sentiment_score'].apply(score_to_label)
+
     with st.expander("📊 Sentiment Type Comparison", expanded=True):
         st.markdown("This bar chart compares the volume of positive, neutral, and negative sentiment across the selected source.")
-        label_counts = filtered_df['comment_label'].value_counts().to_dict()
+        label_counts = filtered_df[sentiment_col].value_counts().to_dict()
         expected_labels = ['positive', 'neutral', 'negative']
         sentiment_counts = pd.DataFrame({
             'Sentiment': expected_labels,
