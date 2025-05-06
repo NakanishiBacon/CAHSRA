@@ -153,12 +153,13 @@ with st.expander("📆 Weekly Comment Volume", expanded=True):
 # ========================
 with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
     st.markdown("This chart shows how many posts were tagged with each sentiment category.")
-    order_choice = st.radio("Order bars by:", ["Alphabetical", "Count"], horizontal=True, key="category_count_order")
+    # Unified control for bar chart order
+    order_choice = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order")
     category_counts = filtered_df[selected_category_keys].gt(0).sum().reset_index()
     category_counts.columns = ["Category", "Count"]
     category_counts["Category"] = category_counts["Category"].map(category_label_map)
-    if order_choice == "Count":
-        category_counts = category_counts.sort_values("Count", ascending=False)
+    if order_choice == "Value":
+        category_counts = category_counts.sort_values("Count", ascending=True)
     else:
         category_counts = category_counts.sort_values("Category")
     fig_count = px.bar(
@@ -169,7 +170,7 @@ with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
         color="Count",
         title="Number of Mentions per Sentiment Category",
         color_continuous_scale="Blues"
-    )
+    .reverse(), orientation="h")
     fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
     st.plotly_chart(fig_count, use_container_width=True)
 
@@ -178,11 +179,11 @@ with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
 # ========================
 with st.expander("📊 Bar Chart of Average Sentiment per Category", expanded=True):
     st.markdown("This bar chart shows the mean sentiment score per category in the selected date range.")
-    order_choice_avg = st.radio("Order bars by:", ["Alphabetical", "Sentiment"], horizontal=True, key="avg_sentiment_order")
+    order_choice = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order")
     avg_scores = filtered_df[selected_category_keys].mean().reset_index()
     avg_scores.columns = ['Category', 'Average Sentiment']
     avg_scores['Category'] = avg_scores['Category'].map(category_label_map)
-    if order_choice_avg == "Sentiment":
+    if order_choice == "Value":
         avg_scores = avg_scores.sort_values("Average Sentiment", ascending=False)
     else:
         avg_scores = avg_scores.sort_values("Category")
