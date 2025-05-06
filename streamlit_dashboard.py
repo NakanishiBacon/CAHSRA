@@ -218,7 +218,7 @@ with st.expander("📆 Weekly Comment Volume", expanded=True):
 # ========================
 # Sentiment Trend Over Time
 # ========================
-with st.expander("\ud83d\udcc8 Sentiment Trend Over Time", expanded=True):
+with st.expander("Sentiment Trend Over Time", expanded=True):
     st.markdown("This chart shows how public sentiment changes over time by category.")
     trend_granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="trend_granularity")
     trend_df = filtered_df.copy()
