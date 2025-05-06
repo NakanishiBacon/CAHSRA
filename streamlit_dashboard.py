@@ -103,6 +103,8 @@ if 'comment_published_at' in df_analysis.columns:
     df_analysis['date'] = pd.to_datetime(df_analysis['comment_published_at'], errors='coerce')
 elif 'published_at' in df_analysis.columns:
     df_analysis['date'] = pd.to_datetime(df_analysis['published_at'], errors='coerce')
+elif 'timestamp' in df_analysis.columns:
+    df_analysis['date'] = pd.to_datetime(df_analysis['timestamp'], errors='coerce')
 else:
     df_analysis['date'] = pd.NaT
 
@@ -177,7 +179,10 @@ with st.expander("📡 Radar View of Average Sentiment per Category", expanded=T
 with st.expander("📆 Weekly Comment Volume", expanded=True):
     st.markdown("This chart shows the number of posts each week.")
     filtered_df['date'] = pd.to_datetime(filtered_df['date'])
-    weekly_volume = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size().reset_index(name='count')
+    if filtered_df['date'].notna().any():
+        weekly_volume = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size().reset_index(name='count')
+    else:
+        weekly_volume = pd.DataFrame(columns=['date', 'count'])
     weekly_volume['date'] = weekly_volume['date'].dt.start_time
     fig_volume = px.line(weekly_volume, x='date', y='count', title="Weekly Comment Volume")
     fig_volume.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
@@ -192,7 +197,10 @@ with st.expander("📈 Sentiment Trend Over Time", expanded=True):
     trend_df = filtered_df.copy()
     trend_df['date'] = pd.to_datetime(trend_df['date'])
     trend_df = trend_df.dropna(subset=['date'])
-    time_series = trend_df.groupby(trend_df['date'].dt.to_period('W'))[selected_category_keys].mean().reset_index()
+    if trend_df['date'].notna().any():
+        time_series = trend_df.groupby(trend_df['date'].dt.to_period('W'))[selected_category_keys].mean().reset_index()
+    else:
+        time_series = pd.DataFrame(columns=['date'] + selected_category_keys)
     time_series['date'] = time_series['date'].dt.start_time
     fig_time_series = px.line(time_series.rename(columns=category_label_map), x='date', y=[category_label_map[k] for k in selected_category_keys], title="Weekly Sentiment Trend")
     fig_time_series.update_layout(xaxis_showgrid=False, yaxis_showgrid=False, legend_title_text='')
@@ -207,7 +215,10 @@ with st.expander("📉 Sentiment Momentum", expanded=True):
         momentum_df = filtered_df.copy()
         momentum_df['date'] = pd.to_datetime(momentum_df['date'])
         momentum_df = momentum_df.dropna(subset=['date'])
-        momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('W'))[selected_category_keys[0]].mean().diff().dropna().reset_index()
+        if momentum_df['date'].notna().any():
+            momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('W'))[selected_category_keys[0]].mean().diff().dropna().reset_index()
+        else:
+            momentum_series = pd.DataFrame(columns=['date', 'momentum'])
         momentum_series['date'] = momentum_series['date'].dt.start_time
         momentum_series.columns = ['date', 'momentum']
         fig_momentum = px.line(momentum_series, x='date', y='momentum', title=f"Sentiment Momentum for {category_label_map[selected_category_keys[0]]}")
