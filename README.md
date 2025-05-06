@@ -94,3 +94,9 @@ Container: `visualizationdata`
 Marketing and Analytics Honors Project – Spring 2025  
 San Jose State University  
 Contact: iakona.nakanishi@sjsu.edu
+
+---
+
+## Acknowledgments
+
+We sincerely thank the **California High-Speed Rail Authority (CAHSRA)** for providing access to Instagram and YouTube engagement data. Their support made it possible to conduct a more comprehensive and meaningful sentiment analysis across multiple social media platforms.
