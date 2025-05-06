@@ -137,19 +137,30 @@ reverse_label_map = {v: k for k, v in category_label_map.items()}
 selected_category_keys = [reverse_label_map[label] for label in sidebar_category_labels]
 
 # ========================
-# Weekly Comment Volume
+# Count of Posts Tagged by Category
 # ========================
-with st.expander("📆 Weekly Comment Volume", expanded=True):
-    st.markdown("This chart shows the number of posts each week.")
-    filtered_df['date'] = pd.to_datetime(filtered_df['date'])
-    weekly_volume = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size().reset_index(name='count')
-    weekly_volume['date'] = weekly_volume['date'].dt.start_time
-    fig_volume = px.line(weekly_volume, x='date', y='count', title="Weekly Comment Volume")
-    fig_volume.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
-    fig_volume.update_traces(line_shape="spline")
-    st.plotly_chart(fig_volume, use_container_width=True)
+with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
+    st.markdown("This chart shows how many posts were tagged with each sentiment category.")
+    order_choice_count = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order_count_unique")
+    category_counts = filtered_df[selected_category_keys].gt(0).sum().reset_index()
+    category_counts.columns = ["Category", "Count"]
+    category_counts["Category"] = category_counts["Category"].map(category_label_map)
+    if order_choice_count == "Value":
+        category_counts = category_counts.sort_values("Count", ascending=False)
+    else:
+        category_counts = category_counts.sort_values("Category")
+    fig_count = px.bar(
+        category_counts,
+        y="Category",
+        x="Count",
+        orientation="h",
+        color="Count",
+        title="Number of Mentions per Sentiment Category",
+        color_continuous_scale="Blues"
+    )
+    fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
+    st.plotly_chart(fig_count, use_container_width=True)
 
-  
 # ========================
 # Average Sentiment per Category
 # ========================
@@ -188,6 +199,19 @@ with st.expander("📡 Radar View of Average Sentiment per Category", expanded=T
     ))
     radar_fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[-1, 1])), showlegend=False)
     st.plotly_chart(radar_fig, use_container_width=True)
+
+# ========================
+# Weekly Comment Volume
+# ========================
+with st.expander("📆 Weekly Comment Volume", expanded=True):
+    st.markdown("This chart shows the number of posts each week.")
+    filtered_df['date'] = pd.to_datetime(filtered_df['date'])
+    weekly_volume = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size().reset_index(name='count')
+    weekly_volume['date'] = weekly_volume['date'].dt.start_time
+    fig_volume = px.line(weekly_volume, x='date', y='count', title="Weekly Comment Volume")
+    fig_volume.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+    fig_volume.update_traces(line_shape="spline")
+    st.plotly_chart(fig_volume, use_container_width=True)
 
 # ========================
 # Sentiment Trend Over Time
@@ -245,31 +269,6 @@ if len(selected_category_keys) > 1:
         corr.index = [category_label_map[c] for c in corr.index]
         fig_corr = px.imshow(corr.round(2), text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
         st.plotly_chart(fig_corr, use_container_width=True)
-
-# ========================
-# Count of Posts Tagged by Category
-# ========================
-with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
-    st.markdown("This chart shows how many posts were tagged with each sentiment category.")
-    order_choice_count = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order_count_unique")
-    category_counts = filtered_df[selected_category_keys].gt(0).sum().reset_index()
-    category_counts.columns = ["Category", "Count"]
-    category_counts["Category"] = category_counts["Category"].map(category_label_map)
-    if order_choice_count == "Value":
-        category_counts = category_counts.sort_values("Count", ascending=False)
-    else:
-        category_counts = category_counts.sort_values("Category")
-    fig_count = px.bar(
-        category_counts,
-        y="Category",
-        x="Count",
-        orientation="h",
-        color="Count",
-        title="Number of Mentions per Sentiment Category",
-        color_continuous_scale="Blues"
-    )
-    fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
-    st.plotly_chart(fig_count, use_container_width=True)
 
 # ========================
 # Word Cloud Viewer
