@@ -114,7 +114,7 @@ else:
 
 
 # ========================
-# Sidebar: Data Source Selection and Filters
+# Category Mapping (used globally)
 # ========================
 category_label_map = {
     "category_funding_cost": "Funding Cost",
@@ -127,14 +127,8 @@ category_label_map = {
     "category_public_opinion": "Public Opinion",
     "category_international_comparisons": "International Comparisons"
 }
-
-sidebar_category_labels = st.sidebar.multiselect(
-    "Select sentiment categories to visualize",
-    list(category_label_map.values()),
-    default=list(category_label_map.values())
-)
 reverse_label_map = {v: k for k, v in category_label_map.items()}
-selected_category_keys = [reverse_label_map[label] for label in sidebar_category_labels]
+selected_category_keys = list(category_label_map.keys())
 
 # ========================
 # Count of Posts Tagged by Category
@@ -243,11 +237,15 @@ with st.expander("📉 Sentiment Momentum", expanded=True):
         fig_momentum.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
         st.plotly_chart(fig_momentum, use_container_width=True)
 
-
-
 # ========================
 # Sentiment Distribution Analysis (Donut Chart)
 # ========================
+    category_labels_local = st.multiselect(
+        "Select a sentiment category to analyze",
+        list(category_label_map.values()),
+        default=[list(category_label_map.values())[0]]
+    )
+    selected_category_keys = [reverse_label_map[label] for label in category_labels_local]
 with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
     st.markdown("This chart shows the proportion of posts that mention vs. don't mention the selected category.")
     selected_category = selected_category_keys[0]
