@@ -47,7 +47,12 @@ def load_blob_csv(blob_name, container=CONTAINER_NAME):
     blob_data = blob_client.download_blob().readall()
     return pd.read_csv(StringIO(blob_data.decode('utf-8')))
 
-
+# ========================
+# Sidebar: Data Source Selection and Filters
+# ========================
+st.sidebar.header("🎛️ Controls")
+source_options = list(blob_map.keys()) + ["Combined"]
+source = st.sidebar.selectbox("Choose data source", source_options, key="source_selector")
 
 # ========================
 # Load Raw Master Data
@@ -104,10 +109,6 @@ else:
 # ========================
 # Sidebar: Data Source Selection and Filters
 # ========================
-st.sidebar.header("🎛️ Controls")
-source_options = list(blob_map.keys()) + ["Combined"]
-source = st.sidebar.selectbox("Choose data source", source_options)
-
 category_label_map = {
     "category_funding_cost": "Funding Cost",
     "category_construction_progress": "Construction Progress",
