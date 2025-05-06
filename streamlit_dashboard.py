@@ -55,7 +55,6 @@ def load_blob_csv(blob_name, container=CONTAINER_NAME):
 # ========================
 # Landing Page
 # ========================
-st.markdown(f"### 📊 Total Posts: {len(filtered_df):,}")
 with st.container():
     st.image("https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png", width=60)
     st.title("CAHSR Sentiment Dashboard")
@@ -110,6 +109,8 @@ else:
         temp_df["source"] = src
         dfs.append(temp_df)
     df_analysis = pd.concat(dfs, ignore_index=True)
+
+st.markdown(f"### 📊 Total Posts: {len(df_analysis):,}")
 
 # ========================
 # Preprocessing
