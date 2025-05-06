@@ -321,6 +321,31 @@ with st.expander("☁️ Word Cloud Viewer", expanded=True):
         st.warning("⚠️ Word cloud file must contain 'word' and 'count' columns.")
 
 # ========================
+# Download All Graphs
+# ========================
+with st.expander("🖼️ Download Visualizations", expanded=False):
+    st.markdown("Download each graph individually or all at once as PNG files.")
+    from plotly.io import to_image
+
+    def download_plot(fig, filename):
+        img_bytes = to_image(fig, format="png")
+        st.download_button(
+            label=f"📥 Download {filename}",
+            data=img_bytes,
+            file_name=f"{filename}.png",
+            mime="image/png"
+        )
+
+    download_plot(fig_count, "count_of_posts_by_category")
+    download_plot(radar_fig, "radar_category_sentiment")
+    download_plot(fig_volume, "weekly_comment_volume")
+    download_plot(fig_time_series, "sentiment_trend_over_time")
+    download_plot(fig_momentum, "sentiment_momentum")
+    download_plot(fig_donut, f"mention_distribution_{selected_category}")
+    if len(selected_category_keys) > 1:
+        download_plot(fig_corr, "sentiment_category_correlation")
+
+# ========================
 # Export Summary Report
 # ========================
 with st.expander("📄 Export Summary Report", expanded=True):
