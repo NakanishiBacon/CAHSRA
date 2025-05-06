@@ -178,8 +178,8 @@ if not filtered_df.empty:
 # ========================
 # Sentiment Type Comparison
 # ========================
-if source == "Combined":
-    if 'comment_label' not in filtered_df.columns and 'sentiment_score' in filtered_df.columns:
+if 'comment_label' not in filtered_df.columns:
+    if 'sentiment_score' in filtered_df.columns:
         def score_to_label(score):
             if score >= 0.05:
                 return 'positive'
@@ -190,7 +190,7 @@ if source == "Combined":
         filtered_df['comment_label'] = filtered_df['sentiment_score'].apply(score_to_label)
 
 if 'comment_label' in filtered_df.columns:
-    filtered_df['comment_label'] = filtered_df['comment_label'].str.lower().str.strip()
+    filtered_df['comment_label'] = filtered_df['comment_label'].astype(str).str.lower().str.strip()
     with st.expander("📊 Sentiment Type Comparison", expanded=True):
         st.markdown("This donut chart shows the percentage breakdown of positive, neutral, and negative sentiment across the selected source.")
         label_counts = filtered_df['comment_label'].value_counts().to_dict()
@@ -199,27 +199,30 @@ if 'comment_label' in filtered_df.columns:
             'Sentiment': [label.capitalize() for label in expected_labels],
             'Count': [label_counts.get(label, 0) for label in expected_labels]
         })
-        fig_sentiment_pie = px.pie(
-            sentiment_counts,
-            names='Sentiment',
-            values='Count',
-            title="Sentiment Breakdown",
-            hole=0.5,
-            color='Sentiment',
-            color_discrete_map={
-                'Positive': 'green',
-                'Neutral': 'gray',
-                'Negative': 'red'
-            }
-        )
-        fig_sentiment_pie.update_layout(showlegend=False)
-        fig_sentiment_pie.update_traces(
-            textposition='inside',
-            textinfo='percent',
-            hovertemplate='<b>%{label}</b><br>Percentage=%{percent:.2%}<br>Count=%{value}',
-            texttemplate='%{percent:.0%}'
-        )
-        st.plotly_chart(fig_sentiment_pie, use_container_width=True)
+        if sentiment_counts['Count'].sum() > 0:
+            fig_sentiment_pie = px.pie(
+                sentiment_counts,
+                names='Sentiment',
+                values='Count',
+                title="Sentiment Breakdown",
+                hole=0.5,
+                color='Sentiment',
+                color_discrete_map={
+                    'Positive': 'green',
+                    'Neutral': 'gray',
+                    'Negative': 'red'
+                }
+            )
+            fig_sentiment_pie.update_layout(showlegend=False)
+            fig_sentiment_pie.update_traces(
+                textposition='inside',
+                textinfo='percent',
+                hovertemplate='<b>%{label}</b><br>Percentage=%{percent:.2%}<br>Count=%{value}',
+                texttemplate='%{percent:.0%}'
+            )
+            st.plotly_chart(fig_sentiment_pie, use_container_width=True)
+        else:
+            st.info("No sentiment data available to generate the sentiment type chart.")
 
 # ========================
 # Radar View of Average Sentiment per Category
@@ -328,7 +331,7 @@ with st.expander("📉 Sentiment Momentum", expanded=True):
             st.info("Not enough data points to generate sentiment momentum.")
 
 # ========================
-# Sentiment Distribution Analysis (Donut Chart)
+# Sentiment Distribution Analysis
 # ========================
 with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
     st.markdown("This chart shows the proportion of posts that mention vs. don't mention the selected category.")
