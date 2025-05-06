@@ -208,9 +208,9 @@ if 'comment_label' in filtered_df.columns or 'sentiment_score' in filtered_df.co
             hole=0.5,
             color='Sentiment',
             color_discrete_map={
-                'positive': 'green',
-                'neutral': 'gray',
-                'negative': 'red'
+                'Positive': 'green',
+                'Neutral': 'gray',
+                'Negative': 'red'
             }
         )
         fig_sentiment_pie.update_layout(showlegend=False)
