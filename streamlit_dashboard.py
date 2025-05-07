@@ -66,11 +66,11 @@ def load_blob_csv(blob_name, container=CONTAINER_NAME):
 # Landing Page
 # ========================
 with st.container():
-    col1, col2 = st.columns([1, 10])
+    col1, col2 = st.columns([1, 10], gap="small")
     with col1:
         st.image("https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png", width=60)
     with col2:
-        st.markdown("""<h1 style='margin-top: 0.3em; display: flex; align-items: center;'>CAHSR Sentiment Dashboard</h1>""", unsafe_allow_html=True)
+        st.markdown("""<h1 style='margin: 0; line-height: 60px;'>CAHSR Sentiment Dashboard</h1>""", unsafe_allow_html=True)
     st.markdown("""
     Welcome to the California High-Speed Rail (CAHSR) Sentiment Dashboard.
     
