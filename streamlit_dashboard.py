@@ -555,6 +555,25 @@ Sentiment Breakdown:
         for sentiment, count in sentiment_counts.items():
             summary_text += f"- {sentiment.capitalize()}: {count}
 "
+
+    if 'date' in filtered_df.columns and filtered_df['date'].notna().any():
+        date_span = f"{filtered_df['date'].min().date()} to {filtered_df['date'].max().date()}"
+        summary_text += f"
+Date Range Covered: {date_span}
+"
+        daily_volume = filtered_df.groupby(filtered_df['date'].dt.date).size()
+        summary_text += f"Avg Posts Per Day: {daily_volume.mean():.2f}
+"
+
+    if not filtered_df.empty:
+        summary_text += "
+Sample Sentiment Scores by Category:
+"
+        category_avgs = filtered_df[selected_category_keys].mean()
+        for cat, val in category_avgs.items():
+            summary_text += f"- {category_label_map.get(cat, cat)}: {val:.3f}
+"
+
     summary_bytes = BytesIO(summary_text.encode('utf-8'))
     st.download_button(
         label="📥 Download Text Summary",
