@@ -113,6 +113,21 @@ else:
 st.markdown(f"### 📊 Total Posts: {len(df_analysis):,}")
 
 # ========================
+# Standardize sentiment labels
+if source == "Combined":
+    if 'comment_label' not in df_analysis.columns and 'sentiment_score' in df_analysis.columns:
+        def score_to_label(score):
+            if score >= 0.05:
+                return 'positive'
+            elif score <= -0.05:
+                return 'negative'
+            else:
+                return 'neutral'
+        df_analysis['comment_label'] = df_analysis['sentiment_score'].apply(score_to_label)
+    elif 'sentiment_score' in df_analysis.columns and 'comment_label' in df_analysis.columns:
+        df_analysis.loc[df_analysis['comment_label'].isna(), 'comment_label'] = df_analysis['sentiment_score'].apply(score_to_label)
+
+# ========================
 # Preprocessing
 # ========================
 if 'comment_published_at' in df_analysis.columns:
