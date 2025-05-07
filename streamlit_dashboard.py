@@ -89,7 +89,11 @@ source = st.sidebar.selectbox("Choose data source", source_options, key="source_
 df_youtube_master = load_blob_csv("youtube_master_comments.csv", container="datayoutube")
 df_news_master = load_blob_csv("google_news_master_articles.csv", container="datanews")
 df_reddit_master = load_blob_csv("reddit_master_comments.csv", container="datareddit")
-df_instagram_master = load_blob_csv("instagram_analysis.csv", container="visualizationdata")
+try:
+    df_instagram_master = load_blob_csv("instagram_analysis.csv", container="visualizationdata")
+except Exception as e:
+    st.warning(f"⚠️ Could not load Instagram data. Reason: {e}")
+    df_instagram_master = pd.DataFrame()
 
 # ========================
 # Load Snapshot News Data (hidden)
