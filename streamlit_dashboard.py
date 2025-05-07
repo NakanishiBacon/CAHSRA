@@ -221,6 +221,7 @@ if 'comment_label' not in filtered_df.columns and 'sentiment_score' in filtered_
 # Ensure no NaNs or unexpected values interfere with chart generation
 # Only apply sentiment filtering if comment_label exists
 if 'comment_label' in filtered_df.columns:
+    filtered_df['comment_label'] = filtered_df['comment_label'].astype(str).str.lower().str.strip()
     filtered_df = filtered_df[filtered_df['comment_label'].isin(['positive', 'neutral', 'negative'])]
 
 if 'comment_label' in filtered_df.columns:
