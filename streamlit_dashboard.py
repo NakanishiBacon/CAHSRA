@@ -135,6 +135,14 @@ if source == "Combined":
         df_analysis.loc[df_analysis['comment_label'].isna(), 'comment_label'] = df_analysis['sentiment_score'].apply(score_to_label)
 
 # ========================
+# Instagram-specific fixes
+if source == "Instagram":
+    if 'comment_label' not in df_analysis.columns and 'comment_sentiment' in df_analysis.columns:
+        df_analysis['comment_label'] = df_analysis['comment_sentiment']
+    if 'scrape_timestamp' in df_analysis.columns and 'date' not in df_analysis.columns:
+        df_analysis['date'] = pd.to_datetime(df_analysis['scrape_timestamp'], errors='coerce')
+
+# ========================
 # Preprocessing
 # ========================
 if 'comment_published_at' in df_analysis.columns:
