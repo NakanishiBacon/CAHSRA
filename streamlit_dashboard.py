@@ -538,7 +538,23 @@ with st.expander("📄 Export Summary Report", expanded=True):
     summary_text = f"""
 Sentiment Dashboard Summary Report - {source}
 Total Comments: {len(filtered_df)}
+
+Top Categories by Mentions:
 """
+    if not filtered_df.empty:
+        category_counts = filtered_df[selected_category_keys].gt(0).sum().sort_values(ascending=False)
+        for cat, count in category_counts.items():
+            summary_text += f"- {category_label_map.get(cat, cat)}: {count}
+"
+
+    if 'comment_label' in filtered_df.columns:
+        summary_text += "
+Sentiment Breakdown:
+"
+        sentiment_counts = filtered_df['comment_label'].value_counts().to_dict()
+        for sentiment, count in sentiment_counts.items():
+            summary_text += f"- {sentiment.capitalize()}: {count}
+"
     summary_bytes = BytesIO(summary_text.encode('utf-8'))
     st.download_button(
         label="📥 Download Text Summary",
