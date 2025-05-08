@@ -149,6 +149,9 @@ if source == "Instagram":
 # ========================
 # Preprocessing
 # ========================
+
+# Placeholder for post count display (will be moved after filtered_df is defined)
+total_post_placeholder = st.empty()
 if 'comment_published_at' in df_analysis.columns:
     df_analysis['date'] = pd.to_datetime(df_analysis['comment_published_at'], errors='coerce')
 elif 'published_at' in df_analysis.columns:
@@ -164,6 +167,7 @@ if 'date' in df_analysis.columns and df_analysis['date'].notna().any():
     filtered_df = df_analysis[(df_analysis['date'] >= pd.to_datetime(date_range[0])) & (df_analysis['date'] <= pd.to_datetime(date_range[1]))]
 else:
     filtered_df = df_analysis
+    total_post_placeholder.markdown(f"### 📊 Total Posts: {len(filtered_df):,}")
     st.markdown(f"### 📊 Total Posts: {len(filtered_df):,}")
 
 # ========================
