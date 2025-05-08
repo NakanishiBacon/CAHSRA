@@ -169,10 +169,8 @@ else:
 if source == "Combined" and 'source' in filtered_df.columns:
     counts_by_source = filtered_df['source'].value_counts()
     post_summary = f"### 📊 Total Posts: {len(filtered_df):,} (Combined)"
-"
     for platform, count in counts_by_source.items():
-        post_summary += f"- {platform}: {count:,} posts
-"
+        post_summary += f"- {platform}: {count:,} posts"
     total_post_placeholder.markdown(post_summary)
 else:
     total_post_placeholder.markdown(f"### 📊 Total Posts: {len(filtered_df):,}")
