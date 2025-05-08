@@ -73,7 +73,7 @@ with st.container():
         </div>
     """, unsafe_allow_html=True)
     st.markdown("""
-    Welcome to the California High-Speed Rail (CAHSR) Sentiment Dashboards.
+    Welcome to the California High-Speed Rail (CAHSR) Sentiment Dashboard.
     
     This interactive dashboard aggregates and visualizes public sentiment across social and news media platforms, including Reddit, YouTube, Instagram, and Google News.
 
