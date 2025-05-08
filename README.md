@@ -10,7 +10,7 @@ This honors project analyzes public sentiment toward the California High-Speed R
 
 You can view the live Streamlit dashboard here (no setup required):
 
-**[https://cahsra-dashboard.streamlit.app](https://cahsra-dashboard.streamlit.app)**
+**[https://cahsra-sjsu.streamlit.app](https://cahsra-sjsu.streamlit.app/)**
 
 ---
 
