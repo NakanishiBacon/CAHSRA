@@ -128,8 +128,14 @@ else:
         try:
             if src == "Instagram":
                 temp_df = df_instagram_master.copy()
+                if 'comment_sentiment' in temp_df.columns and 'comment_label' not in temp_df.columns:
+                    temp_df['comment_label'] = temp_df['comment_sentiment']
+                if 'scrape_timestamp' in temp_df.columns and 'date' not in temp_df.columns:
+                    temp_df['date'] = pd.to_datetime(temp_df['scrape_timestamp'], errors='coerce')
             elif src == "Google News":
                 temp_df = df_news_master.copy()
+                if 'timestamp' in temp_df.columns and 'date' not in temp_df.columns:
+                    temp_df['date'] = pd.to_datetime(temp_df['timestamp'], errors='coerce')
             elif src == "YouTube":
                 temp_df = df_youtube_master.copy()
             elif src == "Reddit":
