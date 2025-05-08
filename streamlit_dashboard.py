@@ -120,10 +120,8 @@ for blob_name in snapshot_blobs:
 if source != "Combined":
     blobs = blob_map[source]
     df_analysis = load_blob_csv(blobs["analysis"])
-    if source == "Instagram":
-        df_analysis["source"] = "Instagram"
-    elif source == "Google News":
-        df_analysis["source"] = "Google News"
+    if source in ["Instagram", "Google News"]:
+        df_analysis["source"] = source
 else:
     dfs = []
     for src, paths in blob_map.items():
@@ -174,10 +172,13 @@ else:
     filtered_df = df_analysis
 
 if source == "Combined" and 'source' in filtered_df.columns:
+    filtered_df['source'] = filtered_df['source'].astype(str)
     counts_by_source = filtered_df['source'].value_counts()
-    post_summary = f"### 📊 Total Posts: {len(filtered_df):,} (Combined)"
+    post_summary = f"### 📊 Total Posts: {len(filtered_df):,} (Combined)
+"
     for platform, count in counts_by_source.items():
-        post_summary += f"- {platform}: {count:,} posts"
+        post_summary += f"- {platform}: {count:,} posts
+"
     total_post_placeholder.markdown(post_summary)
 else:
     total_post_placeholder.markdown(f"### 📊 Total Posts: {len(filtered_df):,}")
