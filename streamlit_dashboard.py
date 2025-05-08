@@ -165,7 +165,8 @@ if 'date' in df_analysis.columns and df_analysis['date'].notna().any():
     filtered_df = df_analysis[(df_analysis['date'] >= pd.to_datetime(date_range[0])) & (df_analysis['date'] <= pd.to_datetime(date_range[1]))]
 else:
     filtered_df = df_analysis
-    if source == "Combined" and 'source' in filtered_df.columns:
+
+if source == "Combined" and 'source' in filtered_df.columns:
     counts_by_source = filtered_df['source'].value_counts()
     post_summary = f"### 📊 Total Posts: {len(filtered_df):,} (Combined)
 "
