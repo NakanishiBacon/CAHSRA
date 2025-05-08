@@ -544,7 +544,7 @@ Top Categories by Mentions:
     if not filtered_df.empty:
         category_counts = filtered_df[selected_category_keys].gt(0).sum().sort_values(ascending=False)
         for cat, count in category_counts.items():
-            summary_text += f"- {category_label_map.get(cat, cat)}: {count}\n"
+            summary_text += f"- {category_label_map.get(cat, cat)}: {count}\n"\n"
 
     if 'comment_label' in filtered_df.columns:
         summary_text += "
@@ -552,7 +552,7 @@ Sentiment Breakdown:
 "
         sentiment_counts = filtered_df['comment_label'].value_counts().to_dict()
         for sentiment, count in sentiment_counts.items():
-            summary_text += f"- {sentiment.capitalize()}: {count}
+            summary_text += f"- {sentiment.capitalize()}: {count}\n"
 "
 
     if 'date' in filtered_df.columns and filtered_df['date'].notna().any():
@@ -561,7 +561,7 @@ Sentiment Breakdown:
 Date Range Covered: {date_span}
 "
         daily_volume = filtered_df.groupby(filtered_df['date'].dt.date).size()
-        summary_text += f"Avg Posts Per Day: {daily_volume.mean():.2f}
+        summary_text += f"Avg Posts Per Day: {daily_volume.mean():.2f}\n"
 "
 
     if not filtered_df.empty:
@@ -570,7 +570,7 @@ Sample Sentiment Scores by Category:
 "
         category_avgs = filtered_df[selected_category_keys].mean()
         for cat, val in category_avgs.items():
-            summary_text += f"- {category_label_map.get(cat, cat)}: {val:.3f}
+            summary_text += f"- {category_label_map.get(cat, cat)}: {val:.3f}\n"
 "
 
     summary_bytes = BytesIO(summary_text.encode('utf-8'))
