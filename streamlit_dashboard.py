@@ -129,9 +129,7 @@ else:
             if src == "Instagram":
                 temp_df = load_blob_csv("instagram_analysis.csv")
             elif src == "Google News":
-                temp_df = df_news_master.copy()
-                if 'timestamp' in temp_df.columns and 'date' not in temp_df.columns:
-                    temp_df['date'] = pd.to_datetime(temp_df['timestamp'], errors='coerce')
+                temp_df = load_blob_csv("google_news_analysis.csv")
             elif src == "YouTube":
                 temp_df = df_youtube_master.copy()
             elif src == "Reddit":
