@@ -120,13 +120,20 @@ for blob_name in snapshot_blobs:
 if source != "Combined":
     blobs = blob_map[source]
     df_analysis = load_blob_csv(blobs["analysis"])
+    if source == "Instagram":
+        df_analysis["source"] = "Instagram"
+    elif source == "Google News":
+        df_analysis["source"] = "Google News"
 else:
     dfs = []
     for src, paths in blob_map.items():
-        temp_df = load_blob_csv(paths["analysis"])
-        temp_df["source"] = src
-        dfs.append(temp_df)
-    df_analysis = pd.concat(dfs, ignore_index=True)
+        try:
+            temp_df = load_blob_csv(paths["analysis"])
+            temp_df["source"] = src
+            dfs.append(temp_df)
+        except Exception as e:
+            st.warning(f"⚠️ Could not load {src} analysis data. Reason: {e}")
+    df_analysis = pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
 
 # ========================
 # Standardize sentiment labels
