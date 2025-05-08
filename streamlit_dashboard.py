@@ -534,28 +534,69 @@ with st.expander("🖼️ Download Visualizations", expanded=False):
 # Export Summary Report
 # ========================
 with st.expander("📄 Export Summary Report", expanded=False):
-    st.markdown("Generate a detailed summary of tagged posts and sentiment distribution.")
+    st.markdown("Generate a detailed summary of all visualized data, including raw values.")
     if not filtered_df.empty:
+        from io import StringIO
+        output = StringIO()
+
+        # Category Counts
         summary_counts = filtered_df[selected_category_keys].gt(0).sum().sort_values(ascending=False)
-        label_counts = filtered_df['comment_label'].value_counts().to_dict()
-        sentiment_counts = {label: label_counts.get(label, 0) for label in ['positive', 'neutral', 'negative']}
-
-        summary_text = "### 📝 Summary of Sentiment Category Mentions\n"
+        output.write("=== Category Mentions ===\n")
         for cat, count in summary_counts.items():
-            summary_text += f"- {category_label_map.get(cat, cat)}: {count} mentions\n"
+            output.write(f"{category_label_map.get(cat, cat)}: {count}\n")
 
-        summary_text += "\n### 📝 Sentiment Type Distribution\n"
-        for sentiment, count in sentiment_counts.items():
-            summary_text += f"- {sentiment.capitalize()}: {count} posts\n"
+        # Sentiment Distribution
+        label_counts = filtered_df['comment_label'].value_counts().to_dict()
+        output.write("\n=== Sentiment Breakdown ===\n")
+        for label in ['positive', 'neutral', 'negative']:
+            output.write(f"{label.capitalize()}: {label_counts.get(label, 0)}\n")
 
+        # Weekly Volume
         if 'date' in filtered_df.columns and filtered_df['date'].notna().any():
             volume_df = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size().reset_index(name='post_count')
             volume_df['date'] = volume_df['date'].dt.start_time
-            summary_text += "\n### 📝 Weekly Post Volume\n"
+            output.write("\n=== Weekly Comment Volume ===\n")
             for _, row in volume_df.iterrows():
-                summary_text += f"- {row['date'].strftime('%Y-%m-%d')}: {int(row['post_count'])} posts\n"
+                output.write(f"{row['date'].strftime('%Y-%m-%d')}: {int(row['post_count'])} posts\n")
 
-        st.code(summary_text, language="markdown")
-        st.download_button("📥 Download Summary Report", data=summary_text, file_name="summary_report.md", mime="text/markdown")
+        # Radar Sentiment Averages
+        output.write("\n=== Average Sentiment by Category ===\n")
+        for cat in selected_category_keys:
+            avg = filtered_df[cat].mean()
+            output.write(f"{category_label_map[cat]}: {avg:.3f}\n")
+
+        # Momentum (Weekly Diff of First Category)
+        output.write("\n=== Sentiment Momentum (First Category Weekly Diff) ===\n")
+        try:
+            momentum_df = filtered_df.dropna(subset=['date'])
+            momentum_df['date'] = pd.to_datetime(momentum_df['date'])
+            weekly_mean = momentum_df.groupby(momentum_df['date'].dt.to_period('W'))[selected_category_keys[0]].mean()
+            momentum_series = weekly_mean.diff().dropna().reset_index()
+            momentum_series['date'] = momentum_series['date'].dt.start_time
+            for _, row in momentum_series.iterrows():
+                output.write(f"{row['date'].strftime('%Y-%m-%d')}: {row[selected_category_keys[0]]:.4f}\n")
+        except:
+            output.write("Momentum data could not be computed.\n")
+
+        # Distribution Summary
+        output.write("\n=== Category Mention Distribution ===\n")
+        for cat in selected_category_keys:
+            val_counts = filtered_df[cat].value_counts().to_dict()
+            mentioned = val_counts.get(1, 0)
+            not_mentioned = val_counts.get(0, 0)
+            output.write(f"{category_label_map[cat]}: Mentioned={mentioned}, Not Mentioned={not_mentioned}\n")
+
+        # Correlation Summary
+        if len(selected_category_keys) > 1:
+            output.write("\n=== Sentiment Category Correlation ===\n")
+            corr_matrix = filtered_df[selected_category_keys].corr()
+            for row_label in corr_matrix.index:
+                output.write(f"{category_label_map[row_label]} correlations:\n")
+                for col_label in corr_matrix.columns:
+                    output.write(f"  with {category_label_map[col_label]}: {corr_matrix.loc[row_label, col_label]:.2f}\n")
+
+        report = output.getvalue()
+        st.text_area("Summary Preview", report, height=300)
+        st.download_button("📥 Download Summary Report", data=report, file_name="summary_report.txt", mime="text/plain")
     else:
         st.info("No data available to generate summary report.")
