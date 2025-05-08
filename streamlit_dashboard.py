@@ -137,6 +137,15 @@ else:
             else:
                 temp_df = load_blob_csv(blob_map[src]["analysis"])
             temp_df["source"] = src
+            if 'date' not in temp_df.columns:
+                if 'comment_published_at' in temp_df.columns:
+                    temp_df['date'] = pd.to_datetime(temp_df['comment_published_at'], errors='coerce')
+                elif 'published_at' in temp_df.columns:
+                    temp_df['date'] = pd.to_datetime(temp_df['published_at'], errors='coerce')
+                elif 'timestamp' in temp_df.columns:
+                    temp_df['date'] = pd.to_datetime(temp_df['timestamp'], errors='coerce')
+                elif 'scrape_timestamp' in temp_df.columns:
+                    temp_df['date'] = pd.to_datetime(temp_df['scrape_timestamp'], errors='coerce')
             dfs.append(temp_df)
         except Exception as e:
             st.warning(f"⚠️ Could not load {src} data. Reason: {e}")
