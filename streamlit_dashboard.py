@@ -124,13 +124,22 @@ if source != "Combined":
         df_analysis["source"] = source
 else:
     dfs = []
-    for src, paths in blob_map.items():
+    for src in blob_map.keys():
         try:
-            temp_df = load_blob_csv(paths["analysis"])
+            if src == "Instagram":
+                temp_df = df_instagram_master.copy()
+            elif src == "Google News":
+                temp_df = df_news_master.copy()
+            elif src == "YouTube":
+                temp_df = df_youtube_master.copy()
+            elif src == "Reddit":
+                temp_df = df_reddit_master.copy()
+            else:
+                temp_df = load_blob_csv(blob_map[src]["analysis"])
             temp_df["source"] = src
             dfs.append(temp_df)
         except Exception as e:
-            st.warning(f"⚠️ Could not load {src} analysis data. Reason: {e}")
+            st.warning(f"⚠️ Could not load {src} data. Reason: {e}")
     df_analysis = pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
 
 # ========================
@@ -175,9 +184,8 @@ if source == "Combined" and 'source' in filtered_df.columns:
     filtered_df['source'] = filtered_df['source'].astype(str)
     counts_by_source = filtered_df['source'].value_counts()
     post_summary = f"### 📊 Total Posts: {len(filtered_df):,} (Combined)"
-    for platform in ['Reddit', 'YouTube', 'Instagram', 'Google News']:
-        count = counts_by_source.get(platform, 0)
-        post_summary += f"- {platform}: {count:,} posts\n"
+    for platform, count in counts_by_source.items():
+        post_summary += f"- {platform}: {count:,} posts"
     total_post_placeholder.markdown(post_summary)
 else:
     total_post_placeholder.markdown(f"### 📊 Total Posts: {len(filtered_df):,}")
