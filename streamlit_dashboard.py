@@ -533,53 +533,29 @@ with st.expander("🖼️ Download Visualizations", expanded=False):
 # ========================
 # Export Summary Report
 # ========================
-with st.expander("📄 Export Summary Report", expanded=True):
-    st.markdown("Download a text summary of the sentiment data.")
-    summary_text = f"""
-Sentiment Dashboard Summary Report - {source}
-Total Comments: {len(filtered_df)}
-"""
-
+with st.expander("📄 Export Summary Report", expanded=False):
+    st.markdown("Generate a detailed summary of tagged posts and sentiment distribution.")
     if not filtered_df.empty:
-        summary_text += "
-Top Categories by Mentions:
-"
-        category_counts = filtered_df[selected_category_keys].gt(0).sum().sort_values(ascending=False)
-        for cat, count in category_counts.items():
-            summary_text += f"- {category_label_map.get(cat, cat)}: {count}
-"
+        summary_counts = filtered_df[selected_category_keys].gt(0).sum().sort_values(ascending=False)
+        label_counts = filtered_df['comment_label'].value_counts().to_dict()
+        sentiment_counts = {label: label_counts.get(label, 0) for label in ['positive', 'neutral', 'negative']}
 
-    if 'comment_label' in filtered_df.columns:
-        summary_text += "
-Sentiment Breakdown:
-"
-        sentiment_counts = filtered_df['comment_label'].value_counts().to_dict()
+        summary_text = "### 📝 Summary of Sentiment Category Mentions\n"
+        for cat, count in summary_counts.items():
+            summary_text += f"- {category_label_map.get(cat, cat)}: {count} mentions\n"
+
+        summary_text += "\n### 📝 Sentiment Type Distribution\n"
         for sentiment, count in sentiment_counts.items():
-            summary_text += f"- {sentiment.capitalize()}: {count}
-"
+            summary_text += f"- {sentiment.capitalize()}: {count} posts\n"
 
-    if 'date' in filtered_df.columns and filtered_df['date'].notna().any():
-        date_span = f"{filtered_df['date'].min().date()} to {filtered_df['date'].max().date()}"
-        summary_text += f"
-Date Range Covered: {date_span}
-"
-        daily_volume = filtered_df.groupby(filtered_df['date'].dt.date).size()
-        summary_text += f"Avg Posts Per Day: {daily_volume.mean():.2f}
-"
+        if 'date' in filtered_df.columns and filtered_df['date'].notna().any():
+            volume_df = filtered_df.groupby(filtered_df['date'].dt.to_period('W')).size().reset_index(name='post_count')
+            volume_df['date'] = volume_df['date'].dt.start_time
+            summary_text += "\n### 📝 Weekly Post Volume\n"
+            for _, row in volume_df.iterrows():
+                summary_text += f"- {row['date'].strftime('%Y-%m-%d')}: {int(row['post_count'])} posts\n"
 
-    if not filtered_df.empty:
-        summary_text += "
-Sample Sentiment Scores by Category:
-"
-        category_avgs = filtered_df[selected_category_keys].mean()
-        for cat, val in category_avgs.items():
-            summary_text += f"- {category_label_map.get(cat, cat)}: {val:.3f}
-"
-
-    summary_bytes = BytesIO(summary_text.encode('utf-8'))
-    st.download_button(
-        label="📥 Download Text Summary",
-        data=summary_bytes,
-        file_name=f"{source.lower()}_sentiment_summary.txt",
-        mime="text/plain"
-    )
+        st.code(summary_text, language="markdown")
+        st.download_button("📥 Download Summary Report", data=summary_text, file_name="summary_report.md", mime="text/markdown")
+    else:
+        st.info("No data available to generate summary report.")
