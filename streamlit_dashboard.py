@@ -544,8 +544,7 @@ Top Categories by Mentions:
     if not filtered_df.empty:
         category_counts = filtered_df[selected_category_keys].gt(0).sum().sort_values(ascending=False)
         for cat, count in category_counts.items():
-            summary_text += f"- {category_label_map.get(cat, cat)}: {count}
-"
+            summary_text += f"- {category_label_map.get(cat, cat)}: {count}\n"
 
     if 'comment_label' in filtered_df.columns:
         summary_text += "
