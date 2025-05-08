@@ -128,8 +128,6 @@ else:
         dfs.append(temp_df)
     df_analysis = pd.concat(dfs, ignore_index=True)
 
-
-
 # ========================
 # Standardize sentiment labels
 if source == "Combined":
@@ -172,7 +170,7 @@ else:
         post_summary = f"### 📊 Total Posts: {len(filtered_df):,} (Combined)
 "
         for platform, count in counts_by_source.items():
-            post_summary += f"- {platform}: {count:,} posts
+            post_summary = f"### 📊 Total Posts: {len(filtered_df):,} (Combined)\n"
 "
         total_post_placeholder.markdown(post_summary)
     else:
