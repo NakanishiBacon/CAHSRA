@@ -94,7 +94,7 @@ df_youtube_master = load_blob_csv("youtube_master_comments.csv", container="data
 df_news_master = load_blob_csv("google_news_master_articles.csv", container="datanews")
 df_reddit_master = load_blob_csv("reddit_master_comments.csv", container="datareddit")
 try:
-    df_instagram_master = load_blob_csv("instagram_analysis.csv", container="visualizationdata")
+    df_instagram_master = load_blob_csv("instagram_master_comments.csv", container="datainstagram")
 except Exception as e:
     st.warning(f"⚠️ Could not load Instagram data. Reason: {e}")
     df_instagram_master = pd.DataFrame()
@@ -127,11 +127,7 @@ else:
     for src in blob_map.keys():
         try:
             if src == "Instagram":
-                temp_df = df_instagram_master.copy()
-                if 'comment_sentiment' in temp_df.columns and 'comment_label' not in temp_df.columns:
-                    temp_df['comment_label'] = temp_df['comment_sentiment']
-                if 'scrape_timestamp' in temp_df.columns and 'date' not in temp_df.columns:
-                    temp_df['date'] = pd.to_datetime(temp_df['scrape_timestamp'], errors='coerce')
+                temp_df = load_blob_csv("instagram_analysis.csv")
             elif src == "Google News":
                 temp_df = df_news_master.copy()
                 if 'timestamp' in temp_df.columns and 'date' not in temp_df.columns:
