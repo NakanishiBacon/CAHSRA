@@ -128,7 +128,7 @@ else:
         dfs.append(temp_df)
     df_analysis = pd.concat(dfs, ignore_index=True)
 
-st.markdown(f"### 📊 Total Posts: {len(filtered_df):,}")
+
 
 # ========================
 # Standardize sentiment labels
@@ -164,6 +164,7 @@ if 'date' in df_analysis.columns and df_analysis['date'].notna().any():
     filtered_df = df_analysis[(df_analysis['date'] >= pd.to_datetime(date_range[0])) & (df_analysis['date'] <= pd.to_datetime(date_range[1]))]
 else:
     filtered_df = df_analysis
+    st.markdown(f"### 📊 Total Posts: {len(filtered_df):,}")
 
 # ========================
 # Category Mapping
