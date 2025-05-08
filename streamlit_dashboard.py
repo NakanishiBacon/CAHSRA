@@ -595,6 +595,20 @@ with st.expander("📄 Export Summary Report", expanded=False):
                 for col_label in corr_matrix.columns:
                     output.write(f"  with {category_label_map[col_label]}: {corr_matrix.loc[row_label, col_label]:.2f}\n")
 
+        # Word Cloud Frequencies
+        try:
+            output.write("\n=== Word Cloud Top Words ===\n")
+            if 'word' in df_wordcloud.columns and 'count' in df_wordcloud.columns:
+                clean_df = df_wordcloud.groupby('word', as_index=False)['count'].sum()
+                clean_df = clean_df[~clean_df['word'].str.lower().isin(stopwords)]
+                top_words = clean_df.sort_values('count', ascending=False).head(50)
+                for _, row in top_words.iterrows():
+                    output.write(f"{row['word']}: {int(row['count'])}\n")
+            else:
+                output.write("Word cloud data missing required columns.\n")
+        except Exception as e:
+            output.write(f"Could not compute word cloud frequencies: {e}\n")
+
         report = output.getvalue()
         st.text_area("Summary Preview", report, height=300)
         st.download_button("📥 Download Summary Report", data=report, file_name="summary_report.txt", mime="text/plain")
