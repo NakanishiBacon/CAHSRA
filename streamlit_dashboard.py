@@ -128,7 +128,7 @@ else:
         dfs.append(temp_df)
     df_analysis = pd.concat(dfs, ignore_index=True)
 
-st.markdown(f"### 📊 Total Posts: {len(df_analysis):,}")
+st.markdown(f"### 📊 Total Posts: {len(filtered_df):,}")
 
 # ========================
 # Standardize sentiment labels
