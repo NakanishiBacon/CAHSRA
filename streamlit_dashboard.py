@@ -49,6 +49,58 @@ def score_to_label(score):
     else:
         return 'neutral'
 
+# Import required libraries for UI, data handling, visualization, and statistics
+import streamlit as st
+import pandas as pd
+from azure.storage.blob import BlobServiceClient
+from io import StringIO, BytesIO
+import plotly.express as px
+from wordcloud import WordCloud, STOPWORDS
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.stats import skew, kurtosis
+import plotly.graph_objects as go
+
+# Set layout, title, and page icon for the Streamlit app
+st.set_page_config(layout="wide", page_title="CAHSR Sentiment Dashboard", page_icon="https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png")
+
+# ========================
+# File Mappings by Source
+# ========================
+blob_map = {
+    "Reddit": {
+        "analysis": "reddit_analysis.csv",
+        "timeseries": "reddit_time_series.csv",
+        "wordcloud": "reddit_post_word_cloud.csv"
+    },
+    "YouTube": {
+        "analysis": "youtube_analysis.csv",
+        "timeseries": "youtube_time_series.csv",
+        "wordcloud": "youtube_word_cloud.csv"
+    },
+    "Instagram": {
+        "analysis": "instagram_analysis.csv",
+        "timeseries": "instagram_time_series.csv",
+        "wordcloud": ["instagram_comment_word_cloud.csv", "instagram_caption_word_cloud.csv"]
+    },
+    "Google News": {
+        "analysis": "google_news_analysis.csv",
+        "timeseries": "google_news_time_series.csv",
+        "wordcloud": "google_news_word_cloud.csv"
+    }
+}
+
+# ========================
+# Sentiment Scoring Function (global use)
+# ========================
+def score_to_label(score):
+    if score >= 0.05:
+        return 'positive'
+    elif score <= -0.05:
+        return 'negative'
+    else:
+        return 'neutral'
+
 # ========================
 # Azure Blob Setup
 # ========================
@@ -80,18 +132,10 @@ with st.container():
     Use the sidebar to select a data source and explore insights into funding, construction progress, environmental impact, and more.
     """)
 
-
-
 # ========================
-
+# Sidebar
 # ========================
 st.sidebar.header("🎛️ Controls")
-logo_image_map = {
-    "YouTube": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_play_button_icon_%282013%E2%80%932017%29.svg/2560px-YouTube_play_button_icon_%282013%E2%80%932017%29.svg.png",
-    "Reddit": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
-    "Instagram": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
-    "Google News": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_News_icon.png"
-}
 
 source_options = ["Combined", "YouTube", "Reddit", "Instagram", "Google News"]
 labeled_options = [src for src in source_options]
@@ -192,8 +236,6 @@ else:
             st.warning(f"⚠️ Could not load {src} data. Reason: {e}")
     df_analysis = pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
 
-    
-
 # ========================
 # Standardize sentiment labels
 if source == "Combined":
@@ -239,21 +281,6 @@ else:
 if source == "Combined" and 'source' in filtered_df.columns:
     filtered_df['source'] = filtered_df['source'].astype(str)
     counts_by_source = filtered_df['source'].value_counts()
-    
-    icon_map = {
-        "Combined": "📊",
-        "YouTube": "📺",
-        "Reddit": "👽",
-        "Instagram": "📸",
-        "Google News": "📰"
-    }
-    
-    logo_image_map = {
-        "YouTube": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_play_button_icon_%282013%E2%80%932017%29.svg/2560px-YouTube_play_button_icon_%282013%E2%80%932017%29.svg.png",
-        "Reddit": "https://upload.wikimedia.org/wikipedia/commons/en/thumb/b/bd/Reddit_Logo_Icon.svg/1024px-Reddit_Logo_Icon.svg.png",
-        "Instagram": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
-        "Google News": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_News_icon.png"
-    }
 
 post_summary = f"\n"
 if source in logo_image_map:
