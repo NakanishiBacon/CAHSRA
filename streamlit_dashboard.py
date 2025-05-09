@@ -311,7 +311,7 @@ if not filtered_df.empty:
             title="Number of Mentions per Sentiment Category",
             color_continuous_scale="Blues"
         )
-        fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False)
+        fig_count.update_layout(showlegend=False, coloraxis_showscale=False, xaxis_showgrid=False, yaxis_showgrid=False, xaxis_title='Count', yaxis_title='Category')
         fig_count.update_traces(hovertemplate='<b>%{y}</b><br>Mentions=%{x}')
         st.plotly_chart(fig_count, use_container_width=True)
 
@@ -358,7 +358,7 @@ if 'comment_label' in filtered_df.columns:
                     'Negative': 'red'
                 }
             )
-            fig_sentiment_pie.update_layout(showlegend=False)
+            fig_sentiment_pie.update_layout(showlegend=False, legend_title_text='', xaxis_title='Sentiment', yaxis_title='Percentage')
             fig_sentiment_pie.update_traces(
                 textposition='inside',
                 textinfo='percent',
@@ -383,7 +383,7 @@ with st.expander("🧭 Which Issues Are Viewed Most Favorably?", expanded=True):
         name='Average Sentiment'
     ))
     radar_fig.update_layout(
-        polar=dict(radialaxis=dict(visible=True, range=[-1, 1])),
+        polar=dict(radialaxis=dict(visible=True, range=[-1, 1], title='Average Sentiment')),
         showlegend=False
     )
     radar_fig.update_traces(hovertemplate='<b>%{theta}</b><br>Sentiment=%{r:.2f}')
@@ -409,7 +409,7 @@ with st.expander("📅 When Do People Talk About CAHSR the Most?", expanded=True
         volume['date'] = volume['date'].dt.start_time
         if len(volume) > 1:
             fig_volume = px.line(volume, x='date', y='count', title=f"{granularity} Comment Volume")
-            fig_volume.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+            fig_volume.update_layout(xaxis_showgrid=False, yaxis_showgrid=False, xaxis_title='Date', yaxis_title='Number of Posts')
             fig_volume.update_traces(line_shape="linear", hovertemplate='<b>%{x}</b><br>Posts=%{y}')
             st.plotly_chart(fig_volume, use_container_width=True)
         else:
@@ -444,7 +444,7 @@ with st.expander("📈 How Has Sentiment Changed Over Time?", expanded=True):
                 title=f"{trend_granularity} Sentiment Trend"
             )
             fig_time_series.update_xaxes(title_text=trend_granularity + " Date")
-            fig_time_series.update_layout(xaxis_showgrid=False, yaxis_showgrid=False, legend_title_text='')
+            fig_time_series.update_layout(xaxis_showgrid=False, yaxis_showgrid=False, legend_title_text='', xaxis_title='Date', yaxis_title='Average Sentiment')
             fig_time_series.update_traces(hovertemplate='<b>%{x}</b><br>Sentiment=%{y:.2f}')
             st.plotly_chart(fig_time_series, use_container_width=True)
         else:
@@ -476,7 +476,7 @@ with st.expander("🚀 Where Is Sentiment Gaining or Losing Momentum?", expanded
             momentum_series['date'] = momentum_series['date'].dt.start_time
             momentum_series.columns = ['date', 'momentum']
             fig_momentum = px.line(momentum_series, x='date', y='momentum', title=f"Sentiment Momentum for {selected_momentum_category} ({trend_momentum_granularity})")
-            fig_momentum.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+            fig_momentum.update_layout(xaxis_showgrid=False, yaxis_showgrid=False, xaxis_title='Date', yaxis_title='Momentum')
             fig_momentum.update_traces(hovertemplate='<b>%{x}</b><br>Momentum=%{y:.4f}')
             st.plotly_chart(fig_momentum, use_container_width=True)
         else:
@@ -514,7 +514,7 @@ if len(selected_category_keys) > 1:
         corr = filtered_df[selected_category_keys].corr()
         corr.columns = [category_label_map[c] for c in corr.columns]
         corr.index = [category_label_map[c] for c in corr.index]
-        fig_corr = px.imshow(corr.round(2), text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix")
+        fig_corr = px.imshow(corr.round(2), text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix", labels=dict(color='Correlation'))
         st.plotly_chart(fig_corr, use_container_width=True)
 
 # ========================
