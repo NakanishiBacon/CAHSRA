@@ -227,7 +227,7 @@ if source != "Combined":
 
 if 'date' in df_analysis.columns and df_analysis['date'].notna().any():
     if source == "Combined":
-        st.sidebar.write("Date ranges by platform:")
+        st.sidebar.write("📅 Date ranges by platform:")
         platform_order = ['YouTube', 'Reddit', 'Instagram', 'Google News']
         platform_icons = {
             'YouTube': "<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_play_button_icon_%282013%E2%80%932017%29.svg/2560px-YouTube_play_button_icon_%282013%E2%80%932017%29.svg.png' width='20' style='vertical-align:middle;margin-right:4px;'>",
@@ -268,7 +268,7 @@ if source in logo_image_map:
     post_summary += f"<img src='{logo_image_map[source]}' width='32' style='vertical-align:middle;'>"
 else:
     post_summary += "<span style='font-size: 1.5rem;'>📊</span>"
-post_summary += f"<h3 style='margin: 0;'>Total Posts: {len(filtered_df):,} ({source})</h3></div>"
+post_summary += f"{source} Total Posts: {len(filtered_df):,}</div>"
 if source == "Combined":
     post_summary += "<ul style='margin-top:0; margin-bottom:0; font-size:1rem; padding-left: 1.2em; line-height: 1.4;'>"
     for platform in ['YouTube', 'Reddit', 'Instagram', 'Google News']:
