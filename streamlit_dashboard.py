@@ -90,11 +90,19 @@ source = st.sidebar.selectbox("Choose data source", source_options, key="source_
 # ========================
 # Load Raw Master Data
 # ========================
-df_youtube_master = load_blob_csv("youtube_master_comments.csv", container="datayoutube")
-df_news_master = load_blob_csv("google_news_master_articles.csv", container="datanews")
-df_reddit_master = load_blob_csv("reddit_master_comments.csv", container="datareddit")
+df_youtube_master = load_blob_csv("youtube_analysis.csv")
+if 'comment_published_at' in df_youtube_master.columns:
+    df_youtube_master['date'] = pd.to_datetime(df_youtube_master['comment_published_at'], errors='coerce')
+df_news_master = load_blob_csv("google_news_analysis.csv")
+if 'timestamp' in df_news_master.columns:
+    df_news_master['date'] = pd.to_datetime(df_news_master['timestamp'], errors='coerce')
+df_reddit_master = load_blob_csv("reddit_analysis.csv")
+if 'comment_published_at' in df_reddit_master.columns:
+    df_reddit_master['date'] = pd.to_datetime(df_reddit_master['comment_published_at'], errors='coerce')
 try:
     df_instagram_master = load_blob_csv("instagram_analysis.csv")
+if 'scrape_timestamp' in df_instagram_master.columns:
+    df_instagram_master['date'] = pd.to_datetime(df_instagram_master['scrape_timestamp'], errors='coerce')
 except Exception as e:
     st.warning(f"⚠️ Could not load Instagram data. Reason: {e}")
     df_instagram_master = pd.DataFrame()
