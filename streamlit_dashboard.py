@@ -227,11 +227,11 @@ if source == "Combined" and 'source' in filtered_df.columns:
     filtered_df['source'] = filtered_df['source'].astype(str)
     counts_by_source = filtered_df['source'].value_counts()
     post_summary = f"### 📊 Total Posts: {len(filtered_df):,} (Combined)<br>"
-    post_summary += "<ul style='margin-top:0;'>"
+    post_summary += "<ul style='margin-top:0; font-size:0.875rem;'>"
     for platform in ['YouTube', 'Reddit', 'Instagram', 'Google News']:
         count = filtered_df[filtered_df['source'] == platform].shape[0]
         post_summary += f"<li><strong>{platform}</strong>: {count:,} posts</li>"
-    post_summary += "</ul>"
+    post_summary += "</ul><div style='margin-bottom:0px;'></div>"
     total_post_placeholder.markdown(post_summary, unsafe_allow_html=True)
 else:
     total_post_placeholder.markdown(f"### 📊 Total Posts: {len(filtered_df):,}")
