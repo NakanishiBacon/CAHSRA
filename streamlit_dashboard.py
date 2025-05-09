@@ -207,10 +207,9 @@ if source == "Instagram":
     if 'scrape_timestamp' in df_analysis.columns and 'date' not in df_analysis.columns:
         df_analysis['date'] = pd.to_datetime(df_analysis['scrape_timestamp'], errors='coerce')
 
-# ========================
-# Preprocessing
-# ========================
-
+# ======================== # 
+# Preprocessing 
+# ======================== #
 # Placeholder for post count display (will be moved after filtered_df is defined)
 total_post_placeholder = st.empty()
 
@@ -224,8 +223,8 @@ if source != "Combined":
         df_analysis['date'] = pd.to_datetime(df_analysis['timestamp'], errors='coerce')
     else:
         df_analysis['date'] = pd.NaT
-    else:
-        st.sidebar.markdown(f"{platform_icons.get(plat, '')}<strong>{plat}</strong>: No valid dates", unsafe_allow_html=True)
+        st.sidebar.markdown(f"{platform_icons.get(plat, '')}**{plat}**: No valid dates", unsafe_allow_html=True)
+    
     st.sidebar.markdown("_Note: Date range automatically spans from the oldest to most recent date available._")
     date_range = st.sidebar.date_input("Date range", [df_analysis['date'].min(), df_analysis['date'].max()])
     filtered_df = df_analysis[(df_analysis['date'] >= pd.to_datetime(date_range[0])) & (df_analysis['date'] <= pd.to_datetime(date_range[1]))]
@@ -235,35 +234,41 @@ else:
 if source == "Combined" and 'source' in filtered_df.columns:
     filtered_df['source'] = filtered_df['source'].astype(str)
     counts_by_source = filtered_df['source'].value_counts()
+    
     icon_map = {
-    "Combined": "📊",
-    "YouTube": "📺",
-    "Reddit": "👽",
-    "Instagram": "📸",
-    "Google News": "📰"
-}
-logo_image_map = {
-    "YouTube": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_play_button_icon_%282013%E2%80%932017%29.svg/2560px-YouTube_play_button_icon_%282013%E2%80%932017%29.svg.png",
-    "Reddit": "https://upload.wikimedia.org/wikipedia/en/thumb/b/bd/Reddit_Logo_Icon.svg/1024px-Reddit_Logo_Icon.svg.png",
-    "Instagram": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
-    "Google News": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_News_icon.png"
-}
-post_summary = f"<div style='display: flex; align-items: center; gap: 10px; margin-bottom: 0;'>"
+        "Combined": "📊",
+        "YouTube": "📺",
+        "Reddit": "👽",
+        "Instagram": "📸",
+        "Google News": "📰"
+    }
+    
+    logo_image_map = {
+        "YouTube": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_play_button_icon_%282013%E2%80%932017%29.svg/2560px-YouTube_play_button_icon_%282013%E2%80%932017%29.svg.png",
+        "Reddit": "https://upload.wikimedia.org/wikipedia/commons/en/thumb/b/bd/Reddit_Logo_Icon.svg/1024px-Reddit_Logo_Icon.svg.png",
+        "Instagram": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
+        "Google News": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_News_icon.png"
+    }
+
+post_summary = f"\n"
 if source in logo_image_map:
-    post_summary += f"<img src='{logo_image_map[source]}' width='32' style='vertical-align:middle;'>"
+    post_summary += f""
 else:
-    post_summary += "<span style='font-size: 1.5rem;'>📊</span>"
-post_summary += f"<strong style='font-size:1.2rem;'>{source} Total Posts: {len(filtered_df):,}</strong></div>"
+    post_summary += "📊"
+
+post_summary += f"**{source} Total Posts: {len(filtered_df):,}**\n"
+
 if source == "Combined":
-    post_summary += "<ul style='margin-top:0; margin-bottom:0; font-size:1.2rem; padding-left: 1.2em; line-height: 1.4em;'>"
+    post_summary += "\n* "
     for platform in ['YouTube', 'Reddit', 'Instagram', 'Google News']:
         count = filtered_df[filtered_df['source'] == platform].shape[0]
         logo = logo_image_map.get(platform)
         if logo:
-            post_summary += f"<li><img src='{logo}' width='18' style='vertical-align:middle;margin-right:6px;'><strong>{platform}</strong>: {count:,} posts</li>"
+            post_summary += f"\n* **{platform}**: {count:,} posts\n* "
         else:
-            post_summary += f"<li><strong>{platform}</strong>: {count:,} posts</li>"
-    post_summary += "</ul>"
+            post_summary += f"\n* **{platform}**: {count:,} posts\n* "
+    post_summary += "\n"
+
 total_post_placeholder.markdown(post_summary, unsafe_allow_html=True)
 
 # ========================
