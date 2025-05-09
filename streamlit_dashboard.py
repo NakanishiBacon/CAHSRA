@@ -101,7 +101,7 @@ label_to_source = dict(zip(labeled_options, source_options))
 selected_label = st.sidebar.selectbox(
     "Choose data source",
     options=labeled_options,
-    format_func=lambda x: st.markdown(x, unsafe_allow_html=True) or x,
+    format_func=lambda x: x,
     index=source_options.index("Combined"),
     key="source_selector"
 )
