@@ -293,14 +293,14 @@ selected_category_keys = list(category_label_map.keys())
 if not filtered_df.empty:
     with st.expander("🧮 How Often Are These Topics Mentioned?", expanded=True):
         st.markdown("This horizontal bar chart highlights the number of posts associated with each sentiment category, helping you see which topics are most frequently discussed.")
-        order_choice_count = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order_count_unique")
+        order_choice_count = st.radio("Order bars by:", ["Alphabetical", "Value"], index=0, horizontal=True, key="category_order_count_unique")
         category_counts = filtered_df[selected_category_keys].gt(0).sum().reset_index()
         category_counts.columns = ["Category", "Count"]
         category_counts["Category"] = category_counts["Category"].map(category_label_map)
         if order_choice_count == "Value":
             category_counts = category_counts.sort_values("Count", ascending=False)
         else:
-            category_counts = category_counts.sort_values("Category")
+            category_counts = category_counts.sort_values("Category", ascending=True)
         fig_count = px.bar(
             category_counts,
             y="Category",
