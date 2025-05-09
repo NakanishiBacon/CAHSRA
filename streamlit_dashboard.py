@@ -93,10 +93,7 @@ logo_map = {
 }
 
 source_options = ["Combined", "YouTube", "Reddit", "Instagram", "Google News"]
-labeled_options = [
-    f"<img src='{logo_map[src]}' width='20' style='vertical-align:middle;margin-right:8px;'> {src}" if logo_map[src] else src
-    for src in source_options
-]
+labeled_options = [src for src in source_options]
 label_to_source = dict(zip(labeled_options, source_options))
 selected_label = st.sidebar.selectbox(
     "Choose data source",
