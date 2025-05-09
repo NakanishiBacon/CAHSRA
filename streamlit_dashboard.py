@@ -177,7 +177,7 @@ total_post_placeholder = st.empty()
 # Only assign date if not already handled in Combined mode
 if source != "Combined":
     if 'comment_published_at' in df_analysis.columns:
-    df_analysis['date'] = pd.to_datetime(df_analysis['comment_published_at'], errors='coerce')
+        df_analysis['date'] = pd.to_datetime(df_analysis['comment_published_at'], errors='coerce')
 elif 'published_at' in df_analysis.columns:
     df_analysis['date'] = pd.to_datetime(df_analysis['published_at'], errors='coerce')
 elif 'timestamp' in df_analysis.columns:
