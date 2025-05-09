@@ -227,7 +227,7 @@ if source != "Combined":
 
 if 'date' in df_analysis.columns and df_analysis['date'].notna().any():
     if source == "Combined":
-        st.sidebar.write("📅 Date ranges by platform:")
+        st.sidebar.write("Date ranges by platform:")
         platform_order = ['YouTube', 'Reddit', 'Instagram', 'Google News']
         platform_icons = {
             'YouTube': "<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_play_button_icon_%282013%E2%80%932017%29.svg/2560px-YouTube_play_button_icon_%282013%E2%80%932017%29.svg.png' width='20' style='vertical-align:middle;margin-right:4px;'>",
