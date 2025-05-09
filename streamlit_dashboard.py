@@ -85,7 +85,7 @@ with st.container():
 # ========================
 st.sidebar.header("🎛️ Controls")
 source_options = list(blob_map.keys()) + ["Combined"]
-source = st.sidebar.selectbox("Choose data source", source_options, key="source_selector")
+source = st.sidebar.selectbox("Choose data source", source_options, index=source_options.index("Combined"), key="source_selector")
 
 # ========================
 # Load Raw Master Data
