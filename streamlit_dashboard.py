@@ -84,7 +84,7 @@ with st.container():
 # Sidebar: Data Source Selection and Filters
 # ========================
 st.sidebar.header("🎛️ Controls")
-source_options = list(blob_map.keys()) + ["Combined"]
+source_options = ["Combined", "YouTube", "Reddit", "Instagram", "Google News"]
 source = st.sidebar.selectbox("Choose data source", source_options, index=source_options.index("Combined"), key="source_selector")
 
 # ========================
