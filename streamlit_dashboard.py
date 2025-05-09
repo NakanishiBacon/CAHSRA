@@ -103,7 +103,9 @@ try:
     df_instagram_master = load_blob_csv("instagram_analysis.csv")
     if 'scrape_timestamp' in df_instagram_master.columns:
         df_instagram_master['date'] = pd.to_datetime(df_instagram_master['scrape_timestamp'], errors='coerce')
-    df_instagram_master['date'] = pd.to_datetime(df_instagram_master['scrape_timestamp'], errors='coerce')
+    else:
+        st.warning("⚠️ 'scrape_timestamp' column not found in Instagram data.")
+        df_instagram_master['date'] = pd.NaT
 except Exception as e:
     st.warning(f"⚠️ Could not load Instagram data. Reason: {e}")
     df_instagram_master = pd.DataFrame()
