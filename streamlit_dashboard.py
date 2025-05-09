@@ -437,10 +437,11 @@ with st.expander("📈 How Has Sentiment Changed Over Time?", expanded=True):
             time_series = trend_df.groupby(trend_df['date'].dt.to_period('W'))[selected_category_keys].mean().reset_index()
         time_series['date'] = time_series['date'].dt.start_time
         if not time_series.empty:
+            sorted_legend_labels = sorted([category_label_map[k] for k in selected_category_keys])
             fig_time_series = px.line(
                 time_series.rename(columns=category_label_map),
                 x='date',
-                y=[category_label_map[k] for k in selected_category_keys],
+                y=sorted_legend_labels,
                 title=f"{trend_granularity} Sentiment Trend"
             )
             fig_time_series.update_xaxes(title_text=trend_granularity + " Date")
@@ -512,7 +513,7 @@ if len(selected_category_keys) > 1:
     with st.expander("🔗 Which Topics Tend to Be Mentioned Together?", expanded=True):
         st.markdown("This heatmap visualizes correlation scores between sentiment categories, revealing which issues tend to be discussed with similar sentiment.")
         sorted_corr_keys = sorted(selected_category_keys, key=lambda k: category_label_map[k])
-        corr = filtered_df[sorted_corr_keys].corr()
+corr = filtered_df[sorted_corr_keys].corr()
         corr.columns = [category_label_map[c] for c in sorted_corr_keys]
         corr.index = [category_label_map[c] for c in sorted_corr_keys]
         fig_corr = px.imshow(corr.round(2), text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix", labels=dict(color='Correlation'))
