@@ -80,12 +80,7 @@ with st.container():
     Use the sidebar to select a data source and explore insights into funding, construction progress, environmental impact, and more.
     """)
 
-# ========================
-# Sidebar: Combined Time Range Info
-if source == "Combined" and 'date' in df_analysis.columns and df_analysis['date'].notna().any():
-    combined_min = df_analysis['date'].min().strftime('%B %d, %Y @ %I:%M:%S %p')
-    combined_max = df_analysis['date'].max().strftime('%B %d, %Y @ %I:%M:%S %p')
-    st.sidebar.markdown(f"<span style='font-size: 0.9rem;'><strong>📅 Combined Time Range:</strong><br>{combined_min} to {combined_max}</span>", unsafe_allow_html=True)
+
 
 # ========================
 # ========================
@@ -109,6 +104,13 @@ selected_label = st.sidebar.selectbox(
     key="source_selector"
 )
 source = label_to_source[selected_label]
+
+# ========================
+# Sidebar: Combined Time Range Info
+if source == "Combined" and 'date' in df_analysis.columns and df_analysis['date'].notna().any():
+    combined_min = df_analysis['date'].min().strftime('%B %d, %Y @ %I:%M:%S %p')
+    combined_max = df_analysis['date'].max().strftime('%B %d, %Y @ %I:%M:%S %p')
+    st.sidebar.markdown(f"<span style='font-size: 0.9rem;'><strong>📅 Combined Time Range:</strong><br>{combined_min} to {combined_max}</span>", unsafe_allow_html=True)
 
 # ========================
 # Load Raw Master Data
