@@ -375,9 +375,10 @@ if 'comment_label' in filtered_df.columns:
 with st.expander("🧭 Which Issues Are Viewed Most Favorably?", expanded=True):
     st.markdown("This radar chart visualizes average sentiment across categories on a scale from -1 (negative) to 1 (positive), revealing which issues are viewed more favorably.")
     radar_fig = go.Figure()
+    sorted_keys = sorted(selected_category_keys, key=lambda k: category_label_map[k])
     radar_fig.add_trace(go.Scatterpolar(
-        r=filtered_df[selected_category_keys].mean().values,
-        theta=[category_label_map[k] for k in selected_category_keys],
+        r=filtered_df[sorted_keys].mean().values,
+        theta=[category_label_map[k] for k in sorted_keys],
         fill='toself',
         name='Average Sentiment'
     ))
