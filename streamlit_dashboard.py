@@ -291,7 +291,7 @@ selected_category_keys = list(category_label_map.keys())
 # Count of Posts Tagged by Category
 # ========================
 if not filtered_df.empty:
-    with st.expander("📊 Count of Posts Tagged by Category", expanded=True):
+    with st.expander("🧮 How Often Are These Topics Mentioned?", expanded=True):
         st.markdown("This chart shows how many posts were tagged with each sentiment category.")
         order_choice_count = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order_count_unique")
         category_counts = filtered_df[selected_category_keys].gt(0).sum().reset_index()
@@ -335,7 +335,7 @@ if 'comment_label' in filtered_df.columns:
 
 if 'comment_label' in filtered_df.columns:
     filtered_df['comment_label'] = filtered_df['comment_label'].astype(str).str.lower().str.strip()
-    with st.expander("📊 Sentiment Type Comparison", expanded=True):
+    with st.expander("😊 What’s the Overall Mood?", expanded=True):
         st.markdown("This donut chart shows the percentage breakdown of positive, neutral, and negative sentiment across the selected source.")
         label_counts = filtered_df['comment_label'].value_counts().to_dict()
         expected_labels = ['positive', 'neutral', 'negative']
@@ -371,7 +371,7 @@ if 'comment_label' in filtered_df.columns:
 # ========================
 # Radar View of Average Sentiment per Category
 # ========================
-with st.expander("📡 Radar View of Average Sentiment per Category", expanded=True):
+with st.expander("🧭 Which Issues Are Viewed Most Favorably?", expanded=True):
     st.markdown("This radar chart shows average sentiment per category.")
     radar_fig = go.Figure()
     radar_fig.add_trace(go.Scatterpolar(
@@ -390,7 +390,7 @@ with st.expander("📡 Radar View of Average Sentiment per Category", expanded=T
 # ========================
 # Comment Volume
 # ========================
-with st.expander("📆 Comment Volume", expanded=True):
+with st.expander("📅 When Do People Talk About CAHSR the Most?", expanded=True):
     st.markdown("This chart shows the number of posts over time.")
     granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="volume_granularity")
 
@@ -418,7 +418,7 @@ with st.expander("📆 Comment Volume", expanded=True):
 # ========================
 # Sentiment Trend Over Time
 # ========================
-with st.expander("📈 Sentiment Trend Over Time", expanded=True):
+with st.expander("📈 How Has Sentiment Changed Over Time?", expanded=True):
     st.markdown("This chart shows how public sentiment changes over time by category.")
     trend_granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="trend_granularity")
     trend_df = filtered_df.copy()
@@ -449,7 +449,7 @@ with st.expander("📈 Sentiment Trend Over Time", expanded=True):
 # ========================
 # Sentiment Momentum
 # ========================
-with st.expander("📉 Sentiment Momentum", expanded=True):
+with st.expander("🚀 Where Is Sentiment Gaining or Losing Momentum?", expanded=True):
     st.markdown("This chart shows the rate of change in sentiment over time.")
     trend_momentum_granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="momentum_granularity")
     if selected_category_keys:
@@ -477,7 +477,7 @@ with st.expander("📉 Sentiment Momentum", expanded=True):
 # ========================
 # Sentiment Distribution Analysis
 # ========================
-with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
+with st.expander("🧮 How Focused Are Posts on This Topic?", expanded=True):
     st.markdown("This chart shows the proportion of posts that mention vs. don't mention the selected category.")
     selected_category_label = st.selectbox("Choose a sentiment category to view:", list(category_label_map.values()), key="distribution_category_selector")
     selected_category = reverse_label_map[selected_category_label]
@@ -501,7 +501,7 @@ with st.expander("📈 Sentiment Distribution Analysis", expanded=True):
 # Correlation Heatmap
 # ========================
 if len(selected_category_keys) > 1:
-    with st.expander("📉 Sentiment Category Correlation", expanded=True):
+    with st.expander("🔗 Which Topics Tend to Be Mentioned Together?", expanded=True):
         st.markdown("This heatmap compares how similarly sentiment scores vary across categories.")
         corr = filtered_df[selected_category_keys].corr()
         corr.columns = [category_label_map[c] for c in corr.columns]
@@ -512,7 +512,7 @@ if len(selected_category_keys) > 1:
 # ========================
 # Word Cloud Viewer
 # ========================
-with st.expander("☁️ Word Cloud Viewer", expanded=True):
+with st.expander("☁️ What Words Stand Out the Most?", expanded=True):
     st.markdown("This visual displays the most frequently used words in the dataset.")
     wordcloud_files = blob_map[source]["wordcloud"] if source != "Combined" else "reddit_post_word_cloud.csv"
     df_wordcloud = pd.DataFrame()
