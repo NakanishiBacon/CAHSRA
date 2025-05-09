@@ -520,11 +520,11 @@ with st.expander("☁️ Word Cloud Viewer", expanded=True):
     "i", "you", "he", "she", "they", "we", "it", "them", "us", "me", "my", "your", "their", "our",
 
     # Negations
-    "not", "no", "none", "never", "nothing", "nowhere", "dont", "isnt", "wasnt", "arent", "werent",
+    "not", "no", "none", "never", "nothing", "nowhere", "isnt", "wasnt", "arent", "werent",
 
     # Social media slang / reactions
     "lol", "lmao", "omg", "bruh", "bro", "dude", "man", "girl", "guy", "idk", "ikr", "wtf", "smh",
-    "nah", "yall", "ffs", "fr", "btw", "imo", "imho", "rip", "ugh", "wow", "yay", "aw", "eh", "wow",
+    "yall", "ffs", "fr", "btw", "imo", "imho", "rip", "ugh", "wow", "yay", "aw", "eh",
 
     # Instagram/YouTube/Reddit specifics
     "post", "comment", "video", "views", "likes", "watch", "follow", "fyp", "thread", "reddit", 
@@ -532,7 +532,13 @@ with st.expander("☁️ Word Cloud Viewer", expanded=True):
     "reply", "click", "link", "bio", "story", "feed", "algorithm",
 
     # Non-content fillers
-    "thing", "stuff", "everything", "something", "anything", "nothing", "everyone", "someone", "somebody"
+    "stuff", "everything", "something", "anything", "everyone", "someone", "somebody",
+
+    # Added from word cloud noise
+    "want", "think", "way", "done", "now", "much", "good", "see", "need", "first", "right",
+    "lot", "make", "sure", "thats", "time", "projects", "cahsr", "hsr", "trains", 
+    "build", "built", "building", "construction", "track", "tracks", "system", "station",
+    "two", "area", "better", "public", "support", "years"
     }
 
     stopwords = set(STOPWORDS).union(base_stopwords).union(custom_stopwords_list)
