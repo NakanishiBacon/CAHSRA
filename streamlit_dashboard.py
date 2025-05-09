@@ -292,7 +292,7 @@ selected_category_keys = list(category_label_map.keys())
 # ========================
 if not filtered_df.empty:
     with st.expander("🧮 How Often Are These Topics Mentioned?", expanded=True):
-        st.markdown("This chart shows how many posts were tagged with each sentiment category.")
+        st.markdown("This horizontal bar chart highlights the number of posts associated with each sentiment category, helping you see which topics are most frequently discussed.")
         order_choice_count = st.radio("Order bars by:", ["Alphabetical", "Value"], horizontal=True, key="category_order_count_unique")
         category_counts = filtered_df[selected_category_keys].gt(0).sum().reset_index()
         category_counts.columns = ["Category", "Count"]
@@ -336,7 +336,7 @@ if 'comment_label' in filtered_df.columns:
 if 'comment_label' in filtered_df.columns:
     filtered_df['comment_label'] = filtered_df['comment_label'].astype(str).str.lower().str.strip()
     with st.expander("😊 What’s the Overall Mood?", expanded=True):
-        st.markdown("This donut chart shows the percentage breakdown of positive, neutral, and negative sentiment across the selected source.")
+        st.markdown("This donut chart shows the emotional makeup of the conversation — dividing sentiment into positive, neutral, and negative segments.")
         label_counts = filtered_df['comment_label'].value_counts().to_dict()
         expected_labels = ['positive', 'neutral', 'negative']
         sentiment_counts = pd.DataFrame({
@@ -372,7 +372,7 @@ if 'comment_label' in filtered_df.columns:
 # Radar View of Average Sentiment per Category
 # ========================
 with st.expander("🧭 Which Issues Are Viewed Most Favorably?", expanded=True):
-    st.markdown("This radar chart shows average sentiment per category.")
+    st.markdown("This radar chart visualizes average sentiment across categories on a scale from -1 (negative) to 1 (positive), revealing which issues are viewed more favorably.")
     radar_fig = go.Figure()
     radar_fig.add_trace(go.Scatterpolar(
         r=filtered_df[selected_category_keys].mean().values,
@@ -391,7 +391,7 @@ with st.expander("🧭 Which Issues Are Viewed Most Favorably?", expanded=True):
 # Comment Volume
 # ========================
 with st.expander("📅 When Do People Talk About CAHSR the Most?", expanded=True):
-    st.markdown("This chart shows the number of posts over time.")
+    st.markdown("This time series line chart shows posting volume over time to identify peaks in public interest or major events.")
     granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="volume_granularity")
 
     filtered_df['date'] = pd.to_datetime(filtered_df['date'])
@@ -419,7 +419,7 @@ with st.expander("📅 When Do People Talk About CAHSR the Most?", expanded=True
 # Sentiment Trend Over Time
 # ========================
 with st.expander("📈 How Has Sentiment Changed Over Time?", expanded=True):
-    st.markdown("This chart shows how public sentiment changes over time by category.")
+    st.markdown("This multi-line time series chart tracks how sentiment evolves over time across different categories.")
     trend_granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="trend_granularity")
     trend_df = filtered_df.copy()
     trend_df['date'] = pd.to_datetime(trend_df['date'])
@@ -448,9 +448,11 @@ with st.expander("📈 How Has Sentiment Changed Over Time?", expanded=True):
 
 # ========================
 # Sentiment Momentum
-# ========================
+selected_momentum_category = st.selectbox("Choose a sentiment category to analyze momentum:", [category_label_map[k] for k in selected_category_keys], key="momentum_category_selector")
+selected_momentum_key = reverse_label_map[selected_momentum_category]
+
 with st.expander("🚀 Where Is Sentiment Gaining or Losing Momentum?", expanded=True):
-    st.markdown("This chart shows the rate of change in sentiment over time.")
+    st.markdown("This line chart illustrates the week-over-week momentum of sentiment for one selected category.")
     trend_momentum_granularity = st.radio("Select time granularity:", ["Daily", "Weekly", "Monthly", "Yearly"], horizontal=True, key="momentum_granularity")
     if selected_category_keys:
         momentum_df = filtered_df.copy()
@@ -458,7 +460,7 @@ with st.expander("🚀 Where Is Sentiment Gaining or Losing Momentum?", expanded
         momentum_df = momentum_df.dropna(subset=['date'])
         if momentum_df['date'].notna().any():
             if trend_momentum_granularity == "Daily":
-                momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('D'))[selected_category_keys[0]].mean().diff().dropna().reset_index()
+                momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('D'))[selected_momentum_key].mean().diff().dropna().reset_index()
             elif trend_momentum_granularity == "Monthly":
                 momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('M'))[selected_category_keys[0]].mean().diff().dropna().reset_index()
             elif trend_momentum_granularity == "Yearly":
@@ -467,7 +469,7 @@ with st.expander("🚀 Where Is Sentiment Gaining or Losing Momentum?", expanded
                 momentum_series = momentum_df.groupby(momentum_df['date'].dt.to_period('W'))[selected_category_keys[0]].mean().diff().dropna().reset_index()
             momentum_series['date'] = momentum_series['date'].dt.start_time
             momentum_series.columns = ['date', 'momentum']
-            fig_momentum = px.line(momentum_series, x='date', y='momentum', title=f"Sentiment Momentum for {category_label_map[selected_category_keys[0]]} ({trend_momentum_granularity})")
+            fig_momentum = px.line(momentum_series, x='date', y='momentum', title=f"Sentiment Momentum for {selected_momentum_category} ({trend_momentum_granularity})")
             fig_momentum.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
             fig_momentum.update_traces(hovertemplate='<b>%{x}</b><br>Momentum=%{y:.4f}')
             st.plotly_chart(fig_momentum, use_container_width=True)
@@ -478,7 +480,7 @@ with st.expander("🚀 Where Is Sentiment Gaining or Losing Momentum?", expanded
 # Sentiment Distribution Analysis
 # ========================
 with st.expander("🧮 How Focused Are Posts on This Topic?", expanded=True):
-    st.markdown("This chart shows the proportion of posts that mention vs. don't mention the selected category.")
+    st.markdown("This donut chart compares the share of posts that mention a selected topic versus those that don’t.")
     selected_category_label = st.selectbox("Choose a sentiment category to view:", list(category_label_map.values()), key="distribution_category_selector")
     selected_category = reverse_label_map[selected_category_label]
     counts = filtered_df[selected_category].value_counts().sort_index()
@@ -502,7 +504,7 @@ with st.expander("🧮 How Focused Are Posts on This Topic?", expanded=True):
 # ========================
 if len(selected_category_keys) > 1:
     with st.expander("🔗 Which Topics Tend to Be Mentioned Together?", expanded=True):
-        st.markdown("This heatmap compares how similarly sentiment scores vary across categories.")
+        st.markdown("This heatmap visualizes correlation scores between sentiment categories, revealing which issues tend to be discussed with similar sentiment.")
         corr = filtered_df[selected_category_keys].corr()
         corr.columns = [category_label_map[c] for c in corr.columns]
         corr.index = [category_label_map[c] for c in corr.index]
@@ -513,7 +515,7 @@ if len(selected_category_keys) > 1:
 # Word Cloud Viewer
 # ========================
 with st.expander("☁️ What Words Stand Out the Most?", expanded=True):
-    st.markdown("This visual displays the most frequently used words in the dataset.")
+    st.markdown("This word cloud displays the most frequently used words in the dataset, with larger words appearing more often.")
     wordcloud_files = blob_map[source]["wordcloud"] if source != "Combined" else "reddit_post_word_cloud.csv"
     df_wordcloud = pd.DataFrame()
     if isinstance(wordcloud_files, list):
