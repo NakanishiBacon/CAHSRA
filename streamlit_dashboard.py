@@ -512,7 +512,7 @@ if len(selected_category_keys) > 1:
     with st.expander("🔗 Which Topics Tend to Be Mentioned Together?", expanded=True):
         st.markdown("This heatmap visualizes correlation scores between sentiment categories, revealing which issues tend to be discussed with similar sentiment.")
         sorted_corr_keys = sorted(selected_category_keys, key=lambda k: category_label_map[k])
-corr = filtered_df[sorted_corr_keys].corr()
+        corr = filtered_df[sorted_corr_keys].corr()
         corr.columns = [category_label_map[c] for c in sorted_corr_keys]
         corr.index = [category_label_map[c] for c in sorted_corr_keys]
         fig_corr = px.imshow(corr.round(2), text_auto=True, color_continuous_scale='RdBu_r', aspect="auto", title="Category Sentiment Correlation Matrix", labels=dict(color='Correlation'))
