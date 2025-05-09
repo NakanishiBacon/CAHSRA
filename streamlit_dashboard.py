@@ -225,20 +225,6 @@ if source != "Combined":
     else:
         df_analysis['date'] = pd.NaT
 
-if 'date' in df_analysis.columns and df_analysis['date'].notna().any():
-    if source == "Combined":
-        st.sidebar.write("📅 Date ranges by platform:")
-        platform_order = ['YouTube', 'Reddit', 'Instagram', 'Google News']
-        platform_icons = {
-            'YouTube': "<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_play_button_icon_%282013%E2%80%932017%29.svg/2560px-YouTube_play_button_icon_%282013%E2%80%932017%29.svg.png' width='20' style='vertical-align:middle;margin-right:4px;'>",
-            'Reddit': "<img src='https://upload.wikimedia.org/wikipedia/en/thumb/b/bd/Reddit_Logo_Icon.svg/1024px-Reddit_Logo_Icon.svg.png' width='20' style='vertical-align:middle;margin-right:4px;'>",
-            'Instagram': "<img src='https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg' width='20' style='vertical-align:middle;margin-right:4px;'>",
-            'Google News': "<img src='https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_News_icon.png' width='20' style='vertical-align:middle;margin-right:4px;'>"
-        }
-        for plat in platform_order:
-            sub = df_analysis[df_analysis['source'] == plat] if 'source' in df_analysis.columns else pd.DataFrame()
-            if 'date' in sub.columns and not sub['date'].isna().all():
-                st.sidebar.markdown(f"{platform_icons.get(plat, '')}{sub['date'].min().strftime('%B %d, %Y @ %I:%M:%S %p')} to {sub['date'].max().strftime('%B %d, %Y @ %I:%M:%S %p')}", unsafe_allow_html=True)
             else:
                 st.sidebar.markdown(f"{platform_icons.get(plat, '')}<strong>{plat}</strong>: No valid dates", unsafe_allow_html=True)
     st.sidebar.markdown("_Note: Date range automatically spans from the oldest to most recent date available._")
