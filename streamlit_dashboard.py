@@ -246,9 +246,25 @@ else:
 if source == "Combined" and 'source' in filtered_df.columns:
     filtered_df['source'] = filtered_df['source'].astype(str)
     counts_by_source = filtered_df['source'].value_counts()
-    post_summary = f"<div style='display: flex; align-items: center; gap: 8px; margin-bottom: 0;'>"
-    
-    post_summary += f"<h3 style='margin: 0;'>Total Posts: {len(filtered_df):,} (Combined)</h3></div>"
+    icon_map = {
+    "Combined": "📊",
+    "YouTube": "📺",
+    "Reddit": "👽",
+    "Instagram": "📸",
+    "Google News": "📰"
+}
+logo_image_map = {
+    "YouTube": "https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg",
+    "Reddit": "https://upload.wikimedia.org/wikipedia/en/thumb/b/bd/Reddit_Logo_Icon.svg/1024px-Reddit_Logo_Icon.svg.png",
+    "Instagram": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
+    "Google News": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_News_icon.png"
+}
+post_summary = f"<div style='display: flex; align-items: center; gap: 10px; margin-bottom: 0;'>"
+if source in logo_image_map:
+    post_summary += f"<img src='{logo_image_map[source]}' width='32' style='vertical-align:middle;'>"
+else:
+    post_summary += "<span style='font-size: 1.5rem;'>📊</span>"
+post_summary += f"<h3 style='margin: 0;'>Total Posts: {len(filtered_df):,} ({source})</h3></div>"
     post_summary += "<ul style='margin-top:0; margin-bottom:0; font-size:1rem; padding-left: 1.2em; line-height: 1.4;'>"
     for platform in ['YouTube', 'Reddit', 'Instagram', 'Google News']:
         count = filtered_df[filtered_df['source'] == platform].shape[0]
