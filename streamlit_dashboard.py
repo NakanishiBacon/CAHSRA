@@ -1,5 +1,6 @@
 # Set layout, title, and page icon for the Streamlit app
 import streamlit as st
+st.set_page_config(layout="wide", page_title="CAHSR Sentiment Dashboard", page_icon="https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png")
 import pandas as pd
 from azure.storage.blob import BlobServiceClient
 from io import StringIO, BytesIO
@@ -10,7 +11,6 @@ import numpy as np
 from scipy.stats import skew, kurtosis
 import plotly.graph_objects as go
 
-st.set_page_config(layout="wide", page_title="CAHSR Sentiment Dashboard", page_icon="https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png")
 
 # ========================
 # File Mappings by Source
@@ -81,8 +81,15 @@ with st.container():
     """)
 
 # ========================
-# Sidebar
+# Sidebar and Logo Mapping
 # ========================
+logo_image_map = {
+    "YouTube": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_play_button_icon_%282013%E2%80%932017%29.svg/2560px-YouTube_play_button_icon_%282013%E2%80%932017%29.svg.png",
+    "Reddit": "https://upload.wikimedia.org/wikipedia/en/thumb/5/58/Reddit_logo_new.svg/2560px-Reddit_logo_new.svg.png",
+    "Instagram": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
+    "Google News": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_News_icon.png"
+}
+
 st.sidebar.header("🎛️ Controls")
 
 source_options = ["Combined", "YouTube", "Reddit", "Instagram", "Google News"]
@@ -718,4 +725,3 @@ with st.expander("📄 Export Summary Report", expanded=False):
         st.download_button("📥 Download Summary Report", data=report, file_name="summary_report.txt", mime="text/plain")
     else:
         st.info("No data available to generate summary report.")
-
