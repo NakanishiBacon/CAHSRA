@@ -95,7 +95,7 @@ logo_image_map = {
 logo_map = {
     "Combined": None,
     "YouTube": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_play_button_icon_%282013%E2%80%932017%29.svg/2560px-YouTube_play_button_icon_%282013%E2%80%932017%29.svg.png",
-    "Reddit": "https://upload.wikimedia.org/wikipedia/en/thumb/b/bd/Reddit_Logo_Icon.svg/1024px-Reddit_Logo_Icon.svg.png",
+    "Reddit": "https://upload.wikimedia.org/wikipedia/en/thumb/b/bd/Reddit_Logo_Icon.svg/250px-Reddit_Logo_Icon.svg.png",
     "Instagram": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
     "Google News": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_News_icon.png"
 }
@@ -199,15 +199,7 @@ else:
             st.warning(f"⚠️ Could not load {src} data. Reason: {e}")
     df_analysis = pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
 
-    # ========================
-    # Sidebar: Combined Time Range Info (inserted after df_analysis is defined)
-    if source == "Combined" and 'date' in df_analysis.columns and df_analysis['date'].notna().any():
-        combined_min = df_analysis['date'].min().strftime('%B %d, %Y @ %I:%M:%S %p')
-        combined_max = df_analysis['date'].max().strftime('%B %d, %Y @ %I:%M:%S %p')
-        st.sidebar.markdown(
-            f"<span style='font-size: 0.9rem;'><strong>📅 Combined Time Range:</strong><br>{combined_min} to {combined_max}</span>",
-            unsafe_allow_html=True
-        )
+    
 
 # ========================
 # Standardize sentiment labels
