@@ -105,8 +105,6 @@ selected_label = st.sidebar.selectbox(
 )
 source = label_to_source[selected_label]
 
-</strong><br>{combined_min} to {combined_max}</span>", unsafe_allow_html=True)
-
 # ========================
 # Load Raw Master Data
 # ========================
