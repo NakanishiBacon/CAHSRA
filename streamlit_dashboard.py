@@ -224,9 +224,8 @@ if source != "Combined":
         df_analysis['date'] = pd.to_datetime(df_analysis['timestamp'], errors='coerce')
     else:
         df_analysis['date'] = pd.NaT
-
-            else:
-                st.sidebar.markdown(f"{platform_icons.get(plat, '')}<strong>{plat}</strong>: No valid dates", unsafe_allow_html=True)
+        else:
+            st.sidebar.markdown(f"{platform_icons.get(plat, '')}<strong>{plat}</strong>: No valid dates", unsafe_allow_html=True)
     st.sidebar.markdown("_Note: Date range automatically spans from the oldest to most recent date available._")
     date_range = st.sidebar.date_input("Date range", [df_analysis['date'].min(), df_analysis['date'].max()])
     filtered_df = df_analysis[(df_analysis['date'] >= pd.to_datetime(date_range[0])) & (df_analysis['date'] <= pd.to_datetime(date_range[1]))]
