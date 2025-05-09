@@ -106,11 +106,14 @@ selected_label = st.sidebar.selectbox(
 source = label_to_source[selected_label]
 
 # ========================
-# Sidebar: Combined Time Range Info
-if source == "Combined" and 'date' in df_analysis.columns and df_analysis['date'].notna().any():
-    combined_min = df_analysis['date'].min().strftime('%B %d, %Y @ %I:%M:%S %p')
-    combined_max = df_analysis['date'].max().strftime('%B %d, %Y @ %I:%M:%S %p')
-    st.sidebar.markdown(f"<span style='font-size: 0.9rem;'><strong>📅 Combined Time Range:</strong><br>{combined_min} to {combined_max}</span>", unsafe_allow_html=True)
+# Sidebar: Combined Time Range Info (reinserted after df_analysis is defined)
+if source == "Combined":
+    if 'date' in df_analysis.columns and df_analysis['date'].notna().any():
+        combined_min = df_analysis['date'].min().strftime('%B %d, %Y @ %I:%M:%S %p')
+        combined_max = df_analysis['date'].max().strftime('%B %d, %Y @ %I:%M:%S %p')
+        st.sidebar.markdown(f"<span style='font-size: 0.9rem;'><strong>📅 Combined Time Range:</strong><br>{combined_min} to {combined_max}</span>", unsafe_allow_html=True)
+
+</strong><br>{combined_min} to {combined_max}</span>", unsafe_allow_html=True)
 
 # ========================
 # Load Raw Master Data
