@@ -246,8 +246,8 @@ else:
 if source == "Combined" and 'source' in filtered_df.columns:
     filtered_df['source'] = filtered_df['source'].astype(str)
     counts_by_source = filtered_df['source'].value_counts()
-    post_summary = f"<div style='display: flex; align-items: center; gap: 8px;'>"
-    post_summary += "<img src='https://img.icons8.com/emoji/48/abacus-emoji.png' width='32'>"
+    post_summary = f"<div style='display: flex; align-items: center; gap: 8px; margin-bottom: 0;'>"
+    
     post_summary += f"<h3 style='margin: 0;'>Total Posts: {len(filtered_df):,} (Combined)</h3></div>"
     post_summary += "<ul style='margin-top:0; margin-bottom:0; font-size:1rem; padding-left: 1.2em; line-height: 1.4;'>"
     for platform in ['YouTube', 'Reddit', 'Instagram', 'Google News']:
