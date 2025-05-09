@@ -238,7 +238,7 @@ if 'date' in df_analysis.columns and df_analysis['date'].notna().any():
         for plat in platform_order:
             sub = df_analysis[df_analysis['source'] == plat] if 'source' in df_analysis.columns else pd.DataFrame()
             if 'date' in sub.columns and not sub['date'].isna().all():
-                st.sidebar.markdown(f"{platform_icons.get(plat, '')}<strong>{plat}</strong>: {sub['date'].min().strftime('%B %d, %Y @ %I:%M:%S %p')} to {sub['date'].max().strftime('%B %d, %Y @ %I:%M:%S %p')}", unsafe_allow_html=True)
+                st.sidebar.markdown(f"{platform_icons.get(plat, '')}{sub['date'].min().strftime('%B %d, %Y @ %I:%M:%S %p')} to {sub['date'].max().strftime('%B %d, %Y @ %I:%M:%S %p')}", unsafe_allow_html=True)
             else:
                 st.sidebar.markdown(f"{platform_icons.get(plat, '')}<strong>{plat}</strong>: No valid dates", unsafe_allow_html=True)
     st.sidebar.markdown("_Note: Date range automatically spans from the oldest to most recent date available._")
@@ -268,12 +268,13 @@ if source in logo_image_map:
     post_summary += f"<img src='{logo_image_map[source]}' width='32' style='vertical-align:middle;'>"
 else:
     post_summary += "<span style='font-size: 1.5rem;'>📊</span>"
-post_summary += f"{source} Total Posts: {len(filtered_df):,}</div>"
+post_summary += f"<strong>{source} Total Posts: {len(filtered_df):,}</strong></div>"
 if source == "Combined":
-    post_summary += "<ul style='margin-top:0; margin-bottom:0; font-size:1rem; padding-left: 1.2em; line-height: 1.4;'>"
+    post_summary += "<ul style='margin-top:0; margin-bottom:0; font-size:1rem; padding-left: 1.2em; line-height: 1.4em;'>"
     for platform in ['YouTube', 'Reddit', 'Instagram', 'Google News']:
         count = filtered_df[filtered_df['source'] == platform].shape[0]
-        post_summary += f"<li><strong>{platform}</strong>: {count:,} posts</li>"
+        icon = icon_map.get(platform, '')
+        post_summary += f"<li>{icon} <strong>{platform}</strong>: {count:,} posts</li>"
     post_summary += "</ul>"
 total_post_placeholder.markdown(post_summary, unsafe_allow_html=True)
 
