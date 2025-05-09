@@ -121,6 +121,10 @@ if source != "Combined":
     blobs = blob_map[source]
     df_analysis = load_blob_csv(blobs["analysis"])
     if source in ["Instagram", "Google News"]:
+        if source == "Instagram" and 'scrape_timestamp' in df_analysis.columns:
+            df_analysis['date'] = pd.to_datetime(df_analysis['scrape_timestamp'], errors='coerce')
+        elif source == "Google News" and 'timestamp' in df_analysis.columns:
+            df_analysis['date'] = pd.to_datetime(df_analysis['timestamp'], errors='coerce')
         df_analysis["source"] = source
 else:
     dfs = []
