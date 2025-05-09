@@ -256,7 +256,7 @@ if source in logo_image_map:
 else:
     post_summary += "📊"
 
-post_summary += f"<strong style='font-size:1.2rem;'>{source} Total Posts: {len(filtered_df):,}</strong><ul style='margin: 0; padding: 0 0 0 1.2em; list-style-type: none; font-size: 1.2rem;'>"
+post_summary += f"<strong style='font-size:1.2rem;'>{source} Total Posts: {len(filtered_df):,}</strong><ul style='margin: 0; padding-left: 1.2em; font-size: 1.2rem;'>"
 
 if source == "Combined":
     
@@ -264,7 +264,7 @@ if source == "Combined":
         count = filtered_df[filtered_df['source'] == platform].shape[0]
         logo = logo_image_map.get(platform)
         if logo:
-            post_summary += f"<li style='list-style-type:none; margin: 0 0 4px 0;'><img src='{logo}' width='18' style='vertical-align:middle; margin-right:6px;'><strong>{platform}</strong>: {count:,} posts</li>"
+            post_summary += f"<li style='margin: 0 0 4px 0;'><img src='{logo}' width='18' style='vertical-align:middle; margin-right:6px;'><strong>{platform}</strong>: {count:,} posts</li>"
         else:
             post_summary += f"\n* **{platform}**: {count:,} posts\n* "
     post_summary += "</ul>"
