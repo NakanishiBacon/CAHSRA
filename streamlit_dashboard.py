@@ -101,8 +101,8 @@ if 'comment_published_at' in df_reddit_master.columns:
     df_reddit_master['date'] = pd.to_datetime(df_reddit_master['comment_published_at'], errors='coerce')
 try:
     df_instagram_master = load_blob_csv("instagram_analysis.csv")
-    if 'scrape_timestamp' in df_instagram_master.columns:
-        df_instagram_master['date'] = pd.to_datetime(df_instagram_master['scrape_timestamp'], errors='coerce')
+    if 'timestamp' in df_instagram_master.columns:
+        df_instagram_master['date'] = pd.to_datetime(df_instagram_master['timestamp'], errors='coerce')
     else:
         st.warning("⚠️ 'scrape_timestamp' column not found in Instagram data.")
         df_instagram_master['date'] = pd.NaT
@@ -132,8 +132,8 @@ if source != "Combined":
     blobs = blob_map[source]
     df_analysis = load_blob_csv(blobs["analysis"])
     if source in ["Instagram", "Google News"]:
-        if source == "Instagram" and 'scrape_timestamp' in df_analysis.columns:
-            df_analysis['date'] = pd.to_datetime(df_analysis['scrape_timestamp'], errors='coerce')
+        if source == "Instagram" and 'timestamp' in df_analysis.columns:
+            df_analysis['date'] = pd.to_datetime(df_analysis['timestamp'], errors='coerce')
         elif source == "Google News" and 'timestamp' in df_analysis.columns:
             df_analysis['date'] = pd.to_datetime(df_analysis['timestamp'], errors='coerce')
         df_analysis["source"] = source
@@ -143,8 +143,8 @@ else:
         try:
             if src == "Instagram":
                 temp_df = load_blob_csv("instagram_analysis.csv")
-                if 'scrape_timestamp' in temp_df.columns:
-                    temp_df['date'] = pd.to_datetime(temp_df['scrape_timestamp'], errors='coerce')
+                if 'timestamp' in temp_df.columns:
+                    temp_df['date'] = pd.to_datetime(temp_df['timestamp'], errors='coerce')
             elif src == "Google News":
                 temp_df = load_blob_csv("google_news_analysis.csv")
                 if 'timestamp' in temp_df.columns:
