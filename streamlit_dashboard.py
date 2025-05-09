@@ -1,4 +1,4 @@
-# Import required libraries for UI, data handling, visualization, and statistics
+# Set layout, title, and page icon for the Streamlit app
 import streamlit as st
 import pandas as pd
 from azure.storage.blob import BlobServiceClient
@@ -10,58 +10,6 @@ import numpy as np
 from scipy.stats import skew, kurtosis
 import plotly.graph_objects as go
 
-# Set layout, title, and page icon for the Streamlit app
-st.set_page_config(layout="wide", page_title="CAHSR Sentiment Dashboard", page_icon="https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png")
-
-# ========================
-# File Mappings by Source
-# ========================
-blob_map = {
-    "Reddit": {
-        "analysis": "reddit_analysis.csv",
-        "timeseries": "reddit_time_series.csv",
-        "wordcloud": "reddit_post_word_cloud.csv"
-    },
-    "YouTube": {
-        "analysis": "youtube_analysis.csv",
-        "timeseries": "youtube_time_series.csv",
-        "wordcloud": "youtube_word_cloud.csv"
-    },
-    "Instagram": {
-        "analysis": "instagram_analysis.csv",
-        "timeseries": "instagram_time_series.csv",
-        "wordcloud": ["instagram_comment_word_cloud.csv", "instagram_caption_word_cloud.csv"]
-    },
-    "Google News": {
-        "analysis": "google_news_analysis.csv",
-        "timeseries": "google_news_time_series.csv",
-        "wordcloud": "google_news_word_cloud.csv"
-    }
-}
-
-# ========================
-# Sentiment Scoring Function (global use)
-def score_to_label(score):
-    if score >= 0.05:
-        return 'positive'
-    elif score <= -0.05:
-        return 'negative'
-    else:
-        return 'neutral'
-
-# Import required libraries for UI, data handling, visualization, and statistics
-import streamlit as st
-import pandas as pd
-from azure.storage.blob import BlobServiceClient
-from io import StringIO, BytesIO
-import plotly.express as px
-from wordcloud import WordCloud, STOPWORDS
-import matplotlib.pyplot as plt
-import numpy as np
-from scipy.stats import skew, kurtosis
-import plotly.graph_objects as go
-
-# Set layout, title, and page icon for the Streamlit app
 st.set_page_config(layout="wide", page_title="CAHSR Sentiment Dashboard", page_icon="https://styles.redditmedia.com/t5_3iapt/styles/communityIcon_4iqd676dihh51.png")
 
 # ========================
@@ -770,3 +718,4 @@ with st.expander("📄 Export Summary Report", expanded=False):
         st.download_button("📥 Download Summary Report", data=report, file_name="summary_report.txt", mime="text/plain")
     else:
         st.info("No data available to generate summary report.")
+
