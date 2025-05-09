@@ -210,11 +210,11 @@ if source != "Combined":
 
 if 'date' in df_analysis.columns and df_analysis['date'].notna().any():
     if source == "Combined":
-        st.sidebar.write("📅 Date ranges by platform (debug):")
+        st.sidebar.write("📅 Date ranges by platform:")
         for plat in ['Reddit', 'YouTube', 'Instagram', 'Google News']:
             sub = df_analysis[df_analysis['source'] == plat] if 'source' in df_analysis.columns else pd.DataFrame()
             if 'date' in sub.columns and not sub['date'].isna().all():
-                st.sidebar.write(f"- {plat}: {sub['date'].min()} to {sub['date'].max()}")
+                st.sidebar.write(f"- {plat}: {sub['date'].min().strftime('%B %d, %Y @ %I:%M:%S %p')} to {sub['date'].max().strftime('%B %d, %Y @ %I:%M:%S %p')}")
             else:
                 st.sidebar.write(f"- {plat}: No valid dates")
     st.sidebar.markdown("_Note: Date range automatically spans from the oldest to most recent date available._")
