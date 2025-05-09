@@ -270,7 +270,7 @@ else:
     post_summary += "<span style='font-size: 1.5rem;'>📊</span>"
 post_summary += f"<strong>{source} Total Posts: {len(filtered_df):,}</strong></div>"
 if source == "Combined":
-    post_summary += "<ul style='margin-top:0; margin-bottom:0; font-size:1rem; padding-left: 1.2em; line-height: 1.4em;'>"
+    post_summary += "<ul style='margin-top:0; margin-bottom:0; font-size:1.1rem; padding-left: 1.2em; line-height: 1.4em;'>"
     for platform in ['YouTube', 'Reddit', 'Instagram', 'Google News']:
         count = filtered_df[filtered_df['source'] == platform].shape[0]
         logo = logo_image_map.get(platform)
