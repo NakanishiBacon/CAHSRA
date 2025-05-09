@@ -300,7 +300,8 @@ if not filtered_df.empty:
         if order_choice_count == "Value":
             category_counts = category_counts.sort_values("Count", ascending=False)
         else:
-            category_counts = category_counts.sort_values("Category", ascending=True)
+            category_counts = category_counts.sort_values("Category", ascending=True).reset_index(drop=True)
+        category_counts = category_counts[::-1]
         fig_count = px.bar(
             category_counts,
             y="Category",
