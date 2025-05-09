@@ -101,7 +101,8 @@ if 'comment_published_at' in df_reddit_master.columns:
     df_reddit_master['date'] = pd.to_datetime(df_reddit_master['comment_published_at'], errors='coerce')
 try:
     df_instagram_master = load_blob_csv("instagram_analysis.csv")
-if 'scrape_timestamp' in df_instagram_master.columns:
+    if 'scrape_timestamp' in df_instagram_master.columns:
+        df_instagram_master['date'] = pd.to_datetime(df_instagram_master['scrape_timestamp'], errors='coerce')
     df_instagram_master['date'] = pd.to_datetime(df_instagram_master['scrape_timestamp'], errors='coerce')
 except Exception as e:
     st.warning(f"⚠️ Could not load Instagram data. Reason: {e}")
