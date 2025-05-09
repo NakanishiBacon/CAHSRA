@@ -264,7 +264,7 @@ if source in logo_image_map:
     post_summary += f"<img src='{logo_image_map[source]}' width='32' style='vertical-align:middle;'>"
 else:
     post_summary += "<span style='font-size: 1.5rem;'>📊</span>"
-post_summary += f"<h3 style='margin: 0;'>Total Posts: {len(filtered_df):,} ({source})</h3></div>"
+    post_summary += f"<h3 style='margin: 0;'>Total Posts: {len(filtered_df):,} ({source})</h3></div>"
     post_summary += "<ul style='margin-top:0; margin-bottom:0; font-size:1rem; padding-left: 1.2em; line-height: 1.4;'>"
     for platform in ['YouTube', 'Reddit', 'Instagram', 'Google News']:
         count = filtered_df[filtered_df['source'] == platform].shape[0]
