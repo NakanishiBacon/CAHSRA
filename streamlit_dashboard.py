@@ -85,7 +85,7 @@ with st.container():
 # ========================
 logo_image_map = {
     "YouTube": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_play_button_icon_%282013%E2%80%932017%29.svg/2560px-YouTube_play_button_icon_%282013%E2%80%932017%29.svg.png",
-    "Reddit": "https://upload.wikimedia.org/wikipedia/commons/5/58/Reddit_logo_new.svg.png",
+    "Reddit": "https://dka575ofm4ao0.cloudfront.net/pages-transactional_logos/retina/8612/Reddit_Lockup_3x-19c80010-89b1-4474-b437-a33e29130a9f.png",
     "Instagram": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
     "Google News": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_News_icon.png"
 }
