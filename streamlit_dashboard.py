@@ -132,8 +132,12 @@ else:
                 temp_df = load_blob_csv("google_news_analysis.csv")
             elif src == "YouTube":
                 temp_df = df_youtube_master.copy()
+                if 'comment_published_at' in temp_df.columns:
+                    temp_df['date'] = pd.to_datetime(temp_df['comment_published_at'], errors='coerce')
             elif src == "Reddit":
                 temp_df = df_reddit_master.copy()
+                if 'comment_published_at' in temp_df.columns:
+                    temp_df['date'] = pd.to_datetime(temp_df['comment_published_at'], errors='coerce')
             else:
                 temp_df = load_blob_csv(blob_map[src]["analysis"])
             temp_df["source"] = src
