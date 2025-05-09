@@ -269,7 +269,8 @@ else:
     post_summary += "📊"
 
 logo = logo_image_map.get(source)
-post_summary += f"<strong style='font-size:1.2rem;'><img src='{logo}' width='22' style='vertical-align:middle; margin-right:6px;'> {source} Total Posts: {len(filtered_df):,}</strong>" if logo else f"<strong style='font-size:1.2rem;'>📊 {source} Total Posts: {len(filtered_df):,}</strong>"<ul style='margin: 0; padding: 0 0 0 1.2em; list-style-type: none; font-size: 1.2rem;'>"
+post_summary += f"<strong style='font-size:1.2rem;'><img src='{logo}' width='22' style='vertical-align:middle; margin-right:6px;'> {source} Total Posts: {len(filtered_df):,}</strong>" if logo else f"<strong style='font-size:1.2rem;'>📊 {source} Total Posts: {len(filtered_df):,}</strong>"
+post_summary += "<ul style='margin: 0; padding: 0 0 0 1.2em; list-style-type: none; font-size: 1.2rem;'>""
 
 if source == "Combined":
     
