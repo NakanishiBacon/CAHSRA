@@ -88,7 +88,7 @@ with st.container():
 st.sidebar.header("🎛️ Controls")
 logo_image_map = {
     "YouTube": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_play_button_icon_%282013%E2%80%932017%29.svg/2560px-YouTube_play_button_icon_%282013%E2%80%932017%29.svg.png",
-    "Reddit": "https://www.redditstatic.com/desktop2x/img/favicon/android-icon-192x192.png",  # Updated Reddit logo URL
+    "Reddit": "https://www.redditinc.com/assets/images/site/reddit-logo.png",
     "Instagram": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
     "Google News": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_News_icon.png"
 }
