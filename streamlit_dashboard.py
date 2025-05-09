@@ -87,18 +87,12 @@ with st.container():
 st.sidebar.header("🎛️ Controls")
 logo_image_map = {
     "YouTube": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_play_button_icon_%282013%E2%80%932017%29.svg/2560px-YouTube_play_button_icon_%282013%E2%80%932017%29.svg.png",
-    "Reddit": "https://upload.wikimedia.org/wikipedia/commons/5/58/Reddit_logo_new.svg",
+    "Reddit": "https://redditinc.com/hs-fs/hubfs/Reddit%20Inc/Content/Brand%20Page/Reddit_Logo.png",
     "Instagram": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
     "Google News": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_News_icon.png"
 }
 
-logo_map = {
-    "Combined": None,
-    "YouTube": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_play_button_icon_%282013%E2%80%932017%29.svg/2560px-YouTube_play_button_icon_%282013%E2%80%932017%29.svg.png",
-    "Reddit": "https://upload.wikimedia.org/wikipedia/commons/5/58/Reddit_logo_new.svg",
-    "Instagram": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
-    "Google News": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_News_icon.png"
-}
+
 
 source_options = ["Combined", "YouTube", "Reddit", "Instagram", "Google News"]
 labeled_options = [src for src in source_options]
@@ -266,7 +260,7 @@ post_summary = f"\n"
 if source in logo_image_map:
     post_summary += f""
 else:
-    post_summary += ""
+    pass  # Removed duplicated 📊
 
 logo = logo_image_map.get(source)
 post_summary += f"<strong style='font-size:1.2rem;'><img src='{logo}' width='22' style='vertical-align:middle; margin-right:6px;'> {source} Total Posts: {len(filtered_df):,}</strong>" if logo else f"<strong style='font-size:1.2rem;'>📊 {source} Total Posts: {len(filtered_df):,}</strong>"
