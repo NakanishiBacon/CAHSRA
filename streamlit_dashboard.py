@@ -266,7 +266,7 @@ post_summary = f"\n"
 if source in logo_image_map:
     post_summary += f""
 else:
-    post_summary += "📊"
+    post_summary += ""
 
 logo = logo_image_map.get(source)
 post_summary += f"<strong style='font-size:1.2rem;'><img src='{logo}' width='22' style='vertical-align:middle; margin-right:6px;'> {source} Total Posts: {len(filtered_df):,}</strong>" if logo else f"<strong style='font-size:1.2rem;'>📊 {source} Total Posts: {len(filtered_df):,}</strong>"
