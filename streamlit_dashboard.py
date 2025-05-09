@@ -81,7 +81,13 @@ with st.container():
     """)
 
 # ========================
-# Sidebar: Data Source Selection and Filters
+# Sidebar: Combined Time Range Info
+if source == "Combined" and 'date' in df_analysis.columns and df_analysis['date'].notna().any():
+    combined_min = df_analysis['date'].min().strftime('%B %d, %Y @ %I:%M:%S %p')
+    combined_max = df_analysis['date'].max().strftime('%B %d, %Y @ %I:%M:%S %p')
+    st.sidebar.markdown(f"<span style='font-size: 0.9rem;'><strong>📅 Combined Time Range:</strong><br>{combined_min} to {combined_max}</span>", unsafe_allow_html=True)
+
+# ========================
 # ========================
 st.sidebar.header("🎛️ Controls")
 logo_map = {
