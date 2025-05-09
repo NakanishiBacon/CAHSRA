@@ -449,7 +449,6 @@ with st.expander("📈 How Has Sentiment Changed Over Time?", expanded=True):
 # ========================
 # Sentiment Momentum
 with st.expander("🚀 Where Is Sentiment Gaining or Losing Momentum?", expanded=True):
-    st.markdown("This line chart illustrates the week-over-week momentum of sentiment for one selected category.")
     selected_momentum_category = st.selectbox("Choose a sentiment category to analyze momentum:", [category_label_map[k] for k in selected_category_keys], key="momentum_category_selector")
     selected_momentum_key = reverse_label_map[selected_momentum_category]
     st.markdown("This line chart illustrates the week-over-week momentum of sentiment for one selected category.")
