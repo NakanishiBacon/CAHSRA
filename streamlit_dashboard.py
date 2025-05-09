@@ -435,17 +435,15 @@ with st.expander("📈 How Has Sentiment Changed Over Time?", expanded=True):
             time_series = trend_df.groupby(trend_df['date'].dt.to_period('Y'))[selected_category_keys].mean().reset_index()
         else:
             time_series = trend_df.groupby(trend_df['date'].dt.to_period('W'))[selected_category_keys].mean().reset_index()
-
         time_series['date'] = time_series['date'].dt.start_time
-
         if not time_series.empty:
             fig_time_series = px.line(
-    time_series.rename(columns=category_label_map),
-    x='date',
-    y=[category_label_map[k] for k in selected_category_keys],
-    title=f"{trend_granularity} Sentiment Trend"
-)
-fig_time_series.update_xaxes(title_text=trend_granularity + " Date")
+                time_series.rename(columns=category_label_map),
+                x='date',
+                y=[category_label_map[k] for k in selected_category_keys],
+                title=f"{trend_granularity} Sentiment Trend"
+            )
+            fig_time_series.update_xaxes(title_text=trend_granularity + " Date")
             fig_time_series.update_layout(xaxis_showgrid=False, yaxis_showgrid=False, legend_title_text='')
             fig_time_series.update_traces(hovertemplate='<b>%{x}</b><br>Sentiment=%{y:.2f}')
             st.plotly_chart(fig_time_series, use_container_width=True)
