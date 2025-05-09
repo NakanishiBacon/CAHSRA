@@ -95,7 +95,7 @@ logo_image_map = {
 logo_map = {
     "Combined": None,
     "YouTube": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_play_button_icon_%282013%E2%80%932017%29.svg/2560px-YouTube_play_button_icon_%282013%E2%80%932017%29.svg.png",
-    "Reddit": "https://upload.wikimedia.org/wikipedia/en/thumb/b/bd/Reddit_Logo_Icon.svg/250px-Reddit_Logo_Icon.svg.png",
+    "Reddit": "https://upload.wikimedia.org/wikipedia/en/thumb/b/bd/Reddit_Logo_Icon.svg/1024px-Reddit_Logo_Icon.svg.png",
     "Instagram": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
     "Google News": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_News_icon.png"
 }
@@ -268,7 +268,8 @@ if source in logo_image_map:
 else:
     post_summary += "📊"
 
-post_summary += f"<strong style='font-size:1.2rem;'>{source} Total Posts: {len(filtered_df):,}</strong><ul style='margin: 0; padding: 0 0 0 1.2em; list-style-type: none; font-size: 1.2rem;'>"
+logo = logo_image_map.get(source)
+post_summary += f"<strong style='font-size:1.2rem;'><img src='{logo}' width='22' style='vertical-align:middle; margin-right:6px;'> {source} Total Posts: {len(filtered_df):,}</strong>" if logo else f"<strong style='font-size:1.2rem;'>📊 {source} Total Posts: {len(filtered_df):,}</strong>"<ul style='margin: 0; padding: 0 0 0 1.2em; list-style-type: none; font-size: 1.2rem;'>"
 
 if source == "Combined":
     
