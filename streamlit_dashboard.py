@@ -256,18 +256,18 @@ if source in logo_image_map:
 else:
     post_summary += "📊"
 
-post_summary += f"**{source} Total Posts: {len(filtered_df):,}**\n"
+post_summary += f"<strong style='font-size:1.2rem;'>{source} Total Posts: {len(filtered_df):,}</strong><ul style='margin: 0; padding: 0 0 0 1.2em; list-style-type: none; font-size: 1.2rem;'>"
 
 if source == "Combined":
-    post_summary += "\n* "
+    
     for platform in ['YouTube', 'Reddit', 'Instagram', 'Google News']:
         count = filtered_df[filtered_df['source'] == platform].shape[0]
         logo = logo_image_map.get(platform)
         if logo:
-            post_summary += f"\n* **{platform}**: {count:,} posts\n* "
+            post_summary += f"<li style='list-style-type:none; margin: 0 0 4px 0;'><img src='{logo}' width='18' style='vertical-align:middle; margin-right:6px;'><strong>{platform}</strong>: {count:,} posts</li>"
         else:
             post_summary += f"\n* **{platform}**: {count:,} posts\n* "
-    post_summary += "\n"
+    post_summary += "</ul>"
 
 total_post_placeholder.markdown(post_summary, unsafe_allow_html=True)
 
