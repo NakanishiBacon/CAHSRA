@@ -84,8 +84,28 @@ with st.container():
 # Sidebar: Data Source Selection and Filters
 # ========================
 st.sidebar.header("🎛️ Controls")
+logo_map = {
+    "Combined": None,
+    "YouTube": "https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg",
+    "Reddit": "https://upload.wikimedia.org/wikipedia/en/thumb/b/bd/Reddit_Logo_Icon.svg/1024px-Reddit_Logo_Icon.svg.png",
+    "Instagram": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
+    "Google News": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_News_icon.png"
+}
+
 source_options = ["Combined", "YouTube", "Reddit", "Instagram", "Google News"]
-source = st.sidebar.selectbox("Choose data source", source_options, index=source_options.index("Combined"), key="source_selector")
+labeled_options = [
+    f"<img src='{logo_map[src]}' width='20' style='vertical-align:middle;margin-right:8px;'> {src}" if logo_map[src] else src
+    for src in source_options
+]
+label_to_source = dict(zip(labeled_options, source_options))
+selected_label = st.sidebar.selectbox(
+    "Choose data source",
+    options=labeled_options,
+    format_func=lambda x: x,
+    index=source_options.index("Combined"),
+    key="source_selector"
+)
+source = label_to_source[selected_label]
 
 # ========================
 # Load Raw Master Data
